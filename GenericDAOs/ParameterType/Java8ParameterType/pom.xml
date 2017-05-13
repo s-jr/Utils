@@ -11,6 +11,8 @@
 
 	<artifactId>java8-parameter-type</artifactId>
 	<name>Java8ParameterType</name>
+	<description>The ParameterTypes for Java 8 Time API</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 	<dependencies>
 		<dependency>

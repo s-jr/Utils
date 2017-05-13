@@ -11,6 +11,8 @@
 
 	<artifactId>joda-parameter-type</artifactId>
 	<name>JodaParameterType</name>
+	<description>The ParameterTypes for JodaTime</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 	<dependencies>
 		<dependency>

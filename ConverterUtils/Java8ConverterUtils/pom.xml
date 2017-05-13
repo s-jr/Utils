@@ -11,6 +11,9 @@
 
 	<artifactId>java8-converter-utils</artifactId>
 	<name>Java8ConverterUtils</name>
+	<description>The ConverterUtils for the Java 8 Time API</description>
+	<url>https://github.com/s-jr/Utils</url>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

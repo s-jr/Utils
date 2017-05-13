@@ -11,6 +11,8 @@
 
 	<artifactId>base-parameter-type</artifactId>
 	<name>BaseParameterType</name>
+	<description>The Basic ParameterTypes</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 
 </project>

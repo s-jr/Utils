@@ -11,6 +11,8 @@
 
 	<artifactId>generic-daos-impl</artifactId>
 	<name>GenericDAOs Impl</name>
+	<description>The implementation of the GenericDAOs</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 	<dependencies>
 		<dependency>

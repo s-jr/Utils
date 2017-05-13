@@ -11,6 +11,8 @@
 
 	<artifactId>joda-converter-utils</artifactId>
 	<name>JodaConverterUtils</name>
+	<description>The ConverterUtils for JodaTime</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 	<dependencies>
 		<dependency>

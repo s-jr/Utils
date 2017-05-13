@@ -11,5 +11,7 @@
 
 	<artifactId>generic-daos-api</artifactId>
 	<name>GenericDAOs API</name>
+	<description>The API for the GenericDAOs</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 </project>

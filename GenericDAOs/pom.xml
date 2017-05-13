@@ -13,6 +13,8 @@
 	<packaging>pom</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>GenericDAOs</name>
+	<description>The parent Project for the GenericDAOs projects</description>
+	<url>https://github.com/s-jr/Utils</url>
 
 	<modules>
 		<module>ParameterType</module>
