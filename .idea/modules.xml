@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType/BaseParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType/BaseParameterType.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/ConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/ConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" />

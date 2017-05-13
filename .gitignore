@@ -118,3 +118,4 @@ fabric.properties
 .dropbox
 .dropbox.attr
 .dropbox.cache
+testDB.*.db

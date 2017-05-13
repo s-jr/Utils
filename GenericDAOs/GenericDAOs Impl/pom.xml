@@ -4,7 +4,7 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>generic-daos</artifactId>
-		<groupId>net.sjr.sql</groupId>
+		<groupId>net.s-jr.sql</groupId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>net.sjr.sql</groupId>
+			<groupId>net.s-jr.sql</groupId>
 			<artifactId>generic-daos-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
@@ -30,14 +30,14 @@
 			<version>2.8.2</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sjr.sql.parametertype</groupId>
-			<artifactId>parameter-type</artifactId>
+			<groupId>net.s-jr.sql.parametertype</groupId>
+			<artifactId>base-parameter-type</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sjr.converterutils</groupId>
-			<artifactId>converter-utils</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.5</version>
 		</dependency>
 	</dependencies>
 
