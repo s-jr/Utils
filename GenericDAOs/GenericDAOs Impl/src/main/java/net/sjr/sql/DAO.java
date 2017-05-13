@@ -102,8 +102,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Holt aus dem ResultSet alle wichtigen Daten und erstellt aus diesem ein neues Objekt
 	 *
 	 * @param rs Das ResultSet mit den Daten
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return Ein neues Objekt aus dem ResultSet
-	 * @throws SQLException
+	 * @throws SQLException wenn eine SQLException auftritt
 	 */
 	protected abstract T getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException;
 

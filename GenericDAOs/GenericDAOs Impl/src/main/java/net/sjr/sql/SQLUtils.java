@@ -29,7 +29,9 @@ public final class SQLUtils {
 	/**
 	 * Wandelt den felder String vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
-	 * @param felder der umzuwandelnde String
+	 * @param felder   der umzuwandelnde String
+	 * @param multOp   das Trennzeichen zwischen den Klauseln
+	 * @param operator der Operator
 	 * @return der umgewandelte String
 	 */
 	public static String getFragezeichenSelect(final String felder, String multOp, String operator) {
@@ -43,6 +45,8 @@ public final class SQLUtils {
 	 * @param rs            das ResultSet mit der ID
 	 * @param dao           das DAO mit dem zur not gesucht werden soll
 	 * @param loadedObjects die geladenen Objekte, die durchsucht werden sollen
+	 * @param <T>           der Typ der DAO
+	 * @param <P>           der Primary Typ des Types der DAO
 	 * @return das (evtl. geladene) Objekt oder null, wenn nicht vorhanden
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */

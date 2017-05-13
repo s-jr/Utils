@@ -42,7 +42,7 @@ public class Parameter {
 	 * @param pst      Statement in welches eingesetzt werden soll
 	 * @param position Position an die eingesetzt werden soll
 	 * @return neue Position für den nächsten Parameter
-	 * @throws SQLException
+	 * @throws SQLException wenn eine SQLException aufgetreten ist
 	 */
 	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
 		final Object actualValue;

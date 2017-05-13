@@ -21,7 +21,7 @@ public class ParameterList extends LinkedList<Parameter> {
 	 * @param pst      das PreparedStatement, in welches eingefügt werden soll
 	 * @param position die Position ab der eingefügt werden soll
 	 * @return die Position hinter dem zuletzt eingefügten Parameter
-	 * @throws SQLException
+	 * @throws SQLException Wenn eine SQLException aufgetreten ist
 	 */
 	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
 		int newPosition = position;
