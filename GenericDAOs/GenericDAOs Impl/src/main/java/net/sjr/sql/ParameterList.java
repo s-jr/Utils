@@ -2,17 +2,9 @@ package net.sjr.sql;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
-public class ParameterList implements Iterable<Parameter> {
-	private final List<Parameter> params = new LinkedList<Parameter>();
-
-	@Override
-	public String toString() {
-		return "ParameterList [params=" + params + "]";
-	}
+public class ParameterList extends LinkedList<Parameter> {
 
 	/**
 	 * Erstellt eine neue Parameterliste.
@@ -33,7 +25,7 @@ public class ParameterList implements Iterable<Parameter> {
 	 */
 	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
 		int newPosition = position;
-		for (Parameter param : params) {
+		for (Parameter param : this) {
 			newPosition = param.setParameter(pst, newPosition);
 		}
 		return newPosition;
@@ -47,16 +39,11 @@ public class ParameterList implements Iterable<Parameter> {
 	public void addParameter(final Object... objects) {
 		for (Object o : objects) {
 			if (o instanceof Parameter) {
-				params.add((Parameter) o);
+				add((Parameter) o);
 			}
 			else {
 				addParameter(new Parameter(o));
 			}
 		}
-	}
-
-	@Override
-	public Iterator<Parameter> iterator() {
-		return params.iterator();
 	}
 }

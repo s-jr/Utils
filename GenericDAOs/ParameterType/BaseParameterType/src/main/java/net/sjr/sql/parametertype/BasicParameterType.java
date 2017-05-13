@@ -41,7 +41,7 @@ public final class BasicParameterType implements ParameterType {
 			pst.setTimestamp(pos, (Timestamp) value);
 		}
 		else if (value instanceof java.util.Date) {
-			pst.setDate(pos, new Date(((java.util.Date) value).getTime()));
+			pst.setTimestamp(pos, new Timestamp(((java.util.Date) value).getTime()));
 		}
 		else if (value instanceof BigDecimal) {
 			pst.setBigDecimal(pos, (BigDecimal) value);

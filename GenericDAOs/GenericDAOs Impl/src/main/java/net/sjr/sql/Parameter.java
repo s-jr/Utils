@@ -13,6 +13,20 @@ public class Parameter {
 	private final Object value;
 	private final Integer type;
 
+	static {
+		loadClass("net.sjr.sql.parametertype.BasicParameterType");
+		loadClass("net.sjr.sql.parametertype.Java8ParameterType");
+		loadClass("net.sjr.sql.parametertype.JodaParameterType");
+	}
+
+	private static void loadClass(String s) {
+		try {
+			Class.forName(s);
+		}
+		catch (ClassNotFoundException ignored) {
+		}
+	}
+
 	public Parameter(final Object value) {
 		this(value, null);
 	}
