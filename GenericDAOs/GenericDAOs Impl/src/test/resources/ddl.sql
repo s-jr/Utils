@@ -1,0 +1,6 @@
+CREATE TABLE Test (
+  testID INTEGER PRIMARY KEY AUTO_INCREMENT,
+  s      TEXT,
+  i      INTEGER,
+  test2  LONG
+);
