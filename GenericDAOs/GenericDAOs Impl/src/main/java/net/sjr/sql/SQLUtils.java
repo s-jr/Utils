@@ -39,6 +39,18 @@ public final class SQLUtils {
 	}
 
 	/**
+	 * Wandelt den felder String vom Format "colA, colB" in das Format "tableName.colA, tableName.colB" um
+	 *
+	 * @param felder    der umzuwandelnde String
+	 * @param tableName der Tabellenname
+	 *
+	 * @return der umgewandelte String
+	 */
+	public static String fullQualifyTableName(final String felder, String tableName) {
+		return tableName + "." + felder.replaceAll(", ", ", " + tableName + ".");
+	}
+
+	/**
 	 * lädt ein Objekt aus den bereits geladenen Objekten oder zur not aus der DAO
 	 *
 	 * @param rsPos         Position der ID im ResultSet

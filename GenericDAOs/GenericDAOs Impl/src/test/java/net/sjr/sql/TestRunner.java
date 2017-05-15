@@ -89,9 +89,12 @@ public class TestRunner {
 		}
 	}
 
-	@Test(dependsOnMethods = {"testLoadAll", "testLoadOne"})
-	public void testDeleteFromPool() {
-		try (TestDAO tdao = new TestDAO(con)) {
+	@Test(dependsOnMethods = {"testLoadAll", "testLoadOne", "testDeleteKreuz"})
+	public void testDelete() {
+		try (TestDAO tdao = new TestDAO(con);
+			 KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			kdao.deleteKreuzFromDB(testClass, testClass2);
+
 			tdao.deleteFromDB(testClass);
 			Assert.assertNull(testClass.getPrimary());
 
@@ -100,7 +103,7 @@ public class TestRunner {
 	}
 
 	@Test(dependsOnMethods = {"testInsert"}, expectedExceptions = {NoNullTypeException.class})
-	public void noNullType() {
+	public void testNoNullType() {
 		try (Test2DAO tdao = new Test2DAO(con)) {
 			TestClass2 neu = new TestClass2();
 			tdao.insertIntoDB(neu);
@@ -108,7 +111,7 @@ public class TestRunner {
 	}
 
 	@Test(dependsOnMethods = {"testInsert"}, expectedExceptions = {UnsupportedValueException.class})
-	public void unsupportedValue() {
+	public void testUnsupportedValue() {
 		try (UnsupportedDAO udao = new UnsupportedDAO(con)) {
 			UnsupportedClass neu = new UnsupportedClass();
 			neu.setO(new Object());
@@ -122,10 +125,38 @@ public class TestRunner {
 	}
 
 	@Test(dependsOnMethods = {"testLoadAll", "testLoadOne"})
-	public void loadOneFromCol() {
+	public void testLoadOneFromCol() {
 		try (TestDAO tdao = new TestDAO(con)) {
 			TestClass actual = tdao.getOneFromTest2(testClass2);
 			Assert.assertEquals(actual, testClass);
+		}
+	}
+
+	@Test
+	public void testLoadAfromB() {
+		List<TestClass> expected = Arrays.asList(testClass);
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			List<TestClass> actual = kdao.loadAfromB(testClass2);
+			Assert.assertEquals(actual, expected);
+		}
+	}
+
+	@Test
+	public void testLoadBfromA() {
+		List<TestClass2> expected = Arrays.asList(testClass2);
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			List<TestClass2> actual = kdao.loadBfromA(testClass);
+			Assert.assertEquals(actual, expected);
+		}
+	}
+
+	@Test(dependsOnMethods = {"testLoadAfromB", "testLoadBfromA"})
+	public void testDeleteKreuz() {
+		try (KreuzTestDAO tdao = new KreuzTestDAO(con)) {
+			tdao.deleteKreuzFromDB(testClass, testClass2);
+
+			Assert.assertEquals(tdao.loadAfromB(testClass2).size(), 0);
+			Assert.assertEquals(tdao.loadBfromA(testClass).size(), 0);
 		}
 	}
 }

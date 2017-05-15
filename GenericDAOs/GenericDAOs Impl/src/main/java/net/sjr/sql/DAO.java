@@ -44,7 +44,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return Alle Datenbankfelder inklusive ID mit Komma getrennt
 	 */
 	protected String getFelderID() {
-		return getPrimaryCol() + ", " + getFelder();
+		return SQLUtils.fullQualifyTableName(getPrimaryCol() + ", " + getFelder(), getTable());
 	}
 
 	/**
@@ -64,6 +64,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 
 	/**
 	 * @param v Das Objekt von dem die Parameterliste erstellt werden soll
+	 *
 	 * @return eine ParameterList aller Parameter Spalten für die DB
 	 */
 	protected abstract ParameterList getPList(T v);
@@ -72,6 +73,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Wird aufgerufen wärend einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v das einzufügende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeInsert(T v) {
@@ -82,6 +84,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Wird aufgerufen wärend einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v das upzudatende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeUpdate(T v) {
@@ -92,6 +95,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Wird aufgerufen wärend einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v das zu löschende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeDelete(T v) {
@@ -101,9 +105,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	/**
 	 * Holt aus dem ResultSet alle wichtigen Daten und erstellt aus diesem ein neues Objekt
 	 *
-	 * @param rs Das ResultSet mit den Daten
+	 * @param rs            Das ResultSet mit den Daten
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
 	 * @return Ein neues Objekt aus dem ResultSet
+	 *
 	 * @throws SQLException wenn eine SQLException auftritt
 	 */
 	protected abstract T getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException;
@@ -127,7 +133,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Lädt ein Objekt von T an Hand seiner PrimaryID
 	 *
 	 * @param primary die PrimaryID des Objektes
+	 *
 	 * @return das Objekt, niemals null
+	 *
 	 * @throws EntryNotFoundException wenn es kein Objekt mit der ID gibt
 	 */
 	public T loadFromID(final P primary) {
@@ -199,7 +207,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * <b>Das Objekt darf noch keine PrimaryID haben!</b>
 	 *
 	 * @param v das einzufügende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
+	 *
 	 * @throws IllegalStateException wenn das Objekt eine PrimaryID hat
 	 */
 	public Map<String, P> insertIntoDB(final T v) {
@@ -272,7 +282,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu aktualisierende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
+	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	public Map<String, P> updateIntoDB(final T v) {
@@ -321,7 +333,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu löschende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
+	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	public Map<String, P> deleteFromDB(final T v) {
@@ -357,6 +371,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
 	 *
 	 * @param v das einzufügende oder zu aktualisierende Objekt
+	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
 	public Map<String, P> insertOrUpdate(final T v) {
@@ -375,12 +390,30 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @param col           Die Spalte für WHERE
 	 * @param param         Der Wert für WHERE
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
 	 * @return das gefundene Objekt. Niemals null
+	 *
 	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
-
 	protected T loadOneFromCol(final String join, final String col, final Object param, final DBObject... loadedObjects) {
-		List<T> list = loadAllFromCol(join, col, param, "1", null, loadedObjects);
+		return loadOneFromCol(join, col, param, null, loadedObjects);
+	}
+
+	/**
+	 * Lädt einen Eintrag aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join          Die JOIN Klausel oder null
+	 * @param col           Die Spalte für WHERE
+	 * @param param         Der Wert für WHERE
+	 * @param cacheKey      der Key für den pstCache
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
+	 * @return das gefundene Objekt. Niemals null
+	 *
+	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
+	 */
+	protected T loadOneFromCol(final String join, final String col, final Object param, final String cacheKey, final DBObject... loadedObjects) {
+		List<T> list = loadAllFromCol(join, col, param, "1", null, cacheKey, loadedObjects);
 		if (list.size() < 1) {
 			throw new EntryNotFoundException(col, param);
 		}
@@ -400,29 +433,61 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @param limit         das Limit für die Anzahl der Ergebnisse oder null
 	 * @param order         Die ORDER Klausel oder null
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals null
 	 */
-
-	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order,
-									 final DBObject... loadedObjects) {
-		return loadAllFromWhere(join, col + "=?", new ParameterList(param), limit, order, loadedObjects);
+	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final DBObject... loadedObjects) {
+		return loadAllFromCol(join, col, param, limit, order, null, loadedObjects);
 	}
 
 	/**
 	 * Lädt alle möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
 	 *
 	 * @param join          Die JOIN Klausel oder null
-	 * @param where         Die WHERE Klausel
-	 * @param params        Die Parameter
+	 * @param col           Die Spalte für WHERE
+	 * @param param         Der Wert für WHERE
+	 * @param limit         das Limit für die Anzahl der Ergebnisse oder null
+	 * @param order         Die ORDER Klausel oder null
+	 * @param cacheKey      der Key für den pstCache
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
+	 * @return eine Liste aller gefundenen Objekte. Niemals null
+	 */
+	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+		return loadAllFromWhere(join, col + "=?", new ParameterList(param), limit, order, cacheKey, loadedObjects);
+	}
+
+	/**
+	 * Lädt alle möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join          Die JOIN Klausel oder null
+	 * @param where         Die WHERE Klausel oder null
+	 * @param params        Die Parameter oder null
 	 * @param limit         das Limit für die Anzahl der Ergebnisse oder null
 	 * @param order         Die ORDER Klausel oder null
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals null
 	 */
+	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final DBObject... loadedObjects) {
+		return loadAllFromWhere(join, where, params, limit, order, null, loadedObjects);
+	}
 
-	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order,
-									   final DBObject... loadedObjects) {
-		try (PreparedStatement pst = getPst(getFelderID(), join, where, limit, order)) {
+	/**
+	 * Lädt alle möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join          Die JOIN Klausel oder null
+	 * @param where         Die WHERE Klausel oder null
+	 * @param params        Die Parameter oder null
+	 * @param limit         das Limit für die Anzahl der Ergebnisse oder null
+	 * @param order         Die ORDER Klausel oder null
+	 * @param cacheKey      der Key für den pstCache
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
+	 * @return eine Liste aller gefundenen Objekte. Niemals null
+	 */
+	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+		try (PreparedStatement pst = getPst(getFelderID(), join, where, limit, order, cacheKey)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -450,24 +515,52 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @param join  Die JOIN Klausel oder null
 	 * @param col   Die Spalte für WHERE
 	 * @param param Der Wert für WHERE
+	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals null
 	 */
-
 	protected long loadCountFromCol(final String join, final String col, final Object param) {
-		return loadCountFromWhere(join, col + "=?", new ParameterList(param));
+		return loadCountFromCol(join, col, param, null);
+	}
+
+	/**
+	 * Lädt die Anzahl aller möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join     Die JOIN Klausel oder null
+	 * @param col      Die Spalte für WHERE
+	 * @param param    Der Wert für WHERE
+	 * @param cacheKey der Key für den pstCache
+	 *
+	 * @return eine Liste aller gefundenen Objekte. Niemals null
+	 */
+	protected long loadCountFromCol(final String join, final String col, final Object param, final String cacheKey) {
+		return loadCountFromWhere(join, col + "=?", new ParameterList(param), cacheKey);
 	}
 
 	/**
 	 * Lädt die Anzahl aller möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
 	 *
 	 * @param join   Die JOIN Klausel oder null
-	 * @param where  Die WHERE Klausel
+	 * @param where  Die WHERE Klausel oder null
 	 * @param params Die Parameter
+	 *
 	 * @return die Anzahl der Parameter
 	 */
-
 	protected long loadCountFromWhere(final String join, final String where, final ParameterList params) {
-		try (PreparedStatement pst = getPst("count(*)", join, where, null, null)) {
+		return loadCountFromWhere(join, where, params, null);
+	}
+
+	/**
+	 * Lädt die Anzahl aller möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join     Die JOIN Klausel oder null
+	 * @param where    Die WHERE Klausel oder null
+	 * @param params   Die Parameter oder null
+	 * @param cacheKey der Key für den pstCache
+	 *
+	 * @return die Anzahl der Parameter
+	 */
+	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
+		try (PreparedStatement pst = getPst("count(*)", join, where, null, null, cacheKey)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -482,9 +575,37 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		}
 	}
 
-
+	/**
+	 * Lädt einen Liste mit einem einzigen Wert als String
+	 *
+	 * @param feld   das Feld aus dem der Wert geladen werden soll
+	 * @param join   Die JOIN Klausel oder null
+	 * @param where  Die WHERE Klausel oder null
+	 * @param params Die Parameter oder null
+	 * @param limit  das Limit für die Anzahl der Ergebnisse oder null
+	 * @param order  Die ORDER Klausel oder null
+	 *
+	 * @return die Liste mit Strings
+	 */
 	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order) {
-		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, null, null)) {
+		return loadSingleValuesAsString(feld, join, where, params, limit, order, null);
+	}
+
+	/**
+	 * Lädt einen Liste mit einem einzigen Wert als String
+	 *
+	 * @param feld     das Feld aus dem der Wert geladen werden soll
+	 * @param join     Die JOIN Klausel oder null
+	 * @param where    Die WHERE Klausel oder null
+	 * @param params   Die Parameter oder null
+	 * @param limit    das Limit für die Anzahl der Ergebnisse oder null
+	 * @param order    Die ORDER Klausel oder null
+	 * @param cacheKey der Key für den pstCache
+	 *
+	 * @return die Liste mit Strings
+	 */
+	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey) {
+		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, null, null, cacheKey)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -509,14 +630,19 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		}
 	}
 
-	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order) throws SQLException {
-		return connection.prepareStatement(
-				"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : where))
-						+ (getDtype() != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
-						+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
+	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey) throws SQLException {
+		PreparedStatement result = cacheKey == null ? null : pstCache.get(cacheKey);
+		if (result == null) {
+			result = connection.prepareStatement(
+					"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : where))
+							+ (getDtype() != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
+							+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
+			if (cacheKey != null) pstCache.put(cacheKey, result);
+		}
+		return result;
 	}
 
-	private void logPst(PreparedStatement pst) {
+	void logPst(PreparedStatement pst) {
 		log.debug(SQLUtils.pstToSQL(pst));
 	}
 
