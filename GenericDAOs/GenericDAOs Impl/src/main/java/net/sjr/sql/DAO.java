@@ -501,6 +501,43 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @param join          Die JOIN Klausel oder null
 	 * @param where         Die WHERE Klausel oder null
 	 * @param params        Die Parameter oder null
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
+	 * @return eine Liste aller gefundenen Objekte. Niemals null
+	 */
+	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final DBObject... loadedObjects) {
+		return loadOneFromWhere(join, where, params, null, loadedObjects);
+	}
+
+	/**
+	 * Lädt alle möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join          Die JOIN Klausel oder null
+	 * @param where         Die WHERE Klausel oder null
+	 * @param params        Die Parameter oder null
+	 * @param cacheKey      der Key für den pstCache
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 *
+	 * @return eine Liste aller gefundenen Objekte. Niemals null
+	 */
+	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final String cacheKey, final DBObject... loadedObjects) {
+		List<T> list = loadAllFromWhere(join, where, params, "1", null, cacheKey, loadedObjects);
+		if (list.size() < 1) {
+			throw new EntryNotFoundException();
+		}
+		T result = list.get(0);
+		if (result == null) {
+			throw new RuntimeException();
+		}
+		return result;
+	}
+
+	/**
+	 * Lädt alle möglichen Einträge aus der Datenbank mit benutzerspezifizierten Bedingungen
+	 *
+	 * @param join          Die JOIN Klausel oder null
+	 * @param where         Die WHERE Klausel oder null
+	 * @param params        Die Parameter oder null
 	 * @param limit         das Limit für die Anzahl der Ergebnisse oder null
 	 * @param order         Die ORDER Klausel oder null
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen

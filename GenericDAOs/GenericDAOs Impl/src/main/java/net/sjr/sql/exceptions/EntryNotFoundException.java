@@ -8,4 +8,8 @@ public class EntryNotFoundException extends RuntimeException implements Serializ
 	public EntryNotFoundException(final String col, final Object val) {
 		super("Der Eintrag mit " + col + "=" + val + " wurde nicht gefunden!");
 	}
+
+	public EntryNotFoundException() {
+		super("Der Eintrag wurde nicht gefunden!");
+	}
 }
