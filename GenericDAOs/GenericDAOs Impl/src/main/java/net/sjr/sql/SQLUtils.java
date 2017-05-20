@@ -1,6 +1,7 @@
 package net.sjr.sql;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,7 +74,12 @@ public final class SQLUtils {
 		if (loadedObjects != null) {
 			for (DBObject o : loadedObjects) {
 				if (o != null && o.getPrimary().equals(id)) {
-					if (((Class<T>) ((ParameterizedType) dao.getClass().getGenericSuperclass()).getActualTypeArguments()[0]).isInstance(o)) {
+					Type type = dao.getClass();
+					while (type instanceof Class) {
+						type = ((Class) type).getGenericSuperclass();
+					}
+					Class<T> genericClass = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
+					if (genericClass.isInstance(o)) {
 						return (T) o;
 					}
 				}
