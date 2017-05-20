@@ -91,4 +91,32 @@ public final class SQLUtils {
 	public static String pstToSQL(PreparedStatement pst) {
 		return pst.toString().replaceAll("com\\.mysql\\.jdbc\\.JDBC42PreparedStatement@[0-9a-z]+: ", "");
 	}
+
+	/**
+	 * Fügt der WHERE Klausel (wenn nötig) ein IS NULL hinzu
+	 *
+	 * @param where  die WHERE Klausel
+	 * @param params die Parameter, die eingefügt werden
+	 *
+	 * @return die WHERE Klausel mit IS NULLs
+	 */
+	public static String nullableWhere(String where, ParameterList params) {
+		if (where == null || params == null) return where;
+		String[] terme = where.split(" ");
+		StringBuilder result = new StringBuilder();
+		int pos = 0;
+		for (String s : terme) {
+			if (result.length() > 0) result.append(" ");
+			if (s.contains("=?")) {
+				if (params.get(pos).value == null)
+					result.append("(").append(s).append(" OR ").append(s.replace("=?", "")).append(" IS NULL)");
+				else result.append(s);
+				pos++;
+			}
+			else {
+				result.append(s);
+			}
+		}
+		return result.toString();
+	}
 }

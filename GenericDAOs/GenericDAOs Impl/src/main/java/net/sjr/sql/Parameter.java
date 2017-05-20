@@ -10,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class Parameter {
-	private final Object value;
+	final Object value;
 	private final Integer type;
 
 	static {

@@ -1,6 +1,8 @@
 package net.sjr.sql;
 
 import net.sjr.sql.exceptions.UncheckedSQLException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,6 +14,7 @@ import java.util.Map;
  * Created by Jan on 15.05.2017.
  */
 public abstract class KreuzDAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> implements AutoCloseable {
+	private final Logger log = LogManager.getLogger(getClass());
 	private final Map<String, PreparedStatement> pstCache = new HashMap<>();
 
 	protected abstract DAO<A, PA> getaDAO();
@@ -72,7 +75,7 @@ public abstract class KreuzDAO<A extends DBObject<PA>, PA extends Number, B exte
 			PreparedStatement pst = createKreuzPst();
 
 			new ParameterList(a, b).setParameter(pst, 1);
-			getaDAO().logPst(pst);
+			logPst(pst);
 			pst.executeUpdate();
 		}
 		catch (SQLException e) {
@@ -100,12 +103,16 @@ public abstract class KreuzDAO<A extends DBObject<PA>, PA extends Number, B exte
 			PreparedStatement pst = deleteKreuzPst();
 			new ParameterList(a, b).setParameter(pst, 1);
 
-			getaDAO().logPst(pst);
+			logPst(pst);
 			pst.executeUpdate();
 		}
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+	}
+
+	private void logPst(PreparedStatement pst) {
+		log.debug(SQLUtils.pstToSQL(pst));
 	}
 
 	@Override

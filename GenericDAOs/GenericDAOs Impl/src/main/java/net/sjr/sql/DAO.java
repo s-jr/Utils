@@ -525,7 +525,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return eine Liste aller gefundenen Objekte. Niemals null
 	 */
 	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
-		try (PreparedStatement pst = getPst(getFelderID(), join, where, limit, order, cacheKey)) {
+		try (PreparedStatement pst = getPst(getFelderID(), join, where, limit, order, cacheKey, params)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -598,7 +598,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return die Anzahl der Parameter
 	 */
 	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
-		try (PreparedStatement pst = getPst("count(*)", join, where, null, null, cacheKey)) {
+		try (PreparedStatement pst = getPst("count(*)", join, where, null, null, cacheKey, params)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -643,7 +643,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return die Liste mit Strings
 	 */
 	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey) {
-		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, null, null, cacheKey)) {
+		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, null, null, cacheKey, params)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
@@ -668,11 +668,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		}
 	}
 
-	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey) throws SQLException {
+	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
 		PreparedStatement result = cacheKey == null ? null : pstCache.get(cacheKey);
-		if (result == null) {
+		if (result == null || result.isClosed()) {
 			result = getConnection().prepareStatement(
-					"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : where))
+					"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : SQLUtils.nullableWhere(where, params)))
 							+ (getDtype() != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
 							+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
 			if (cacheKey != null) pstCache.put(cacheKey, result);
@@ -680,20 +680,29 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		return result;
 	}
 
-	void logPst(PreparedStatement pst) {
+	private void logPst(PreparedStatement pst) {
 		log.debug(SQLUtils.pstToSQL(pst));
 	}
 
 	@Override
 	public void close() {
+		if (log != null) log.debug("Closing DAO...");
 		for (PreparedStatement pst : pstCache.values()) {
 			try {
 				pst.close();
 			}
 			catch (SQLException e) {
-				log.error(e);
+				if (log != null) log.error(e);
 			}
 		}
 		pstCache.clear();
+		if (dataSource != null) {
+			try {
+				connection.close();
+			}
+			catch (SQLException e) {
+				if (log != null) log.error(e);
+			}
+		}
 	}
 }
