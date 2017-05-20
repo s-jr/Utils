@@ -5,7 +5,7 @@ import java.sql.Connection;
 /**
  * Created by Jan on 15.05.2017.
  */
-public class KreuzTestDAO extends KreuzDAO<TestClass, Integer, TestClass2, Long> {
+public class KreuzTestDAO extends Kreuz2DAO<TestClass, Integer, TestClass2, Long> {
 	private static final String KREUZ = "Kreuz";
 	private static final String COLA = "Test";
 	private static final String COLB = "Test2";
