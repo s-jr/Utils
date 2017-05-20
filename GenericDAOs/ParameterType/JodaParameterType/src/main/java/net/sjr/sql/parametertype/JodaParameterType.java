@@ -1,8 +1,6 @@
-package net.sjr.sql.parametertpye;
+package net.sjr.sql.parametertype;
 
 import net.sjr.converterutils.JodaConverterUtils;
-import net.sjr.sql.parametertype.ParameterType;
-import net.sjr.sql.parametertype.ParameterTypeRegistry;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;

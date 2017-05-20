@@ -1,8 +1,6 @@
-package net.sjr.sql.parametertpye;
+package net.sjr.sql.parametertype;
 
 import net.sjr.converterutils.Java8ConverterUtils;
-import net.sjr.sql.parametertype.ParameterType;
-import net.sjr.sql.parametertype.ParameterTypeRegistry;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
