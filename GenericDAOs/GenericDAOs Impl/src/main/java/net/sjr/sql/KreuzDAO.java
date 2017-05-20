@@ -55,7 +55,7 @@ public abstract class KreuzDAO<A extends DBObject<PA>, PA extends Number, B exte
 	private PreparedStatement createKreuzPst() throws SQLException {
 		PreparedStatement result = pstCache.get("createKreuz");
 		if (result == null) {
-			result = getaDAO().connection.prepareStatement("INSERT INTO " + getKreuzTable() + " (" + getKreuzColA() + ", " + getKreuzColB() + ") VALUES (?, ?)");
+			result = getaDAO().getConnection().prepareStatement("INSERT INTO " + getKreuzTable() + " (" + getKreuzColA() + ", " + getKreuzColB() + ") VALUES (?, ?)");
 			pstCache.put("createKreuz", result);
 		}
 		return result;
@@ -83,7 +83,7 @@ public abstract class KreuzDAO<A extends DBObject<PA>, PA extends Number, B exte
 	private PreparedStatement deleteKreuzPst() throws SQLException {
 		PreparedStatement result = pstCache.get("deleteKreuz");
 		if (result == null) {
-			result = getaDAO().connection.prepareStatement("DELETE FROM " + getKreuzTable() + " WHERE " + getKreuzColA() + "=? AND " + getKreuzColB() + "=?");
+			result = getaDAO().getConnection().prepareStatement("DELETE FROM " + getKreuzTable() + " WHERE " + getKreuzColA() + "=? AND " + getKreuzColB() + "=?");
 			pstCache.put("deleteKreuz", result);
 		}
 		return result;

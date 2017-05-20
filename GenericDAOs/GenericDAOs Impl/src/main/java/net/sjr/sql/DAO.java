@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.sql.DataSource;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.*;
@@ -17,10 +18,21 @@ import java.util.Map;
 
 @SuppressWarnings("ALL")
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements AutoCloseable {
-	private Logger log = LogManager.getLogger(getClass());
+	private final Logger log = LogManager.getLogger(getClass());
 
-	protected final Connection connection;
+	private final DataSource dataSource;
+	private Connection connection;
 	protected final Map<String, PreparedStatement> pstCache = new HashMap<>();
+
+	/**
+	 * Erstellt die DAO mit einer DataSource
+	 *
+	 * @param ds die DataSource
+	 */
+	public DAO(final DataSource ds) {
+		dataSource = ds;
+		connection = null;
+	}
 
 	/**
 	 * Erstellt die DAO mit einer bereits vorhandenen Datenbankverbindung
@@ -29,6 +41,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 */
 	public DAO(final Connection con) {
 		connection = con;
+		dataSource = null;
 	}
 
 	/**
@@ -37,7 +50,32 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @param dao das bereits vorhandene DAO
 	 */
 	public DAO(final DAO<? extends DBObject, ? extends Number> dao) {
-		this(dao.connection);
+		if (dao.dataSource == null) {
+			this.connection = dao.getConnection();
+			this.dataSource = null;
+		}
+		else {
+			this.dataSource = dao.dataSource;
+			this.connection = dao.connection;
+		}
+	}
+
+
+	protected Connection getConnection() {
+		try {
+			if (connection == null || connection.isClosed()) {
+				if (dataSource != null) {
+					connection = dataSource.getConnection();
+				}
+				else {
+					throw new IllegalStateException("Die DAO hat keine Connection und keine DataSource!");
+				}
+			}
+			return connection;
+		}
+		catch (SQLException e) {
+			throw new UncheckedSQLException(e);
+		}
 	}
 
 	/**
@@ -123,7 +161,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	private PreparedStatement loadFromIDPst() throws SQLException {
 		PreparedStatement result = pstCache.get("loadFromID");
 		if (result == null) {
-			result = connection.prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + " WHERE " + getPrimaryCol() + (getDtype() != null ? "=? AND DType" : "") + "=? LIMIT 1");
+			result = getConnection().prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + " WHERE " + getPrimaryCol() + (getDtype() != null ? "=? AND DType" : "") + "=? LIMIT 1");
 			pstCache.put("loadFromID", result);
 		}
 		return result;
@@ -161,7 +199,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	private PreparedStatement loadAllPst() throws SQLException {
 		PreparedStatement result = pstCache.get("loadAll");
 		if (result == null) {
-			result = connection.prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + (getDtype() != null ? " WHERE DType=?" : ""));
+			result = getConnection().prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + (getDtype() != null ? " WHERE DType=?" : ""));
 			pstCache.put("loadAll", result);
 		}
 		return result;
@@ -196,7 +234,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		PreparedStatement result = pstCache.get("insert");
 		if (result == null) {
 			String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-			result = connection.prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ")", Statement.RETURN_GENERATED_KEYS);
+			result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ")", Statement.RETURN_GENERATED_KEYS);
 			pstCache.put("insert", result);
 		}
 		return result;
@@ -271,7 +309,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		PreparedStatement result = pstCache.get("update");
 		if (result == null) {
 			String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-			result = connection.prepareStatement("UPDATE " + getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + getPrimaryCol() + "=?");
+			result = getConnection().prepareStatement("UPDATE " + getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + getPrimaryCol() + "=?");
 			pstCache.put("update", result);
 		}
 		return result;
@@ -322,7 +360,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	private PreparedStatement deletePst() throws SQLException {
 		PreparedStatement result = pstCache.get("delete");
 		if (result == null) {
-			result = connection.prepareStatement("DELETE FROM " + getTable() + " WHERE " + getPrimaryCol() + "=?" + (getDtype() != null ? " AND DType=?" : ""));
+			result = getConnection().prepareStatement("DELETE FROM " + getTable() + " WHERE " + getPrimaryCol() + "=?" + (getDtype() != null ? " AND DType=?" : ""));
 			pstCache.put("delete", result);
 		}
 		return result;
@@ -633,7 +671,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey) throws SQLException {
 		PreparedStatement result = cacheKey == null ? null : pstCache.get(cacheKey);
 		if (result == null) {
-			result = connection.prepareStatement(
+			result = getConnection().prepareStatement(
 					"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : where))
 							+ (getDtype() != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
 							+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
