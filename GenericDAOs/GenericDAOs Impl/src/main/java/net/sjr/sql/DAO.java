@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("ALL")
+@SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue"})
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements AutoCloseable {
 	private final Logger log = LogManager.getLogger(getClass());
 
@@ -185,8 +185,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 			}
 			try (ResultSet rs = getResultSet(pst)) {
 				if (rs.next()) {
-					T b = getFromRS(rs);
-					return b;
+					return getFromRS(rs);
 				}
 				throw new EntryNotFoundException(getPrimaryCol(), primary);
 			}
@@ -217,7 +216,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 				if (getDtype() != null) {
 					new Parameter(getDtype()).setParameter(pst, 1);
 				}
-				List<T> result = new ArrayList<T>();
+				List<T> result = new ArrayList<>();
 				while (rs.next()) {
 					T b = getFromRS(rs);
 					result.add(b);
@@ -566,7 +565,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
-				List<T> result = new ArrayList<T>();
+				List<T> result = new ArrayList<>();
 				while (rs.next()) {
 					T b = getFromRS(rs, loadedObjects);
 					result.add(b);
@@ -684,7 +683,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
-				List<String> result = new ArrayList<String>();
+				List<String> result = new ArrayList<>();
 				while (rs.next()) {
 					result.add(rs.getString(1));
 				}
