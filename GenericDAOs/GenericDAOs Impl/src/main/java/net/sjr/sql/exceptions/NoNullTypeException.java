@@ -16,13 +16,23 @@ public class NoNullTypeException extends RuntimeException implements Serializabl
 	private static String pstToPositionName(PreparedStatement pst, int position) {
 		String sql = SQLUtils.pstToSQL(pst);
 		String[] names;
-		if (sql.contains("UPDATE")) {
-			String namesStr = sql.split("SET ")[1].split(" WHERE")[0];
-			names = namesStr.split("=?, ");
+		try {
+			if (sql.contains("UPDATE")) {
+				String namesStr = sql.split("SET ")[1].split(" WHERE")[0];
+				names = namesStr.split("=\\?, ");
+			}
+			else if (sql.contains("DELETE") || sql.contains("SELECT")) {
+				String namesStr = sql.split(" WHERE ")[1];
+				names = namesStr.split("=\\?( (AND|OR) )?");
+			}
+			else if (sql.contains("INSERT")) {
+				String namesStr = sql.split("\\(")[1].split("\\)")[0];
+				names = namesStr.split(",");
+			}
+			else return "Unbekannt";
 		}
-		else {
-			String namesStr = sql.split("[(]")[1].split("[)]")[0];
-			names = namesStr.split(",");
+		catch (ArrayIndexOutOfBoundsException ignored) {
+			return "Unbekannt";
 		}
 		return names[position - 1];
 	}
