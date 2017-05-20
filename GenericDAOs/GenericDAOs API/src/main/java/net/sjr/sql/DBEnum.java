@@ -5,5 +5,4 @@ package net.sjr.sql;
  */
 public interface DBEnum<T> {
 	T getDBIdentifier();
-
 }
