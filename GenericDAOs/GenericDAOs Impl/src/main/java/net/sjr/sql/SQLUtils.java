@@ -14,7 +14,7 @@ public final class SQLUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	public static String getFragezeichenInsert(final String felder) {
+	static String getFragezeichenInsert(final String felder) {
 		return felder.replaceAll("[a-zA-Z0-9_]+", "?");
 	}
 
@@ -25,7 +25,7 @@ public final class SQLUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	public static String getFragezeichenUpdate(final String felder) {
+	static String getFragezeichenUpdate(final String felder) {
 		return getFragezeichenSelect(felder, ", ", "=");
 	}
 
@@ -38,7 +38,7 @@ public final class SQLUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	public static String getFragezeichenSelect(final String felder, String multOp, String operator) {
+	static String getFragezeichenSelect(final String felder, String multOp, String operator) {
 		return felder.replaceAll(", ", operator + "?" + multOp) + operator + "?";
 	}
 
@@ -50,8 +50,36 @@ public final class SQLUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	public static String fullQualifyTableName(final String felder, String tableName) {
+	static String fullQualifyTableName(final String felder, String tableName) {
 		return tableName + "." + felder.replaceAll(", ", ", " + tableName + ".");
+	}
+
+	/**
+	 * Fügt der WHERE Klausel (wenn nötig) ein IS NULL hinzu
+	 *
+	 * @param where  die WHERE Klausel
+	 * @param params die Parameter, die eingefügt werden
+	 *
+	 * @return die WHERE Klausel mit IS NULLs
+	 */
+	static String nullableWhere(String where, ParameterList params) {
+		if (where == null || params == null) return where;
+		String[] terme = where.split(" ");
+		StringBuilder result = new StringBuilder();
+		int pos = 0;
+		for (String s : terme) {
+			if (result.length() > 0) result.append(" ");
+			if (s.contains("=?")) {
+				if (params.get(pos).value == null)
+					result.append("(").append(s).append(" OR ").append(s.replace("=?", "")).append(" IS NULL)");
+				else result.append(s);
+				pos++;
+			}
+			else {
+				result.append(s);
+			}
+		}
+		return result.toString();
 	}
 
 	/**
@@ -68,7 +96,7 @@ public final class SQLUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "WeakerAccess"})
 	public static <T extends DBObject<P>, P extends Number> T loadedObjectsOrNull(final int rsPos, final ResultSet rs, final DAO<T, P> dao, final DBObject... loadedObjects)
 			throws SQLException {
 		P id = dao.getPrimary(rs, rsPos);
@@ -126,30 +154,114 @@ public final class SQLUtils {
 	}
 
 	/**
-	 * Fügt der WHERE Klausel (wenn nötig) ein IS NULL hinzu
+	 * Holt ein nullbares Boolean aus dem ResultSet
 	 *
-	 * @param where  die WHERE Klausel
-	 * @param params die Parameter, die eingefügt werden
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
 	 *
-	 * @return die WHERE Klausel mit IS NULLs
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static String nullableWhere(String where, ParameterList params) {
-		if (where == null || params == null) return where;
-		String[] terme = where.split(" ");
-		StringBuilder result = new StringBuilder();
-		int pos = 0;
-		for (String s : terme) {
-			if (result.length() > 0) result.append(" ");
-			if (s.contains("=?")) {
-				if (params.get(pos).value == null)
-					result.append("(").append(s).append(" OR ").append(s.replace("=?", "")).append(" IS NULL)");
-				else result.append(s);
-				pos++;
-			}
-			else {
-				result.append(s);
-			}
-		}
-		return result.toString();
+	public static Boolean getNullableBoolean(ResultSet rs, int pos) throws SQLException {
+		boolean result = rs.getBoolean(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Byte aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Byte getNullableByte(ResultSet rs, int pos) throws SQLException {
+		byte result = rs.getByte(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Short aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Short getNullableShort(ResultSet rs, int pos) throws SQLException {
+		short result = rs.getShort(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Int aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Integer getNullableInt(ResultSet rs, int pos) throws SQLException {
+		int result = rs.getInt(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Long aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Long getNullableLong(ResultSet rs, int pos) throws SQLException {
+		long result = rs.getLong(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Float aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Float getNullableFloat(ResultSet rs, int pos) throws SQLException {
+		float result = rs.getFloat(pos);
+		if (rs.wasNull()) return null;
+		return result;
+	}
+
+	/**
+	 * Holt ein nullbares Double aus dem ResultSet
+	 *
+	 * @param rs  das ResultSet aus welchem geholt werden soll
+	 * @param pos die Position in dem ResultSet
+	 *
+	 * @return der Wert oder null
+	 *
+	 * @throws SQLException wenn ein SQL Fehler auftrat
+	 */
+	public static Double getNullableDouble(ResultSet rs, int pos) throws SQLException {
+		double result = rs.getDouble(pos);
+		if (rs.wasNull()) return null;
+		return result;
 	}
 }
