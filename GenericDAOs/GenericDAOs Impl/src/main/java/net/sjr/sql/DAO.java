@@ -293,10 +293,12 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 			type = ((Class) type).getGenericSuperclass();
 		}
 		Class<P> genericClass = (Class<P>) ((ParameterizedType) type).getActualTypeArguments()[1];
-		if (genericClass.equals(Integer.class)) return (P) (Integer) rs.getInt(pos);
-		if (genericClass.equals(Long.class)) return (P) (Long) rs.getLong(pos);
-		if (genericClass.equals(Double.class)) return (P) (Double) rs.getDouble(pos);
-		if (genericClass.equals(Float.class)) return (P) (Float) rs.getFloat(pos);
+		if (genericClass.equals(Integer.class)) return (P) SQLUtils.getNullableInt(rs, pos);
+		if (genericClass.equals(Long.class)) return (P) SQLUtils.getNullableLong(rs, pos);
+		if (genericClass.equals(Byte.class)) return (P) SQLUtils.getNullableByte(rs, pos);
+		if (genericClass.equals(Short.class)) return (P) SQLUtils.getNullableShort(rs, pos);
+		if (genericClass.equals(Double.class)) return (P) SQLUtils.getNullableDouble(rs, pos);
+		if (genericClass.equals(Float.class)) return (P) SQLUtils.getNullableFloat(rs, pos);
 		throw new UnsupportedPrimaryException(genericClass.getName());
 	}
 
@@ -704,16 +706,20 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		}
 	}
 
-	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
+	static PreparedStatement getPst(final Connection connection, final Map<String, PreparedStatement> pstCache, final String table, final String dType, final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
 		PreparedStatement result = cacheKey == null ? null : pstCache.get(cacheKey);
 		if (result == null || result.isClosed()) {
-			result = getConnection().prepareStatement(
-					"SELECT " + select + " FROM " + getTable() + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && getDtype() == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : SQLUtils.nullableWhere(where, params)))
-							+ (getDtype() != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
+			result = connection.prepareStatement(
+					"SELECT " + select + " FROM " + table + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && dType == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : SQLUtils.nullableWhere(where, params)))
+							+ (dType != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
 							+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
 			if (cacheKey != null) pstCache.put(cacheKey, result);
 		}
 		return result;
+	}
+
+	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
+		return getPst(getConnection(), pstCache, getTable(), getDtype(), select, join, where, limit, order, cacheKey, params);
 	}
 
 	private void logPst(PreparedStatement pst) {

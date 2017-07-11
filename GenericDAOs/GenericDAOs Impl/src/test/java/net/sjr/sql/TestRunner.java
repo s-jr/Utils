@@ -159,4 +159,40 @@ public class TestRunner {
 			Assert.assertEquals(tdao.loadBfromA(testClass).size(), 0);
 		}
 	}
+
+	@Test
+	public void testLoadAllCount() {
+		long expected = 1;
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			long actual = kdao.loadAllCount();
+			Assert.assertEquals(actual, expected);
+		}
+	}
+
+	@Test
+	public void testLoadAllCountFromA() {
+		long expected = 1;
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			long actual = kdao.loadAllCountFromA(testClass);
+			Assert.assertEquals(actual, expected);
+		}
+	}
+
+	@Test
+	public void testLoadAllCountFromB() {
+		long expected = 1;
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			long actual = kdao.loadAllCountFromB(testClass2);
+			Assert.assertEquals(actual, expected);
+		}
+	}
+
+	@Test
+	public void testLoadAllKreuze() {
+		List<Kreuz2Objekt<TestClass, Integer, TestClass2, Long>> expected = Arrays.asList(new Kreuz2Objekt<TestClass, Integer, TestClass2, Long>(testClass, testClass2));
+		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
+			List<Kreuz2Objekt<TestClass, Integer, TestClass2, Long>> actual = kdao.loadAllKreuze();
+			Assert.assertEquals(actual, expected);
+		}
+	}
 }
