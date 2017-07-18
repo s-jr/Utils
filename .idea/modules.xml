@@ -7,6 +7,8 @@
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Impl/GenericDAOs Impl.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs Impl/GenericDAOs Impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring Batch/GenericDAOs Spring Batch.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring Batch/GenericDAOs Spring Batch.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/Java8ConverterUtils/Java8ConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/Java8ConverterUtils/Java8ConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType/Java8ParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType/Java8ParameterType.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" />

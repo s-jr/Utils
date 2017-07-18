@@ -9,6 +9,7 @@
         <module name="BaseParameterType" />
         <module name="GenericDAOs API" />
         <module name="GenericDAOs Impl" />
+        <module name="GenericDAOs Spring Batch" />
         <module name="Java8ConverterUtils" />
         <module name="Java8ParameterType" />
         <module name="JodaConverterUtils" />
@@ -22,6 +23,8 @@
       <module name="GenericDAOs" target="1.7" />
       <module name="GenericDAOs API" target="1.7" />
       <module name="GenericDAOs Impl" target="1.7" />
+      <module name="GenericDAOs Spring" target="1.7" />
+      <module name="GenericDAOs Spring Batch" target="1.7" />
       <module name="Java8ConverterUtils" target="1.8" />
       <module name="Java8ParameterType" target="1.8" />
       <module name="JodaConverterUtils" target="1.7" />

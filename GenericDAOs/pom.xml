@@ -11,7 +11,7 @@
 	<groupId>net.s-jr.utils.sql</groupId>
 	<artifactId>generic-daos</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<name>GenericDAOs</name>
 	<description>The parent Project for the GenericDAOs projects</description>
 	<url>https://github.com/s-jr/Utils</url>
@@ -20,6 +20,7 @@
 		<module>ParameterType</module>
 		<module>GenericDAOs API</module>
 		<module>GenericDAOs Impl</module>
+		<module>GenericDAOs Spring</module>
 	</modules>
 
 	<build>

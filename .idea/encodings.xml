@@ -8,6 +8,8 @@
     <file url="file://$PROJECT_DIR$/GenericDAOs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs API" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Impl" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring Batch" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType" charset="UTF-8" />
