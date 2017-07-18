@@ -681,7 +681,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return die Liste mit Strings
 	 */
 	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey) {
-		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, null, null, cacheKey, params)) {
+		try (PreparedStatement pst = getPst("DISTINCT " + feld, join, where, limit, order, cacheKey, params)) {
 			setParameter(params, pst);
 
 			try (ResultSet rs = getResultSet(pst)) {
