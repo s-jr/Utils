@@ -41,14 +41,20 @@ public class Parameter {
 	 *
 	 * @param pst      Statement in welches eingesetzt werden soll
 	 * @param position Position an die eingesetzt werden soll
+	 *
 	 * @return neue Position für den nächsten Parameter
+	 *
 	 * @throws SQLException wenn eine SQLException aufgetreten ist
 	 */
 	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
-		final Object actualValue;
-		if (value instanceof DBEnum) actualValue = ((DBEnum) value).getDBIdentifier();
-		else if (value instanceof DBObject) actualValue = ((DBObject) value).getPrimary();
-		else actualValue = value;
+		Object actualValue = value;
+		while (actualValue instanceof DBConvertable) {
+			if (actualValue instanceof DBEnum) actualValue = ((DBEnum) value).getDBIdentifier();
+			else if (actualValue instanceof DBObject) actualValue = ((DBObject) value).getPrimary();
+			else if (actualValue instanceof DBColumn) actualValue = ((DBColumn) value).toColumn();
+			else throw new UnsupportedValueException(actualValue.getClass());
+		}
+
 
 		if (actualValue == null) {
 			if (type != null) {
