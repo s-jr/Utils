@@ -158,15 +158,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		return null;
 	}
 
-	private PreparedStatement loadFromIDPst() throws SQLException {
-		PreparedStatement result = pstCache.get("loadFromID");
-		if (result == null) {
-			result = getConnection().prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + " WHERE " + getPrimaryCol() + (getDtype() != null ? "=? AND DType" : "") + "=? LIMIT 1");
-			pstCache.put("loadFromID", result);
-		}
-		return result;
-	}
-
 	/**
 	 * Lädt ein Objekt von T an Hand seiner PrimaryID
 	 *
@@ -177,31 +168,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @throws EntryNotFoundException wenn es kein Objekt mit der ID gibt
 	 */
 	public T loadFromID(final P primary) {
-		try {
-			PreparedStatement pst = loadFromIDPst();
-			new Parameter(primary).setParameter(pst, 1);
-			if (getDtype() != null) {
-				new Parameter(getDtype()).setParameter(pst, 2);
-			}
-			try (ResultSet rs = getResultSet(pst)) {
-				if (rs.next()) {
-					return getFromRS(rs);
-				}
-				throw new EntryNotFoundException(getPrimaryCol(), primary);
-			}
-		}
-		catch (SQLException e) {
-			throw new UncheckedSQLException(e);
-		}
-	}
-
-	private PreparedStatement loadAllPst() throws SQLException {
-		PreparedStatement result = pstCache.get("loadAll");
-		if (result == null) {
-			result = getConnection().prepareStatement("SELECT " + getFelderID() + " FROM " + getTable() + (getDtype() != null ? " WHERE DType=?" : ""));
-			pstCache.put("loadAll", result);
-		}
-		return result;
+		return loadOneFromCol(null, getPrimaryCol(), primary, "loadFromID");
 	}
 
 	/**
@@ -210,30 +177,19 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 * @return Eine Liste aller Objekte von T. Niemals null
 	 */
 	public List<T> loadAll() {
-		try {
-			PreparedStatement pst = loadAllPst();
-			try (ResultSet rs = getResultSet(pst)) {
-				if (getDtype() != null) {
-					new Parameter(getDtype()).setParameter(pst, 1);
-				}
-				List<T> result = new ArrayList<>();
-				while (rs.next()) {
-					T b = getFromRS(rs);
-					result.add(b);
-				}
-				return result;
-			}
-		}
-		catch (SQLException e) {
-			throw new UncheckedSQLException(e);
-		}
+		return loadAllFromWhere(null, null, null, null, null, "loadAll");
 	}
 
 	private PreparedStatement insertPst() throws SQLException {
 		PreparedStatement result = pstCache.get("insert");
 		if (result == null) {
 			String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-			result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ")", Statement.RETURN_GENERATED_KEYS);
+			if (getDatabaseType() == DatabaseType.ORACLE) {
+				result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ")", new String[]{getPrimaryCol()});
+			}
+			else {
+				result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ")", Statement.RETURN_GENERATED_KEYS);
+			}
 			pstCache.put("insert", result);
 		}
 		return result;
@@ -697,6 +653,21 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		}
 	}
 
+	protected DatabaseType getDatabaseType() {
+		return getDatabaseType(getConnection());
+	}
+
+	protected static DatabaseType getDatabaseType(Connection connection) {
+		try {
+			DatabaseMetaData metaData = connection.getMetaData();
+			String productName = metaData.getDatabaseProductName();
+			return DatabaseType.getFromIdentifier(productName);
+		}
+		catch (SQLException e) {
+			throw new UncheckedSQLException(e);
+		}
+	}
+
 	private void setParameter(ParameterList params, PreparedStatement pst) throws SQLException {
 		if (params == null) return;
 		int pos = params.setParameter(pst, 1);
@@ -712,7 +683,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 			result = connection.prepareStatement(
 					"SELECT " + select + " FROM " + table + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils.isBlank(where) && dType == null ? "" : " WHERE " + (StringUtils.isBlank(where) ? "" : SQLUtils.nullableWhere(where, params)))
 							+ (dType != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
-							+ (StringUtils.isBlank(limit) ? "" : " LIMIT " + limit));
+							+ (StringUtils.isBlank(limit) || getDatabaseType(connection) == DatabaseType.ORACLE ? "" : " LIMIT " + limit));
 			if (cacheKey != null) pstCache.put(cacheKey, result);
 		}
 		return result;
