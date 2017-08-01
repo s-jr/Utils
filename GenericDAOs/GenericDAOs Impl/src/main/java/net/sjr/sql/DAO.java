@@ -108,7 +108,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	protected abstract ParameterList getPList(T v);
 
 	/**
-	 * Wird aufgerufen wärend einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
+	 * Wird aufgerufen vor einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v das einzufügende Objekt
 	 *
@@ -119,7 +119,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	}
 
 	/**
-	 * Wird aufgerufen wärend einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
+	 * Wird aufgerufen vor einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v das upzudatende Objekt
 	 *
@@ -130,13 +130,46 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	}
 
 	/**
-	 * Wird aufgerufen wärend einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
+	 * Wird aufgerufen vor einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v das zu löschende Objekt
 	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeDelete(T v) {
+		return null;
+	}
+
+	/**
+	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
+	 *
+	 * @param v das eingefügte Objekt
+	 *
+	 * @return eine Map mit allen geänderten Werten
+	 */
+	protected Map<String, P> afterInsert(T v) {
+		return null;
+	}
+
+	/**
+	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
+	 *
+	 * @param v das upgedatete Objekt
+	 *
+	 * @return eine Map mit allen geänderten Werten
+	 */
+	protected Map<String, P> afterUpdate(T v) {
+		return null;
+	}
+
+	/**
+	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
+	 *
+	 * @param v das gelöschte Objekt
+	 *
+	 * @return eine Map mit allen geänderten Werten
+	 */
+	protected Map<String, P> afterDelete(T v) {
 		return null;
 	}
 
@@ -231,6 +264,10 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 					if (rs.next()) {
 						v.setPrimary(getPrimary(rs));
 						result.put(getTable() + "." + getPrimaryCol(), v.getPrimary());
+						Map<String, P> afterIDs = afterInsert(v);
+						if (afterIDs != null) {
+							result.putAll(afterIDs);
+						}
 						return result;
 					}
 					throw new RuntimeException("rs.next returned false for generated keys");
@@ -305,6 +342,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 				logPst(pst);
 				pst.executeUpdate();
 
+				Map<String, P> afterIDs = afterUpdate(v);
+				if (afterIDs != null) {
+					result.putAll(afterIDs);
+				}
+
 				return result;
 			}
 			catch (SQLException e) {
@@ -335,8 +377,15 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 */
 	public Map<String, P> deleteFromDB(final T v) {
 		if (v.getPrimary() != null) {
+			Map<String, P> result = new HashMap<>();
+
+			Map<String, P> cascadeIDs = cascadeDelete(v);
+			if (cascadeIDs != null) {
+				result.putAll(cascadeIDs);
+			}
 
 			try {
+
 				PreparedStatement pst = deletePst();
 				new Parameter(v.getPrimary()).setParameter(pst, 1);
 
@@ -346,13 +395,13 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 				logPst(pst);
 				pst.executeUpdate();
 				v.setPrimary(null);
-				Map<String, P> result = new HashMap<>();
 				result.put(getTable() + "." + getPrimaryCol(), null);
 
-				Map<String, P> cascadeIDs = cascadeDelete(v);
-				if (cascadeIDs != null) {
-					result.putAll(cascadeIDs);
+				Map<String, P> afterIDs = afterDelete(v);
+				if (afterIDs != null) {
+					result.putAll(afterIDs);
 				}
+
 				return result;
 			}
 			catch (SQLException e) {
