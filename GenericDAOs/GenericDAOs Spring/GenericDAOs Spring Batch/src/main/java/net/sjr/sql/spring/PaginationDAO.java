@@ -3,7 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DAO;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.ParameterList;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.ItemStreamWriter;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,7 +13,9 @@ import java.util.List;
 /**
  * Created by Jan on 10.07.2017.
  */
-public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> extends DAO<T, P> implements ItemWriter<T> {
+public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> extends DAO<T, P> implements ItemStreamWriter<T> {
+	private int done = 0;
+
 	public PaginationDAO(DataSource ds) {
 		super(ds);
 	}
@@ -35,8 +38,28 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 
 	@Override
 	public void write(List<? extends T> items) throws Exception {
-		for (T item : items) {
+		int itemsSize = items.size();
+		for (; done < itemsSize; done++) {
+			T item = items.get(done);
 			insertOrUpdate(item);
 		}
+		done = 0;
+	}
+
+	@Override
+	public void open(ExecutionContext executionContext) {
+		if (executionContext.containsKey("paginationdao.done")) {
+			done = executionContext.getInt("paginationdao.done");
+		}
+	}
+
+	@Override
+	public void update(ExecutionContext executionContext) {
+		executionContext.putLong("paginationdao.done", done);
+	}
+
+	@Override
+	public void close() {
+		super.close();
 	}
 }
