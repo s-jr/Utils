@@ -55,6 +55,6 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 
 	@Override
 	public void update(ExecutionContext executionContext) {
-		executionContext.putLong("paginationdao.done", done);
+		executionContext.putInt("paginationdao.done", done);
 	}
 }
