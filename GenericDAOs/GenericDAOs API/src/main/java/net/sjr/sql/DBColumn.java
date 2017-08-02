@@ -6,5 +6,5 @@ package net.sjr.sql;
 public interface DBColumn<T> extends DBConvertable {
 	T toColumn();
 
-	void fillFromColumn(T col);
+	DBColumn<T> fillFromColumn(T col);
 }
