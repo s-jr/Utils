@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>generic-daos-impl</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<name>GenericDAOs Impl</name>
 	<description>The implementation of the GenericDAOs</description>
 	<url>https://github.com/s-jr/Utils</url>
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>net.s-jr.utils.sql</groupId>
 			<artifactId>generic-daos-api</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1</version>
 		</dependency>
 
 		<dependency>
