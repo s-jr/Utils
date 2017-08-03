@@ -14,7 +14,7 @@
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/JodaParameterType/JodaParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/JodaParameterType/JodaParameterType.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/ParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/ParameterType.iml" />
-      <module fileurl="file://$PROJECT_DIR$/utils.iml" filepath="$PROJECT_DIR$/utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Utils.iml" filepath="$PROJECT_DIR$/Utils.iml" />
     </modules>
   </component>
 </project>
