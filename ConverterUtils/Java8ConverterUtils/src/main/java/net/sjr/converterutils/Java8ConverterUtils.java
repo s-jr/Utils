@@ -75,7 +75,7 @@ public final class Java8ConverterUtils {
 		private static final DateTimeFormatter EEddMMyyyy = DateTimeFormatter.ofPattern("EE dd.MM.yyyy");
 		private static final DateTimeFormatter ddMMyyyy = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		private static final DateTimeFormatter ddMMyyyyHHmm = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:sss");
+		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 		private static final DateTimeFormatter HHmm = DateTimeFormatter.ofPattern("HH:mm");
 
 		public static String localDateToMonthYearString(final LocalDate d) {

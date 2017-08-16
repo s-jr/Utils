@@ -1,8 +1,8 @@
 package net.sjr.sql;
 
 import net.sjr.sql.exceptions.UncheckedSQLException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by Jan on 20.05.2017.
  */
 public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, KO extends Kreuz2Objekt<A, PA, B, PB>> {
-	private final Logger log = LogManager.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Map<String, PreparedStatement> pstCache = new HashMap<>();
 
 	protected abstract DAO<A, PA> getaDAO();
@@ -89,7 +89,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 		try {
 			PreparedStatement pst = createKreuzPst();
 
-			new ParameterList(params).setParameter(pst, 1);
+			new ParameterList((Object[]) params).setParameter(pst, 1);
 			logPst(pst);
 			pst.executeUpdate();
 		}
@@ -116,7 +116,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	protected void deleteKreuzFromDB(DBObject... params) {
 		try {
 			PreparedStatement pst = deleteKreuzPst();
-			new ParameterList(params).setParameter(pst, 1);
+			new ParameterList((Object[]) params).setParameter(pst, 1);
 
 			logPst(pst);
 			pst.executeUpdate();
@@ -327,7 +327,8 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 			try {
 				pst.close();
 			}
-			catch (SQLException ignored) {
+			catch (SQLException e) {
+				if (log != null) log.error("SQL Fehler", e);
 			}
 		}
 		pstCache.clear();

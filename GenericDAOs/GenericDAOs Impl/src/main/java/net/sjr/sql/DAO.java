@@ -4,8 +4,8 @@ import net.sjr.sql.exceptions.EntryNotFoundException;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import net.sjr.sql.exceptions.UnsupportedPrimaryException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.lang.reflect.ParameterizedType;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 @SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue"})
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements AutoCloseable {
-	private final Logger log = LogManager.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final DataSource dataSource;
 	private Connection connection;
@@ -754,7 +754,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 				pst.close();
 			}
 			catch (SQLException e) {
-				if (log != null) log.error(e);
+				if (log != null) log.error("SQL Fehler", e);
 			}
 		}
 		pstCache.clear();
@@ -763,7 +763,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 				connection.close();
 			}
 			catch (SQLException e) {
-				if (log != null) log.error(e);
+				if (log != null) log.error("SQL Fehler", e);
 			}
 		}
 	}

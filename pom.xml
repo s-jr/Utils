@@ -88,9 +88,7 @@
 			<id>Nexus Deployment</id>
 
 			<activation>
-				<os>
-					<family>Windows</family>
-				</os>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 
 			<build>

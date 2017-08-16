@@ -1,0 +1,5 @@
+maven-build:
+  script:
+    - mvn clean deploy
+  tags:
+    - java

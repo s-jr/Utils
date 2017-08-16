@@ -150,7 +150,10 @@ public final class SQLUtils {
 	 * @return das SQL Statement
 	 */
 	public static String pstToSQL(PreparedStatement pst) {
-		return pst.toString().replaceAll("com\\.mysql\\.jdbc\\.JDBC42PreparedStatement@[0-9a-z]+: ", "");
+		return pst.toString()
+				.replaceAll("org.apache.tomcat.jdbc.pool.StatementFacade\\$StatementProxy\\[Proxy=[0-9]+; Query=.+ Delegate=", "")
+				.replaceAll("com\\.mysql\\.jdbc\\.JDBC42PreparedStatement@[0-9a-z]+: ", "")
+				.replaceAll("org\\.hsqldb\\.jdbc\\.JDBCPreparedStatement@[0-9a-z]+\\[", "");
 	}
 
 	/**

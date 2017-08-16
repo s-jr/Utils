@@ -28,6 +28,18 @@ public final class BasicParameterType implements ParameterType {
 		else if (value instanceof Long) {
 			pst.setLong(pos, (Long) value);
 		}
+		else if (value instanceof Byte) {
+			pst.setByte(pos, (Byte) value);
+		}
+		else if (value instanceof Short) {
+			pst.setShort(pos, (Short) value);
+		}
+		else if (value instanceof Double) {
+			pst.setDouble(pos, (Double) value);
+		}
+		else if (value instanceof Float) {
+			pst.setFloat(pos, (Float) value);
+		}
 		else if (value instanceof Boolean) {
 			pst.setBoolean(pos, (Boolean) value);
 		}
