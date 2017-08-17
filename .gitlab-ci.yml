@@ -31,6 +31,9 @@ variables:
   stage: build
   script:
     - 'mvn $MAVEN_CLI_OPTS test-compile'
+  tags:
+    - ruby
+    - postgres
 
 
 # For `master` branch run `mvn deploy` automatically.
@@ -43,4 +46,6 @@ deploy:
   stage: deploy
   script:
     - 'mvn $MAVEN_CLI_OPTS deploy site site:stage'
-
+  tags:
+    - ruby
+    - postgres
