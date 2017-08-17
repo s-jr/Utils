@@ -12,7 +12,7 @@
 	<groupId>net.s-jr.utils.sql.spring</groupId>
 	<artifactId>generic-daos-spring</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>GenericDAOs Spring</name>
 	<description>The parent Project for the GenericDAOs Spring projects</description>
 	<url>https://github.com/s-jr/Utils</url>

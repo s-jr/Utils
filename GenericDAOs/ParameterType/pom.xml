@@ -11,6 +11,7 @@
 
 	<groupId>net.s-jr.utils.sql.parametertype</groupId>
 	<artifactId>parameter-type</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ParameterType</name>
 	<description>The parent Project for the ParameterType projects</description>
