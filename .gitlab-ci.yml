@@ -24,18 +24,6 @@ variables:
   # `installAtEnd` and `deployAtEnd`are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-# This will only validate and compile stuff and run e.g. maven-enforcer-plugin.
-# Because some enforcer rules might check dependency convergence and class duplications
-# we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
-.validate:
-  stage: build
-  script:
-    - 'mvn $MAVEN_CLI_OPTS test-compile'
-  tags:
-    - java
-    - maven
-
-
 # For `master` branch run `mvn deploy` automatically.
 # Here you need to decide whether you want to use JDK7 or 8.
 # To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
@@ -45,7 +33,7 @@ deploy:
   # Use stage test here, so the pages job may later pickup the created site.
   stage: deploy
   script:
-    - 'mvn $MAVEN_CLI_OPTS deploy site site:stage'
+    - 'mvn $MAVEN_CLI_OPTS deploy'
   tags:
     - java
     - maven
