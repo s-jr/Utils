@@ -5,13 +5,13 @@
 	<parent>
 		<artifactId>parameter-type</artifactId>
 		<groupId>net.s-jr.utils.sql.parametertype</groupId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>base-parameter-type</artifactId>
 	<name>BaseParameterType</name>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.2</version>
 	<description>The Basic ParameterTypes</description>
 	<url>https://github.com/s-jr/Utils</url>
 

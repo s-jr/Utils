@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>net.s-jr.utils</groupId>
 		<artifactId>utils</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 	</parent>
 	<groupId>net.s-jr.utils.sql</groupId>
 	<artifactId>generic-daos</artifactId>
 	<packaging>pom</packaging>
-	<version>1.1.1-SNAPSHOT</version>
+	<version>1.1.1</version>
 	<name>GenericDAOs</name>
 	<description>The parent Project for the GenericDAOs projects</description>
 	<url>https://github.com/s-jr/Utils</url>
