@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue"})
-public abstract class DAO<T extends DBObject<P>, P extends Number> implements AutoCloseable {
+public abstract class DAO<T extends DBObject<P>, P extends Number> implements DAOBase<T, P> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final DataSource dataSource;
@@ -200,6 +200,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @throws EntryNotFoundException wenn es kein Objekt mit der ID gibt
 	 */
+	@Override
 	public T loadFromID(final P primary) {
 		return loadOneFromCol(null, getPrimaryCol(), primary, "loadFromID");
 	}
@@ -209,6 +210,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @return Eine Liste aller Objekte von T. Niemals null
 	 */
+	@Override
 	public List<T> loadAll() {
 		return loadAllFromWhere(null, null, null, null, null, "loadAll");
 	}
@@ -238,6 +240,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @throws IllegalStateException wenn das Objekt eine PrimaryID hat
 	 */
+	@Override
 	public Map<String, P> insertIntoDB(final T v) {
 		if (v.getPrimary() == null) {
 			Map<String, P> result = new HashMap<>();
@@ -280,7 +283,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 		throw new IllegalStateException("Der Eintrag wurde bereits in die Datenbank eingefügt!");
 	}
 
-	P getPrimary(ResultSet rs, int pos) throws SQLException {
+	public P getPrimary(ResultSet rs, int pos) throws SQLException {
 		Type type = getClass();
 		while (type instanceof Class) {
 			type = ((Class) type).getGenericSuperclass();
@@ -319,6 +322,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
+	@Override
 	public Map<String, P> updateIntoDB(final T v) {
 		if (v.getPrimary() != null) {
 			Map<String, P> result = new HashMap<>();
@@ -375,6 +379,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
+	@Override
 	public Map<String, P> deleteFromDB(final T v) {
 		if (v.getPrimary() != null) {
 			Map<String, P> result = new HashMap<>();
@@ -418,6 +423,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements Au
 	 *
 	 * @return eine Map mit allen geänderten Werten
 	 */
+	@Override
 	public Map<String, P> insertOrUpdate(final T v) {
 		if (v.getPrimary() == null) {
 			return insertIntoDB(v);

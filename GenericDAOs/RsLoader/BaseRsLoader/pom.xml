@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>rs-loader</artifactId>
+		<groupId>net.s-jr.utils.sql.rsloader</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>base-rs-loader</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>BaseRsLoader</name>
+	<description>The basic RsLoader</description>
+	<url>https://github.com/s-jr/Utils</url>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.s-jr.utils.sql</groupId>
+			<artifactId>generic-daos-api</artifactId>
+			<version>1.1.2-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+</project>
