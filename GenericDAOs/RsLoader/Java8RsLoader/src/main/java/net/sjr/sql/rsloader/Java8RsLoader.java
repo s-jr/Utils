@@ -58,7 +58,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullBoolean(Consumer<Boolean> setter) {
-		setter.accept(nextBoolean());
+		setter.accept(nextNullBoolean());
 		return this;
 	}
 
@@ -68,7 +68,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullByte(Consumer<Byte> setter) {
-		setter.accept(nextByte());
+		setter.accept(nextNullByte());
 		return this;
 	}
 
@@ -78,7 +78,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullShort(Consumer<Short> setter) {
-		setter.accept(nextShort());
+		setter.accept(nextNullShort());
 		return this;
 	}
 
@@ -88,7 +88,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullInt(Consumer<Integer> setter) {
-		setter.accept(nextInt());
+		setter.accept(nextNullInt());
 		return this;
 	}
 
@@ -98,7 +98,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullLong(Consumer<Long> setter) {
-		setter.accept(nextLong());
+		setter.accept(nextNullLong());
 		return this;
 	}
 
@@ -108,7 +108,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullFloat(Consumer<Float> setter) {
-		setter.accept(nextFloat());
+		setter.accept(nextNullFloat());
 		return this;
 	}
 
@@ -118,7 +118,7 @@ public class Java8RsLoader extends RsLoader {
 	}
 
 	public Java8RsLoader nextNullDouble(Consumer<Double> setter) {
-		setter.accept(nextDouble());
+		setter.accept(nextNullDouble());
 		return this;
 	}
 
