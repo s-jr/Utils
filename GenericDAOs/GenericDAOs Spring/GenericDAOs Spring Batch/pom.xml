@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>generic-daos-spring-batch</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<name>GenericDAOs Spring Batch</name>
 	<description>Classes to work with Spring Batch and GenericDAOs</description>
 	<url>https://github.com/s-jr/Utils</url>

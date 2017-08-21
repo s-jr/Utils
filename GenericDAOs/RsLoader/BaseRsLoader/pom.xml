@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>base-rs-loader</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>BaseRsLoader</name>
 	<description>The basic RsLoader</description>
 	<url>https://github.com/s-jr/Utils</url>

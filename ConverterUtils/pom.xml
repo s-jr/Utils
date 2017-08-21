@@ -13,7 +13,7 @@
 	<groupId>net.s-jr.utils.converterutils</groupId>
 	<artifactId>converter-utils</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>ConverterUtils</name>
 	<description>The parent Project for the ConverterUtils projects</description>
 	<url>https://github.com/s-jr/Utils</url>

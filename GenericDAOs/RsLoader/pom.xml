@@ -12,7 +12,7 @@
 	<groupId>net.s-jr.utils.sql.rsloader</groupId>
 	<artifactId>rs-loader</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>RsLoader</name>
 	<description>The parent Project for the RsLoader projects</description>
 	<url>https://github.com/s-jr/Utils</url>

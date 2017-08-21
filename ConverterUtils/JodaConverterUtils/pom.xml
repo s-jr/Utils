@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>joda-converter-utils</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>JodaConverterUtils</name>
 	<description>The ConverterUtils for JodaTime</description>
 	<url>https://github.com/s-jr/Utils</url>
