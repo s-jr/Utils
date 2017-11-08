@@ -4,6 +4,7 @@ package net.sjr.sql;
  * Created by Jan on 02.05.2017.
  */
 public abstract class DBObjectImpl<P extends Number> implements DBObject<P> {
+	private static final long serialVersionUID = -2203270558303148510L;
 	private P primary;
 	
 	@Override
