@@ -790,6 +790,10 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		log.debug(SQLUtils.pstToSQL(pst));
 	}
 	
+	protected static String maxLength(String s, int length) {
+		return StringUtils.abbreviate(s, "", length);
+	}
+	
 	private void doCloseAlways(PreparedStatement pst) {
 		if (shouldCloseAlways()) {
 			close();
