@@ -5,11 +5,13 @@ package net.sjr.sql;
  */
 public abstract class DBObjectImpl<P extends Number> implements DBObject<P> {
 	private P primary;
-
+	
+	@Override
 	public P getPrimary() {
 		return primary;
 	}
-
+	
+	@Override
 	public void setPrimary(P primary) {
 		if (primary != null && getPrimary() != null)
 			throw new IllegalStateException("Die Primary ID darf nicht verändert werden!");
