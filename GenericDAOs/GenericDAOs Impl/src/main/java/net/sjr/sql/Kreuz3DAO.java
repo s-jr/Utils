@@ -120,8 +120,8 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 
 	protected <T extends DBObject<P>, P extends Number> List<T> executeFrom2(DBObject a, DBObject b, DAO<T, P> dao, String resultKreuzCol, String aKreuzCol, String bKreuzCol, Integer typeA, Integer typeB, DBObject... loadedObjects) {
 		return dao.loadAllFromWhere(
-				getKreuzTable() + " ON " + getKreuzTable() + "." + resultKreuzCol + "=" + dao.getTable() + "." + dao.getPrimaryCol(),
-				getKreuzTable() + "." + aKreuzCol + "=? AND " + getKreuzTable() + "." + bKreuzCol + "=?", new ParameterList(new Parameter(a, typeA), new Parameter(b, typeB)),
+				getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
+				getKreuzTable() + '.' + aKreuzCol + "=? AND " + getKreuzTable() + '.' + bKreuzCol + "=?", new ParameterList(new Parameter(a, typeA), new Parameter(b, typeB)),
 				null, null,
 				getKreuzTable() + ".load" + resultKreuzCol + "from" + aKreuzCol + "und" + bKreuzCol, loadedObjects);
 	}

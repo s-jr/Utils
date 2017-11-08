@@ -7,17 +7,21 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="BaseParameterType" />
+        <module name="BaseRsLoader" />
         <module name="GenericDAOs API" />
         <module name="GenericDAOs Impl" />
         <module name="GenericDAOs Spring Batch" />
         <module name="Java8ConverterUtils" />
         <module name="Java8ParameterType" />
+        <module name="Java8RsLoader" />
         <module name="JodaConverterUtils" />
         <module name="JodaParameterType" />
+        <module name="JodaRsLoader" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="BaseParameterType" target="1.7" />
+      <module name="BaseRsLoader" target="1.7" />
       <module name="converter-utils" target="1.7" />
       <module name="ConverterUtils" target="1.7" />
       <module name="GenericDAOs" target="1.7" />
@@ -27,11 +31,13 @@
       <module name="GenericDAOs Spring Batch" target="1.7" />
       <module name="Java8ConverterUtils" target="1.8" />
       <module name="Java8ParameterType" target="1.8" />
+      <module name="Java8RsLoader" target="1.8" />
       <module name="JodaConverterUtils" target="1.7" />
       <module name="JodaParameterType" target="1.7" />
+      <module name="JodaRsLoader" target="1.7" />
       <module name="ParameterType" target="1.7" />
+      <module name="RsLoader" target="1.7" />
       <module name="Utils" target="1.7" />
-      <module name="utils" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

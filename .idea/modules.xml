@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType/BaseParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType/BaseParameterType.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/RsLoader/BaseRsLoader/BaseRsLoader.iml" filepath="$PROJECT_DIR$/GenericDAOs/RsLoader/BaseRsLoader/BaseRsLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/ConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/ConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs API/GenericDAOs API.iml" />
@@ -11,9 +12,12 @@
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring Batch/GenericDAOs Spring Batch.iml" filepath="$PROJECT_DIR$/GenericDAOs/GenericDAOs Spring/GenericDAOs Spring Batch/GenericDAOs Spring Batch.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/Java8ConverterUtils/Java8ConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/Java8ConverterUtils/Java8ConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType/Java8ParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType/Java8ParameterType.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/RsLoader/Java8RsLoader/Java8RsLoader.iml" filepath="$PROJECT_DIR$/GenericDAOs/RsLoader/Java8RsLoader/Java8RsLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" filepath="$PROJECT_DIR$/ConverterUtils/JodaConverterUtils/JodaConverterUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/JodaParameterType/JodaParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/JodaParameterType/JodaParameterType.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/RsLoader/JodaRsLoader/JodaRsLoader.iml" filepath="$PROJECT_DIR$/GenericDAOs/RsLoader/JodaRsLoader/JodaRsLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/GenericDAOs/ParameterType/ParameterType.iml" filepath="$PROJECT_DIR$/GenericDAOs/ParameterType/ParameterType.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GenericDAOs/RsLoader/RsLoader.iml" filepath="$PROJECT_DIR$/GenericDAOs/RsLoader/RsLoader.iml" />
       <module fileurl="file://$PROJECT_DIR$/Utils.iml" filepath="$PROJECT_DIR$/Utils.iml" />
     </modules>
   </component>

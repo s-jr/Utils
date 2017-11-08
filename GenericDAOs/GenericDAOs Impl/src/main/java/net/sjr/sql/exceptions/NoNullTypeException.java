@@ -6,8 +6,8 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 
 public class NoNullTypeException extends RuntimeException implements Serializable {
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 879471158051022442L;
+	
 	public NoNullTypeException(PreparedStatement pst, int position) {
 		super("Es wurde ein null-Wert an Position " + position + " [" + pstToPositionName(pst, position) + " ] übergeben, aber kein Typ spezifiziert\n"
 				+ "(Poblem SQL) " + SQLUtils.pstToSQL(pst));

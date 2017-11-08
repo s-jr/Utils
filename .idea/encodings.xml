@@ -14,5 +14,9 @@
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType/BaseParameterType" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType/Java8ParameterType" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/GenericDAOs/ParameterType/JodaParameterType" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/RsLoader" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/RsLoader/BaseRsLoader" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/RsLoader/Java8RsLoader" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenericDAOs/RsLoader/JodaRsLoader" charset="UTF-8" />
   </component>
 </project>

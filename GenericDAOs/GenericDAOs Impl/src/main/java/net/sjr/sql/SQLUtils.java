@@ -37,7 +37,7 @@ public final class SQLUtils extends RsUtils {
 	 * @return der umgewandelte String
 	 */
 	static String getFragezeichenSelect(final String felder, String multOp, String operator) {
-		return felder.replaceAll(", ", operator + "?" + multOp) + operator + "?";
+		return felder.replaceAll(", ", operator + '?' + multOp) + operator + '?';
 	}
 
 	/**
@@ -49,7 +49,7 @@ public final class SQLUtils extends RsUtils {
 	 * @return der umgewandelte String
 	 */
 	static String fullQualifyTableName(final String felder, String tableName) {
-		return tableName + "." + felder.replaceAll(", ", ", " + tableName + ".");
+		return tableName + '.' + felder.replaceAll(", ", ", " + tableName + '.');
 	}
 
 	/**
@@ -66,10 +66,10 @@ public final class SQLUtils extends RsUtils {
 		StringBuilder result = new StringBuilder();
 		int pos = 0;
 		for (String s : terme) {
-			if (result.length() > 0) result.append(" ");
+			if (result.length() > 0) result.append(' ');
 			if (s.contains("=?")) {
 				if (params.get(pos).value == null)
-					result.append("(").append(s).append(" OR ").append(s.replace("=?", "")).append(" IS NULL)");
+					result.append('(').append(s).append(" OR ").append(s.replace("=?", "")).append(" IS NULL)");
 				else result.append(s);
 				pos++;
 			}

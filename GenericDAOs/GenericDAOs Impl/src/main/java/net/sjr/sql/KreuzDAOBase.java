@@ -40,6 +40,15 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	protected Integer getTypeB() {
 		return null;
 	}
+	
+	/**
+	 * An Hand der Rückgabe wird entschieden, ob nach jeder Funktion die Datenbankverbindung inkl. PreparedStatements geschlossen werden soll.
+	 *
+	 * @return true wenn immer geschlossen werden soll (default) oder false wenn nicht
+	 */
+	protected boolean shouldCloseAlways() {
+		return true;
+	}
 
 	/**
 	 * Lädt eine Liste aller Objekte a, die mit b über die Kreuztabelle verbunden sind
@@ -66,16 +75,17 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	}
 
 	protected <T extends DBObject<P>, P extends Number> List<T> executeFrom1(DBObject a, DAO<T, P> dao, String resultKreuzCol, String aKreuzCol, Integer typeA, DBObject... loadedObjects) {
-		return dao.loadAllFromCol(getKreuzTable() + " ON " + getKreuzTable() + "." + resultKreuzCol + "=" + dao.getTable() + "." + dao.getPrimaryCol(),
-				getKreuzTable() + "." + aKreuzCol, new Parameter(a, typeA),
+		return dao.loadAllFromCol(getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
+				getKreuzTable() + '.' + aKreuzCol, new Parameter(a, typeA),
 				null, null, getKreuzTable() + ".load" + resultKreuzCol + "from" + aKreuzCol, loadedObjects);
 	}
 
 	private PreparedStatement createKreuzPst() throws SQLException {
-		PreparedStatement result = pstCache.get("createKreuz");
+		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("createKreuz");
 		if (result == null) {
-			result = getaDAO().getConnection().prepareStatement("INSERT INTO " + getKreuzTable() + " (" + getAllKreuzCols() + ") VALUES (" + SQLUtils.getFragezeichenInsert(getAllKreuzCols()) + ")");
-			pstCache.put("createKreuz", result);
+			result = getaDAO().getConnection()
+							  .prepareStatement("INSERT INTO " + getKreuzTable() + " (" + getAllKreuzCols() + ") VALUES (" + SQLUtils.getFragezeichenInsert(getAllKreuzCols()) + ')');
+			if (!shouldCloseAlways()) pstCache.put("createKreuz", result);
 		}
 		return result;
 	}
@@ -86,9 +96,10 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @param params die zu verbindende Objekte
 	 */
 	protected void createKreuzInDB(DBObject... params) {
+		PreparedStatement pst = null;
 		try {
-			PreparedStatement pst = createKreuzPst();
-
+			pst = createKreuzPst();
+			
 			new ParameterList((Object[]) params).setParameter(pst, 1);
 			logPst(pst);
 			pst.executeUpdate();
@@ -96,14 +107,17 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		finally {
+			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+		}
 	}
 
 
 	private PreparedStatement deleteKreuzPst() throws SQLException {
-		PreparedStatement result = pstCache.get("deleteKreuz");
+		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("deleteKreuz");
 		if (result == null) {
 			result = getaDAO().getConnection().prepareStatement("DELETE FROM " + getKreuzTable() + " WHERE " + SQLUtils.getFragezeichenSelect(getAllKreuzCols(), " AND ", "="));
-			pstCache.put("deleteKreuz", result);
+			if (!shouldCloseAlways()) pstCache.put("deleteKreuz", result);
 		}
 		return result;
 	}
@@ -114,8 +128,9 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @param params die verbundene Objekte
 	 */
 	protected void deleteKreuzFromDB(DBObject... params) {
+		PreparedStatement pst = null;
 		try {
-			PreparedStatement pst = deleteKreuzPst();
+			pst = deleteKreuzPst();
 			new ParameterList((Object[]) params).setParameter(pst, 1);
 
 			logPst(pst);
@@ -123,6 +138,9 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 		}
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
+		}
+		finally {
+			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
 		}
 	}
 
@@ -198,9 +216,10 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals null
 	 */
 	protected List<KO> loadKreuzeFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+		PreparedStatement pst = null;
 		try {
-			PreparedStatement pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, getAllKreuzCols(), join, where, limit, order, cacheKey, params);
-
+			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, getAllKreuzCols(), join, where, limit, order, cacheKey, shouldCloseAlways(), params);
+			
 			if (params != null) params.setParameter(pst, 1);
 
 			logPst(pst);
@@ -215,6 +234,9 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 		}
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
+		}
+		finally {
+			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
 		}
 	}
 
@@ -300,9 +322,10 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return die Anzahl aller Kreuze
 	 */
 	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
+		PreparedStatement pst = null;
 		try {
-			PreparedStatement pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, "count(*)", join, where, null, null, cacheKey, params);
-
+			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, "count(*)", join, where, null, null, cacheKey, shouldCloseAlways(), params);
+			
 			if (params != null) params.setParameter(pst, 1);
 
 			logPst(pst);
@@ -316,6 +339,9 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		finally {
+			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+		}
 	}
 
 	private void logPst(PreparedStatement pst) {
@@ -324,12 +350,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 
 	public void close() {
 		for (PreparedStatement pst : pstCache.values()) {
-			try {
-				pst.close();
-			}
-			catch (SQLException e) {
-				if (log != null) log.error("SQL Fehler", e);
-			}
+			DAO.closeSqlAutocloseable(pst, log);
 		}
 		pstCache.clear();
 	}
