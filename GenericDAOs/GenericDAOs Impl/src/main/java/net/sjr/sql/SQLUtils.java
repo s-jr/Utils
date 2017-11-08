@@ -4,6 +4,7 @@ import net.sjr.sql.rsloader.RsUtils;
 
 import java.sql.PreparedStatement;
 
+@SuppressWarnings("WeakerAccess")
 public final class SQLUtils extends RsUtils {
 	/**
 	 * Wandelt den felder String vom Format "colA, colB" in das Format "?, ?" um
@@ -12,10 +13,10 @@ public final class SQLUtils extends RsUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	static String getFragezeichenInsert(final String felder) {
+	public static String getFragezeichenInsert(final String felder) {
 		return felder.replaceAll("[a-zA-Z0-9_]+", "?");
 	}
-
+	
 	/**
 	 * Wandelt den felder String vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
@@ -23,10 +24,10 @@ public final class SQLUtils extends RsUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	static String getFragezeichenUpdate(final String felder) {
+	public static String getFragezeichenUpdate(final String felder) {
 		return getFragezeichenSelect(felder, ", ", "=");
 	}
-
+	
 	/**
 	 * Wandelt den felder String vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
@@ -36,10 +37,10 @@ public final class SQLUtils extends RsUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	static String getFragezeichenSelect(final String felder, String multOp, String operator) {
+	public static String getFragezeichenSelect(final String felder, String multOp, String operator) {
 		return felder.replaceAll(", ", operator + '?' + multOp) + operator + '?';
 	}
-
+	
 	/**
 	 * Wandelt den felder String vom Format "colA, colB" in das Format "tableName.colA, tableName.colB" um
 	 *
@@ -48,10 +49,10 @@ public final class SQLUtils extends RsUtils {
 	 *
 	 * @return der umgewandelte String
 	 */
-	static String fullQualifyTableName(final String felder, String tableName) {
+	public static String fullQualifyTableName(final String felder, String tableName) {
 		return tableName + '.' + felder.replaceAll(", ", ", " + tableName + '.');
 	}
-
+	
 	/**
 	 * Fügt der WHERE Klausel (wenn nötig) ein IS NULL hinzu
 	 *
@@ -60,7 +61,7 @@ public final class SQLUtils extends RsUtils {
 	 *
 	 * @return die WHERE Klausel mit IS NULLs
 	 */
-	static String nullableWhere(String where, ParameterList params) {
+	public static String nullableWhere(String where, ParameterList params) {
 		if (where == null || params == null) return where;
 		String[] terme = where.split(" ");
 		StringBuilder result = new StringBuilder();
@@ -79,7 +80,7 @@ public final class SQLUtils extends RsUtils {
 		}
 		return result.toString();
 	}
-
+	
 	/**
 	 * Extrahiert das SQL Statement aus einem prepared Statement
 	 *
