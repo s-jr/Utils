@@ -1,12 +1,22 @@
 package net.sjr.sql;
 
 /**
- * Created by Jan on 11.07.2017.
+ * Eine Klasse um zwei über Kreuztabellen verbundene Objekte zu beinhalten
+ * @param <A> Typ des ersten Java Objektes
+ * @param <PA> Typ des Primary Keys des ersten Java Objektes
+ * @param <B> Typ des zweiten Java Objektes
+ * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  */
 public class Kreuz2Objekt<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> {
 	public final A a;
 	public final B b;
-
+	
+	/**
+	 * Erstellt ein neues Kreuzobjekt
+	 *
+	 * @param a erstes verbundene Objekt
+	 * @param b zweites verbundene Objekt
+	 */
 	public Kreuz2Objekt(A a, B b) {
 		this.a = a;
 		this.b = b;

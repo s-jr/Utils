@@ -1,7 +1,8 @@
 package net.sjr.sql;
 
 /**
- * Created by Jan on 12.07.2017.
+ * Interface für Objekte, welche als eine Spalte in der Datenbank gespeichert werden können
+ * @param <T> der Typ der effektiven Datenbankspalte
  */
 public interface DBColumn<T> extends DBConvertable {
 	T toColumn();

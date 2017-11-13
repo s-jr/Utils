@@ -1,7 +1,7 @@
 package net.sjr.sql;
 
 /**
- * Created by Jan on 12.07.2017.
+ * Oberinterface für alle eigenen in der Datenbank speicherbaren Objekte
  */
 public interface DBConvertable {
 }

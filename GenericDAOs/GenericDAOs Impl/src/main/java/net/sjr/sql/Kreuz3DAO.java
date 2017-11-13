@@ -5,22 +5,53 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Created by Jan on 20.05.2017.
+ * DAO um Daten aus Kreuztabellen für 3 via l:n:m Verbindung verbundene Tabellen laden zu können
+ * @param <A> Typ des ersten Java Objektes
+ * @param <PA> Typ des Primary Keys des ersten Java Objektes
+ * @param <B> Typ des zweiten Java Objektes
+ * @param <PB> Typ des Primary Keys des zweiten Java Objektes
+ * @param <C> Typ des dritten Java Objektes
+ * @param <PC> Typ des Primary Keys des dritten Java Objektes
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, C extends DBObject<PC>, PC extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz3Objekt<A, PA, B, PB, C, PC>> {
+	/**
+	 * gibt die {@link DAO} zurück, welche für das Laden der C Objekte genutzt werden soll
+	 *
+	 * @return die {@link DAO}
+	 */
 	protected abstract DAO<C, PC> getcDAO();
-
+	
+	/**
+	 * gibt die Spalte der C Objetke in der Kreuztabelle zurück
+	 * @return der Spaltenname
+	 */
 	protected abstract String getKreuzColC();
-
+	
+	/**
+	 * gibt den Spaltentyp aus der {@link java.sql.Types} Klasse der C Objetke in der Kreuztabelle zurück
+	 * @return der Spaltentyp
+	 */
 	protected Integer getTypeC() {
 		return null;
 	}
-
+	
+	/**
+	 * Gibt alle Spalten der Kreuztabelle zurück
+	 * @return die Spalten
+	 */
 	@Override
 	protected String getAllKreuzCols() {
 		return getKreuzColA() + ", " + getKreuzColB() + ", " + getKreuzColC();
 	}
-
+	
+	/**
+	 * Erstellt aus einem {@link ResultSet} ein {@link Kreuz3Objekt} mit den drei Verbundenen Objekten
+	 * @param rs das {@link ResultSet}
+	 * @param loadedObjects die bereits geladenen Objekte
+	 * @return das {@link Kreuz3Objekt}
+	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
+	 */
 	@Override
 	protected Kreuz3Objekt<A, PA, B, PB, C, PC> getKreuzObjekt(ResultSet rs, DBObject... loadedObjects) throws SQLException {
 		A a = SQLUtils.loadedObjectsOrNull(1, rs, getaDAO(), loadedObjects);
@@ -117,7 +148,22 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	public List<C> loadCfromAundB(A a, B b, DBObject... loadedObjects) {
 		return executeFrom2(a, b, getcDAO(), getKreuzColC(), getKreuzColA(), getKreuzColB(), getTypeA(), getTypeB(), loadedObjects);
 	}
-
+	
+	/**
+	 * Lädt eine Liste von Objekten an Hand der Kombination der beiden anderen Spalten der Kreuztabelle
+	 * @param a erstes Objekt, nach dem gesucht werden soll
+	 * @param b zweites Objekt , nach dem gesucht werden soll
+	 * @param dao {@link DAO} des Zielobjektes
+	 * @param resultKreuzCol Spalte des Zielobjektes
+	 * @param aKreuzCol Spalte des ersten Suchobjektes
+	 * @param bKreuzCol Spalte des zweiten Suchobjektes
+	 * @param typeA Typ des ersten Suchobjektes
+	 * @param typeB Typ des zweiten Suchobjektes
+	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
+	 * @param <T> Typ des Zielobjektes
+	 * @param <P> Typ des Primary Key des Zielobjektes
+	 * @return eine Liste aller gefundenen Zielobjekte. Niemals {@code null}
+	 */
 	protected <T extends DBObject<P>, P extends Number> List<T> executeFrom2(DBObject a, DBObject b, DAO<T, P> dao, String resultKreuzCol, String aKreuzCol, String bKreuzCol, Integer typeA, Integer typeB, DBObject... loadedObjects) {
 		return dao.loadAllFromWhere(
 				getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),

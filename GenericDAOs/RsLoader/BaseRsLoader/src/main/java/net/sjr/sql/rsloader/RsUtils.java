@@ -9,8 +9,12 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Klasse mit diversen Methoden, die bei dem Arbeiten mit {@link ResultSet}s hilfreich sind
+ */
+@SuppressWarnings("WeakerAccess")
 public class RsUtils {
-
+	
 	/**
 	 * lädt ein Objekt aus den bereits geladenen Objekten oder zur not aus der DAO
 	 *
@@ -32,7 +36,7 @@ public class RsUtils {
 		if (rs.wasNull()) {
 			return null;
 		}
-
+		
 		if (loadedObjects != null) {
 			for (DBObject o : loadedObjects) {
 				if (o != null && o.getPrimary().equals(id)) {
@@ -49,7 +53,7 @@ public class RsUtils {
 		}
 		return dao.loadFromID(id);
 	}
-
+	
 	/**
 	 * holt das Enum von seinem Identifier
 	 *
@@ -69,7 +73,7 @@ public class RsUtils {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Boolean aus dem ResultSet
 	 *
@@ -85,7 +89,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Byte aus dem ResultSet
 	 *
@@ -101,7 +105,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Short aus dem ResultSet
 	 *
@@ -117,7 +121,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Int aus dem ResultSet
 	 *
@@ -133,7 +137,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Long aus dem ResultSet
 	 *
@@ -149,7 +153,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Float aus dem ResultSet
 	 *
@@ -165,7 +169,7 @@ public class RsUtils {
 		if (rs.wasNull()) return null;
 		return result;
 	}
-
+	
 	/**
 	 * Holt ein nullbares Double aus dem ResultSet
 	 *

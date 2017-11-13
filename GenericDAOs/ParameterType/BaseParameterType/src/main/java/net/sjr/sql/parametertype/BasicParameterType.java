@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.sql.*;
 
 /**
- * Created by Jan Reichl on 11.05.17.
+ * Klasse mit den Standard Java Klassen als ParameterType
  */
 public final class BasicParameterType implements ParameterType {
 	static {

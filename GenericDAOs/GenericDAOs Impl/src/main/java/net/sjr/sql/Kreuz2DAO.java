@@ -4,14 +4,30 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Created by Jan on 15.05.2017.
+ * DAO um Daten aus Kreuztabellen für 2 via n:m Verbindung verbundene Tabellen laden zu können
+ * @param <A> Typ des ersten Java Objektes
+ * @param <PA> Typ des Primary Keys des ersten Java Objektes
+ * @param <B> Typ des zweiten Java Objektes
+ * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  */
 public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz2Objekt<A, PA, B, PB>> implements AutoCloseable {
+	/**
+	 * Gibt alle Spalten der Kreuztabelle zurück
+	 *
+	 * @return die Spalten
+	 */
 	@Override
 	protected String getAllKreuzCols() {
 		return getKreuzColA() + ", " + getKreuzColB();
 	}
-
+	
+	/**
+	 * Erstellt aus einem {@link ResultSet} ein {@link Kreuz2Objekt} mit den beiden Verbundenen Objekten
+	 * @param rs das {@link ResultSet}
+	 * @param loadedObjects die bereits geladenen Objekte
+	 * @return das {@link Kreuz2Objekt}
+	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
+	 */
 	@Override
 	protected Kreuz2Objekt<A, PA, B, PB> getKreuzObjekt(ResultSet rs, DBObject... loadedObjects) throws SQLException {
 		A a = SQLUtils.loadedObjectsOrNull(1, rs, getaDAO(), loadedObjects);

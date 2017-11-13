@@ -4,50 +4,53 @@ import net.sjr.sql.rsloader.RsUtils;
 
 import java.sql.PreparedStatement;
 
+/**
+ * Klasse mit diversen Methoden, die bei dem Arbeiten mit SQL hilfreich sind
+ */
 @SuppressWarnings("WeakerAccess")
-public final class SQLUtils extends RsUtils {
+public class SQLUtils extends RsUtils {
 	/**
-	 * Wandelt den felder String vom Format "colA, colB" in das Format "?, ?" um
+	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "?, ?" um
 	 *
-	 * @param felder der umzuwandelnde String
+	 * @param felder der umzuwandelnde {@link String}
 	 *
-	 * @return der umgewandelte String
+	 * @return der umgewandelte {@link String}
 	 */
 	public static String getFragezeichenInsert(final String felder) {
 		return felder.replaceAll("[a-zA-Z0-9_]+", "?");
 	}
 	
 	/**
-	 * Wandelt den felder String vom Format "colA, colB" in das Format "colA=?, colB=?" um
+	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
-	 * @param felder der umzuwandelnde String
+	 * @param felder der umzuwandelnde {@link String}
 	 *
-	 * @return der umgewandelte String
+	 * @return der umgewandelte {@link String}
 	 */
 	public static String getFragezeichenUpdate(final String felder) {
 		return getFragezeichenSelect(felder, ", ", "=");
 	}
 	
 	/**
-	 * Wandelt den felder String vom Format "colA, colB" in das Format "colA=?, colB=?" um
+	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
-	 * @param felder   der umzuwandelnde String
+	 * @param felder   der umzuwandelnde {@link String}
 	 * @param multOp   das Trennzeichen zwischen den Klauseln
 	 * @param operator der Operator
 	 *
-	 * @return der umgewandelte String
+	 * @return der umgewandelte {@link String}
 	 */
 	public static String getFragezeichenSelect(final String felder, String multOp, String operator) {
 		return felder.replaceAll(", ", operator + '?' + multOp) + operator + '?';
 	}
 	
 	/**
-	 * Wandelt den felder String vom Format "colA, colB" in das Format "tableName.colA, tableName.colB" um
+	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "tableName.colA, tableName.colB" um
 	 *
-	 * @param felder    der umzuwandelnde String
+	 * @param felder    der umzuwandelnde {@link String}
 	 * @param tableName der Tabellenname
 	 *
-	 * @return der umgewandelte String
+	 * @return der umgewandelte {@link String}
 	 */
 	public static String fullQualifyTableName(final String felder, String tableName) {
 		return tableName + '.' + felder.replaceAll(", ", ", " + tableName + '.');
@@ -82,9 +85,9 @@ public final class SQLUtils extends RsUtils {
 	}
 	
 	/**
-	 * Extrahiert das SQL Statement aus einem prepared Statement
+	 * Extrahiert das SQL Statement aus einem {@link PreparedStatement}
 	 *
-	 * @param pst das Prepared Statement aus welchem extrahiert werden soll
+	 * @param pst das {@link PreparedStatement} aus welchem extrahiert werden soll
 	 *
 	 * @return das SQL Statement
 	 */

@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Created by Jan Reichl on 11.05.17.
+ * Klasse mit den Joda Time Klassen als ParameterType
  */
 public class JodaParameterType implements ParameterType {
 	static {

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * Created by Jan Reichl on 11.05.17.
+ * Klasse mit den Java 8 Date Klassen als ParameterType
  */
 public class Java8ParameterType implements ParameterType {
 	static {
