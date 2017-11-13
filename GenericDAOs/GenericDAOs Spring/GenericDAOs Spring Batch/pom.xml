@@ -5,12 +5,12 @@
 	<parent>
 		<artifactId>generic-daos-spring</artifactId>
 		<groupId>net.s-jr.utils.sql.spring</groupId>
-		<version>1.0.1</version>
+		<version>1.0.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>generic-daos-spring-batch</artifactId>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 	<name>GenericDAOs Spring Batch</name>
 	<description>Classes to work with Spring Batch and GenericDAOs</description>
 	<url>https://github.com/s-jr/Utils</url>
@@ -19,12 +19,12 @@
 		<dependency>
 			<groupId>org.springframework.batch</groupId>
 			<artifactId>spring-batch-infrastructure</artifactId>
-			<version>3.0.8.RELEASE</version>
+			<version>${spring-batch-infrastructure.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.s-jr.utils.sql</groupId>
 			<artifactId>generic-daos-impl</artifactId>
-			<version>1.2.4</version>
+			<version>1.2.5</version>
 		</dependency>
 	</dependencies>
 </project>
