@@ -559,7 +559,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		}
 		T result = list.get(0);
 		if (result == null) {
-			throw new RuntimeException();
+			throw new RuntimeException("Result in List was null");
 		}
 		return result;
 	}
@@ -625,11 +625,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final String cacheKey, final DBObject... loadedObjects) {
 		List<T> list = loadAllFromWhere(join, where, params, "1", null, cacheKey, loadedObjects);
 		if (list.size() < 1) {
-			throw new EntryNotFoundException();
+			throw new EntryNotFoundException(where, params);
 		}
 		T result = list.get(0);
 		if (result == null) {
-			throw new RuntimeException();
+			throw new RuntimeException("Result in List was null");
 		}
 		return result;
 	}
