@@ -10,11 +10,12 @@ import org.springframework.batch.item.database.AbstractPagingItemReader;
  * @param <T> Typ des gespeicherten Java Objektes
  * @param <P> Typ des Primary Keys
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class DAOReader<T extends DBObject<P>, P extends Number> extends AbstractPagingItemReader<T> {
-	private final PaginationDAO<T, P> dao;
-	private final String join;
-	private final String where;
-	private final ParameterList params;
+	protected final PaginationDAO<T, P> dao;
+	protected final String join;
+	protected final String where;
+	protected final ParameterList params;
 	
 	/**
 	 * Erstellt einen neuen {@link DAOReader} an mit einer {@link PaginationDAO}
