@@ -37,6 +37,7 @@
 	<modules>
 		<module>ConverterUtils</module>
 		<module>GenericDAOs</module>
+		<module>DependencyManagement</module>
 	</modules>
 
 	<properties>

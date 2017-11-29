@@ -93,8 +93,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	
 	@Override
 	public void write(List<? extends T> items) throws Exception {
-		int itemsSize = items.size();
-		for (; done < itemsSize; done++) {
+		for (int itemsSize = items.size(); done < itemsSize; done++) {
 			T item = items.get(done);
 			insertOrUpdate(item);
 		}

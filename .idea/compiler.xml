@@ -24,11 +24,12 @@
       <module name="BaseRsLoader" target="1.7" />
       <module name="converter-utils" target="1.7" />
       <module name="ConverterUtils" target="1.7" />
+      <module name="DependencyManagement" target="1.7" />
       <module name="GenericDAOs" target="1.7" />
       <module name="GenericDAOs API" target="1.7" />
       <module name="GenericDAOs Impl" target="1.7" />
-      <module name="GenericDAOs Spring" target="1.7" />
-      <module name="GenericDAOs Spring Batch" target="1.7" />
+      <module name="GenericDAOs Spring" target="1.8" />
+      <module name="GenericDAOs Spring Batch" target="1.8" />
       <module name="Java8ConverterUtils" target="1.8" />
       <module name="Java8ParameterType" target="1.8" />
       <module name="Java8RsLoader" target="1.8" />
