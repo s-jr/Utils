@@ -443,7 +443,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 */
 	public void close() {
 		for (PreparedStatement pst : pstCache.values()) {
-			DAO.closeSqlAutocloseable(pst, log);
+			SQLUtils.closeSqlAutocloseable(pst, log);
 		}
 		pstCache.clear();
 	}

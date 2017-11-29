@@ -1,8 +1,10 @@
 package net.sjr.sql;
 
 import net.sjr.sql.rsloader.RsUtils;
+import org.slf4j.Logger;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Klasse mit diversen Methoden, die bei dem Arbeiten mit SQL hilfreich sind
@@ -96,5 +98,25 @@ public class SQLUtils extends RsUtils {
 				  .replaceAll("org.apache.tomcat.jdbc.pool.StatementFacade\\$StatementProxy\\[Proxy=[0-9]+; Query=.+ Delegate=", "")
 				  .replaceAll("com\\.mysql\\.jdbc\\.JDBC42PreparedStatement@[0-9a-z]+: ", "")
 				  .replaceAll("org\\.hsqldb\\.jdbc\\.JDBCPreparedStatement@[0-9a-z]+\\[", "");
+	}
+	
+	/**
+	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
+	 *
+	 * @param closeable das {@link AutoCloseable}
+	 * @param log       der {@link Logger} im Fehlerfall
+	 */
+	public static void closeSqlAutocloseable(final AutoCloseable closeable, Logger log) {
+		if (closeable != null) {
+			try {
+				closeable.close();
+			}
+			catch (SQLException e) {
+				if (log != null) log.error("SQL Fehler", e);
+			}
+			catch (Exception e) {
+				if (log != null) log.error("Allgemeiner Fehler", e);
+			}
+		}
 	}
 }

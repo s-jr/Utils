@@ -952,7 +952,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	static void doCloseAlways(final PreparedStatement pst, final boolean shouldCloseAlways, final Connection connection, final DataSource dataSource, final Logger log, final Map<String, PreparedStatement> pstCache) {
 		if (shouldCloseAlways) {
 			close(connection, dataSource, log, pstCache);
-			closeSqlAutocloseable(pst, log);
+			SQLUtils.closeSqlAutocloseable(pst, log);
 		}
 	}
 	
@@ -976,12 +976,12 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		if (log != null) log.debug("Closing DAO...");
 		if (pstCache != null) {
 			for (PreparedStatement pst : pstCache.values()) {
-				closeSqlAutocloseable(pst, log);
+				SQLUtils.closeSqlAutocloseable(pst, log);
 			}
 			pstCache.clear();
 		}
 		if (dataSource != null) {
-			closeSqlAutocloseable(connection, log);
+			SQLUtils.closeSqlAutocloseable(connection, log);
 		}
 	}
 	
@@ -990,27 +990,8 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param closeable das {@link AutoCloseable}
 	 */
-	private void closeSqlAutocloseable(final AutoCloseable closeable) {
-		closeSqlAutocloseable(closeable, log);
+	protected void closeSqlAutocloseable(final AutoCloseable closeable) {
+		SQLUtils.closeSqlAutocloseable(closeable, log);
 	}
 	
-	/**
-	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
-	 *
-	 * @param closeable das {@link AutoCloseable}
-	 * @param log       der {@link Logger} im Fehlerfall
-	 */
-	static void closeSqlAutocloseable(final AutoCloseable closeable, Logger log) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			}
-			catch (SQLException e) {
-				if (log != null) log.error("SQL Fehler", e);
-			}
-			catch (Exception e) {
-				if (log != null) log.error("Allgemeiner Fehler", e);
-			}
-		}
-	}
 }
