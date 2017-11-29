@@ -19,20 +19,30 @@
 		<dependency>
 			<groupId>net.s-jr.utils.sql.rsloader</groupId>
 			<artifactId>base-rs-loader</artifactId>
-			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.s-jr.utils.converterutils</groupId>
 			<artifactId>java8-converter-utils</artifactId>
-			<version>1.0.3</version>
 		</dependency>
 	</dependencies>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>net.s-jr.utils</groupId>
+				<artifactId>dependency-management</artifactId>
+				<version>1.0.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>

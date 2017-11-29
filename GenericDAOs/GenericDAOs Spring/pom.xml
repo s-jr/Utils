@@ -13,13 +13,10 @@
 	<artifactId>generic-daos-spring</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.2</version>
-	<properties>
-		<spring-batch-infrastructure.version>3.0.8.RELEASE</spring-batch-infrastructure.version>
-	</properties>
 	<name>GenericDAOs Spring</name>
 	<description>The parent Project for the GenericDAOs Spring projects</description>
 	<url>https://github.com/s-jr/Utils</url>
-
+	
 	<modules>
 		<module>GenericDAOs Spring Batch</module>
 	</modules>
@@ -29,7 +26,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
