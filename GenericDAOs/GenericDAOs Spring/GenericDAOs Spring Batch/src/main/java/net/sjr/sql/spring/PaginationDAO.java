@@ -6,9 +6,11 @@ import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -46,6 +48,11 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 */
 	public PaginationDAO(DAO<? extends DBObject, ? extends Number> dao) {
 		super(dao);
+	}
+	
+	@Override
+	protected Connection getConnectionFromDataSource() throws SQLException {
+		return DataSourceUtils.doGetConnection(dataSource);
 	}
 	
 	/**
@@ -92,7 +99,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	}
 	
 	@Override
-	public void write(List<? extends T> items) throws Exception {
+	public void write(List<? extends T> items) {
 		for (int itemsSize = items.size(); done < itemsSize; done++) {
 			T item = items.get(done);
 			insertOrUpdate(item);

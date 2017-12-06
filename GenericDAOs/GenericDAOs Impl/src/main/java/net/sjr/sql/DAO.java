@@ -26,7 +26,7 @@ import java.util.Map;
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements DAOBase<T, P> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
-	private final DataSource dataSource;
+	protected final DataSource dataSource;
 	private Connection connection;
 	protected final Map<String, PreparedStatement> pstCache = new HashMap<>();
 	
@@ -70,14 +70,13 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Öffnet eine neue Datenbankverbindung oder gibt eine bestehende zurück
 	 *
 	 * @return eine Datenbankverbindung
-	 *
 	 * @throws IllegalStateException wenn keine Connection und keine {@link DataSource}
 	 */
 	protected Connection getConnection() {
 		try {
 			if (connection == null || connection.isClosed()) {
 				if (dataSource != null) {
-					connection = dataSource.getConnection();
+					connection = getConnectionFromDataSource();
 				}
 				else {
 					throw new IllegalStateException("Die DAO hat keine Connection und keine DataSource!");
@@ -88,6 +87,16 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		catch (SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+	}
+	
+	/**
+	 * Holt aus der DataSource die Connection. Nützlich, wenn eine andere Methode als {@link DataSource#getConnection()} genutzt werden soll
+	 *
+	 * @return die Connection
+	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
+	 */
+	protected Connection getConnectionFromDataSource() throws SQLException {
+		return dataSource.getConnection();
 	}
 	
 	/**
@@ -114,7 +123,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	
 	/**
 	 * @param v Das Objekt von dem die {@link ParameterList} erstellt werden soll
-	 *
 	 * @return eine {@link ParameterList} aller {@link Parameter} Spalten für die DB
 	 */
 	protected abstract ParameterList getPList(T v);
@@ -132,7 +140,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen vor einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v das einzufügende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeInsert(T v) {
@@ -143,7 +150,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen vor einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v das upzudatende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeUpdate(T v) {
@@ -154,7 +160,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen vor einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v das zu löschende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> cascadeDelete(T v) {
@@ -165,7 +170,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
 	 *
 	 * @param v das eingefügte Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> afterInsert(T v) {
@@ -176,7 +180,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
 	 *
 	 * @param v das upgedatete Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> afterUpdate(T v) {
@@ -187,7 +190,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
 	 *
 	 * @param v das gelöschte Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	protected Map<String, P> afterDelete(T v) {
@@ -199,9 +201,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param rs            Das {@link ResultSet} mit den Daten
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return Ein neues Objekt aus dem {@link ResultSet}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	protected abstract T getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException;
@@ -212,7 +212,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param rs            Das {@link ResultSet} mit den Daten
 	 * @param result        das zu füllende Objekt
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	protected abstract void fillObject(ResultSet rs, T result, DBObject... loadedObjects) throws SQLException;
@@ -230,9 +229,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Lädt ein Objekt von T an Hand seiner PrimaryID
 	 *
 	 * @param primary die PrimaryID des Objektes
-	 *
 	 * @return das Objekt, niemals {@code null}
-	 *
 	 * @throws EntryNotFoundException wenn es kein Objekt mit der ID gibt
 	 */
 	@Override
@@ -254,7 +251,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Erstellt ein {@link PreparedStatement} zum Einfügen eines Objektes oder lädt es aus dem Cache
 	 *
 	 * @return das {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private PreparedStatement insertPst() throws SQLException {
@@ -277,9 +273,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt darf noch keine PrimaryID haben!</b>
 	 *
 	 * @param v das einzufügende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
-	 *
 	 * @throws IllegalStateException wenn das Objekt eine PrimaryID hat
 	 */
 	@Override
@@ -334,9 +328,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param rs  das {@link ResultSet} aus dem geladen werden soll
 	 * @param pos die Position aus der geladen werden soll
-	 *
 	 * @return der Primary Key
-	 *
 	 * @throws SQLException                Wenn eine {@link SQLException} aufgetreten ist
 	 * @throws UnsupportedPrimaryException wenn der Typ des Primary Keys nicht unterstützt wird
 	 */
@@ -360,9 +352,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Holt den Primary Key aus der Datenbank
 	 *
 	 * @param rs das {@link ResultSet} aus dem geladen werden soll
-	 *
 	 * @return der Primary Key
-	 *
 	 * @throws SQLException                Wenn eine {@link SQLException} aufgetreten ist
 	 * @throws UnsupportedPrimaryException wenn der Typ des Primary Keys nicht unterstützt wird
 	 */
@@ -374,7 +364,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Erstellt ein {@link PreparedStatement} zum Updaten eines Objektes oder lädt es aus dem Cache
 	 *
 	 * @return das {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private PreparedStatement updatePst() throws SQLException {
@@ -392,9 +381,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu aktualisierende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
-	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	@Override
@@ -444,7 +431,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Erstellt ein {@link PreparedStatement} zum Löschen eines Objektes oder lädt es aus dem Cache
 	 *
 	 * @return das {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private PreparedStatement deletePst() throws SQLException {
@@ -461,9 +447,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu löschende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
-	 *
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	@Override
@@ -510,7 +494,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
 	 *
 	 * @param v das einzufügende oder zu aktualisierende Objekt
-	 *
 	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	@Override
@@ -530,9 +513,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param col           Die Spalte für WHERE
 	 * @param param         Der Wert für WHERE
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return das gefundene Objekt. Niemals {@code null}
-	 *
 	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected T loadOneFromCol(final String join, final String col, final Object param, final DBObject... loadedObjects) {
@@ -547,9 +528,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param param         Der Wert für WHERE
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return das gefundene Objekt. Niemals {@code null}
-	 *
 	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected T loadOneFromCol(final String join, final String col, final Object param, final String cacheKey, final DBObject... loadedObjects) {
@@ -573,7 +552,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param limit         das Limit für die Anzahl der Ergebnisse oder {@code null}
 	 * @param order         Die ORDER Klausel oder {@code null}
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final DBObject... loadedObjects) {
@@ -590,7 +568,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param order         Die ORDER Klausel oder {@code null}
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
@@ -604,7 +581,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param where         Die WHERE Klausel oder {@code null}
 	 * @param params        Die {@link Parameter} oder {@code null}
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final DBObject... loadedObjects) {
@@ -619,7 +595,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param params        Die {@link Parameter} oder {@code null}
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final String cacheKey, final DBObject... loadedObjects) {
@@ -643,7 +618,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param limit         das Limit für die Anzahl der Ergebnisse oder {@code null}
 	 * @param order         Die ORDER Klausel oder {@code null}
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final DBObject... loadedObjects) {
@@ -660,7 +634,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param order         Die ORDER Klausel oder {@code null}
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
@@ -690,9 +663,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Logt das {@link PreparedStatement}, führt es aus und gibt das {@link ResultSet} zurück
 	 *
 	 * @param pst das {@link PreparedStatement}
-	 *
 	 * @return das {@link ResultSet}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private ResultSet getResultSet(PreparedStatement pst) throws SQLException {
@@ -706,7 +677,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param join  Die JOIN Klausel oder {@code null}
 	 * @param col   Die Spalte für WHERE
 	 * @param param Der Wert für WHERE
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected long loadCountFromCol(final String join, final String col, final Object param) {
@@ -720,7 +690,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param col      Die Spalte für WHERE
 	 * @param param    Der Wert für WHERE
 	 * @param cacheKey der Key für den pstCache
-	 *
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected long loadCountFromCol(final String join, final String col, final Object param, final String cacheKey) {
@@ -733,7 +702,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param join   Die JOIN Klausel oder {@code null}
 	 * @param where  Die WHERE Klausel oder {@code null}
 	 * @param params Die Parameter
-	 *
 	 * @return die Anzahl der Parameter
 	 */
 	protected long loadCountFromWhere(final String join, final String where, final ParameterList params) {
@@ -747,7 +715,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param where    Die WHERE Klausel oder {@code null}
 	 * @param params   Die {@link Parameter} oder {@code null}
 	 * @param cacheKey der Key für den pstCache
-	 *
 	 * @return die Anzahl der Parameter
 	 */
 	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
@@ -780,7 +747,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param params Die {@link Parameter} oder {@code null}
 	 * @param limit  das Limit für die Anzahl der Ergebnisse oder {@code null}
 	 * @param order  Die ORDER Klausel oder {@code null}
-	 *
 	 * @return die Liste mit Strings
 	 */
 	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order) {
@@ -797,7 +763,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param limit    das Limit für die Anzahl der Ergebnisse oder {@code null}
 	 * @param order    Die ORDER Klausel oder {@code null}
 	 * @param cacheKey der Key für den pstCache
-	 *
 	 * @return die Liste mit Strings
 	 */
 	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey) {
@@ -835,7 +800,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Findet den Typ der Datenbank heraus
 	 *
 	 * @param connection die Datenbankverbindung, von der der Datenbanktyp herausgefunden werden soll
-	 *
 	 * @return der Datenbanktyp
 	 */
 	protected static DatabaseType getDatabaseType(Connection connection) {
@@ -854,7 +818,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param params die {@link ParameterList}
 	 * @param pst    das {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private void setParameter(ParameterList params, PreparedStatement pst) throws SQLException {
@@ -881,9 +844,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey          der Key für den pstCache
 	 * @param shouldCloseAlways die Angabe, ob nach jedem Statement die Datenbankverbindung geschlossen wird
 	 * @param params            die Parameter, die in das {@link PreparedStatement} eingefügt werden
-	 *
 	 * @return das zusammengebaute {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	static PreparedStatement getPst(final Connection connection, final Map<String, PreparedStatement> pstCache, final String table, final String dType, final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final boolean shouldCloseAlways, final ParameterList params) throws SQLException {
@@ -909,9 +870,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param order    Die ORDER Klausel oder {@code null}
 	 * @param cacheKey der Key für den pstCache
 	 * @param params   die Parameter, die in das {@link PreparedStatement} eingefügt werden
-	 *
 	 * @return das zusammengebaute {@link PreparedStatement}
-	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
