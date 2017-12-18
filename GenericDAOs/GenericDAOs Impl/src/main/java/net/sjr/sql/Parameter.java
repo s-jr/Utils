@@ -8,6 +8,7 @@ import net.sjr.sql.parametertype.ParameterTypeRegistry;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Objects;
 
 /**
  * Parameter welcher in ein {@link PreparedStatement} eingesetzt werden kann
@@ -96,6 +97,20 @@ public class Parameter {
 	
 	@Override
 	public String toString() {
-		return "Parameter [value=" + value + ", type=" + type + "]";
+		return "Parameter [value=" + value + ", type=" + type + ']';
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Parameter parameter = (Parameter) o;
+		return Objects.equals(value, parameter.value) &&
+				Objects.equals(type, parameter.type);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(value, type);
 	}
 }

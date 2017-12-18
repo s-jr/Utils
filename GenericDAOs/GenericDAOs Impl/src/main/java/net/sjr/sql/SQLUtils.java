@@ -119,4 +119,16 @@ public class SQLUtils extends RsUtils {
 			}
 		}
 	}
+	
+	/**
+	 * Findet die Klasse des Primary Keys des Objektes des DAO heraus
+	 *
+	 * @param dao die DAO des Objektes
+	 * @param <T> der Typ des DAO
+	 * @param <P> der Typ des Primary Keys der DAO
+	 * @return die Klasse des Primary Keys
+	 */
+	public static <T extends DBObject<P>, P extends Number> Class<P> getPrimaryClass(DAO<T, P> dao) {
+		return dao.getPrimaryClass();
+	}
 }

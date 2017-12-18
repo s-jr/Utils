@@ -4,6 +4,7 @@ import net.sjr.sql.DAO;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Erweitert die {@link DAO}s um die Möglichkeit als Spring Batch Writer zu dienen und fügt die vom {@link DAOReader} benötigten Methoden hinzu
+ * Erweitert die {@link DAO}s um die Möglichkeit als Spring Batch Writer zu dienen und fügt die vom {@link DAOReaderLimit} benötigten Methoden hinzu
  *
  * @param <T> Typ des zu gespeichernden Java Objektes
  * @param <P> Typ des Primary Keys
@@ -55,20 +56,9 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 		return DataSourceUtils.doGetConnection(dataSource);
 	}
 	
-	/**
-	 * Lädt eine Seite aus der Datenbank
-	 *
-	 * @param pageNumber die Seitennummer
-	 * @param pageSize   die Größe einer Seite
-	 *
-	 * @return die Seite. Niemals {@code null}
-	 */
-	public List<T> loadPage(int pageNumber, int pageSize) {
-		return loadPage(pageNumber, pageSize, null, null, null);
-	}
 	
 	/**
-	 * Lädt eine Seite aus der Datenbank mit erweiterten Bedingungen. Die Pagination muss hier außerhalb der LIMIT Klausel manuell erfolgen
+	 * Lädt eine Seite aus der Datenbank mit erweiterten Bedingungen
 	 *
 	 * @param pageNumber die Seitennummer
 	 * @param pageSize   die Größe einer Seite
@@ -80,6 +70,30 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 */
 	public List<T> loadPage(int pageNumber, int pageSize, String join, String where, ParameterList params) {
 		return loadAllFromWhere(join, where, params, (pageNumber * pageSize) + ", " + ((pageNumber + 1) * pageSize), getPrimaryCol());
+	}
+	
+	/**
+	 * Lädt eine Seite aus der Datenbank mit erweiterten Bedingungen
+	 *
+	 * @param lastPrimary die kleinste Primary ID, nach der geladen werden soll
+	 * @param pageSize    die Größe einer Seite
+	 * @param join        Die JOIN Klausel oder {@code null}
+	 * @param where       Die WHERE Klausel oder {@code null}
+	 * @param params      Die {@link Parameter} oder {@code null}
+	 * @return die Seite. Niemals {@code null}
+	 */
+	public List<T> loadPageFromPrimary(P lastPrimary, int pageSize, String join, String where, ParameterList params) {
+		String fullWhere;
+		if (StringUtils.isBlank(where)) fullWhere = "";
+		else fullWhere = '(' + where + ") AND ";
+		fullWhere += getPrimaryCol() + " > ?";
+		
+		ParameterList fullParams;
+		if (params == null) fullParams = new ParameterList();
+		else fullParams = new ParameterList(params);
+		fullParams.addParameter(lastPrimary == null ? 0 : lastPrimary);
+		
+		return loadAllFromWhere(join, fullWhere, fullParams, String.valueOf(pageSize), getPrimaryCol(), "loadPageFromPrimary" + getPrimaryCol());
 	}
 	
 	/**

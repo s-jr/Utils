@@ -30,6 +30,8 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	private Connection connection;
 	protected final Map<String, PreparedStatement> pstCache = new HashMap<>();
 	
+	private Class<P> primaryClass = null;
+	
 	/**
 	 * Erstellt die {@link DAO} mit einer {@link DataSource}
 	 *
@@ -324,6 +326,22 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	}
 	
 	/**
+	 * Findet die Klasse des Primary Keys heraus
+	 *
+	 * @return die Klasse des Primary Keys
+	 */
+	Class<P> getPrimaryClass() {
+		if (primaryClass == null) {
+			Type type = getClass();
+			while (type instanceof Class) {
+				type = ((Class) type).getGenericSuperclass();
+			}
+			primaryClass = (Class<P>) ((ParameterizedType) type).getActualTypeArguments()[1];
+		}
+		return primaryClass;
+	}
+	
+	/**
 	 * Holt den Primary Key aus der Datenbank
 	 *
 	 * @param rs  das {@link ResultSet} aus dem geladen werden soll
@@ -334,11 +352,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 */
 	@Override
 	public P getPrimary(ResultSet rs, int pos) throws SQLException {
-		Type type = getClass();
-		while (type instanceof Class) {
-			type = ((Class) type).getGenericSuperclass();
-		}
-		Class<P> genericClass = (Class<P>) ((ParameterizedType) type).getActualTypeArguments()[1];
+		Class<P> genericClass = getPrimaryClass();
 		if (genericClass.equals(Integer.class)) return (P) SQLUtils.getNullableInt(rs, pos);
 		if (genericClass.equals(Long.class)) return (P) SQLUtils.getNullableLong(rs, pos);
 		if (genericClass.equals(Byte.class)) return (P) SQLUtils.getNullableByte(rs, pos);
