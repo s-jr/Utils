@@ -36,7 +36,6 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	protected final Function<R, P> primaryExtractor;
 	
 	private P lastPrimary = null;
-	Class<P> primaryClass = null;
 	
 	private static final String LAST_PRIMARY = "lastprimary";
 	private final int pageSize;
@@ -135,11 +134,11 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 				log.debug("Lese Seite nach Primary {}", lastPrimary);
 				
 				String join = this.join == null ? null : this.join.apply(lastPrimary, pageSize);
-				String where = this.join == null ? null : this.where.apply(lastPrimary, pageSize);
-				ParameterList params = this.join == null ? null : this.params.apply(lastPrimary, pageSize);
-				String limit = this.join == null ? null : this.limit.apply(lastPrimary, pageSize);
-				String order = this.join == null ? null : this.order.apply(lastPrimary, pageSize);
-				DBObject[] loadedObjects = this.join == null ? null : this.loadedObjects.apply(lastPrimary, pageSize);
+				String where = this.where == null ? null : this.where.apply(lastPrimary, pageSize);
+				ParameterList params = this.params == null ? null : this.params.apply(lastPrimary, pageSize);
+				String limit = this.limit == null ? null : this.limit.apply(lastPrimary, pageSize);
+				String order = this.order == null ? null : this.order.apply(lastPrimary, pageSize);
+				DBObject[] loadedObjects = this.loadedObjects == null ? null : this.loadedObjects.apply(lastPrimary, pageSize);
 				
 				results = mapper.apply(dao.loadCustomPage(join, where, params, limit, order, loadedObjects));
 				indexInList = 0;
@@ -197,14 +196,13 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 				Objects.equals(loadedObjects, that.loadedObjects) &&
 				Objects.equals(primaryExtractor, that.primaryExtractor) &&
 				Objects.equals(lastPrimary, that.lastPrimary) &&
-				Objects.equals(primaryClass, that.primaryClass) &&
 				Objects.equals(results, that.results) &&
 				Objects.equals(lock, that.lock);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(dao, join, where, params, limit, order, mapper, loadedObjects, primaryExtractor, lastPrimary, primaryClass, pageSize, indexInList, results, lock);
+		return Objects.hash(dao, join, where, params, limit, order, mapper, loadedObjects, primaryExtractor, lastPrimary, pageSize, indexInList, results, lock);
 	}
 	
 	/**

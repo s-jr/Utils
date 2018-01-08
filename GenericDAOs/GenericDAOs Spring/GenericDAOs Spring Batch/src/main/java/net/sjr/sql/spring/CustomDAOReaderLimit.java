@@ -116,11 +116,11 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 		int size = getPageSize();
 		log.debug("Lese Seite {} mit der Größe {}...", page, size);
 		String join = this.join == null ? null : this.join.apply(page, size);
-		String where = this.join == null ? null : this.where.apply(page, size);
-		ParameterList params = this.join == null ? null : this.params.apply(page, size);
-		String limit = this.join == null ? null : this.limit.apply(page, size);
-		String order = this.join == null ? null : this.order.apply(page, size);
-		DBObject[] loadedObjects = this.join == null ? null : this.loadedObjects.apply(page, size);
+		String where = this.where == null ? null : this.where.apply(page, size);
+		ParameterList params = this.params == null ? null : this.params.apply(page, size);
+		String limit = this.limit == null ? null : this.limit.apply(page, size);
+		String order = this.order == null ? null : this.order.apply(page, size);
+		DBObject[] loadedObjects = this.loadedObjects == null ? null : this.loadedObjects.apply(page, size);
 		results = mapper.apply(dao.loadCustomPage(join, where, params, limit, order, loadedObjects));
 	}
 	
