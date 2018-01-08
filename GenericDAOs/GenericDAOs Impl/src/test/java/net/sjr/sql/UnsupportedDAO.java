@@ -7,6 +7,7 @@ import java.sql.SQLException;
 /**
  * Created by Jan on 06.05.2017.
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class UnsupportedDAO extends DAO<UnsupportedClass, Integer> {
 	private static final String FELDER = "b";
 	private static final String PRIMARY = "test2ID";

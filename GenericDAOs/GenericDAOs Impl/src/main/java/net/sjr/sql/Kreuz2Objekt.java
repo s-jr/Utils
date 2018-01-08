@@ -1,5 +1,7 @@
 package net.sjr.sql;
 
+import java.util.Objects;
+
 /**
  * Eine Klasse um zwei über Kreuztabellen verbundene Objekte zu beinhalten
  * @param <A> Typ des ersten Java Objektes
@@ -7,9 +9,10 @@ package net.sjr.sql;
  * @param <B> Typ des zweiten Java Objektes
  * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  */
+@SuppressWarnings("WeakerAccess")
 public class Kreuz2Objekt<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> {
-	public final A a;
-	public final B b;
+	protected final A a;
+	protected final B b;
 	
 	/**
 	 * Erstellt ein neues Kreuzobjekt
@@ -21,25 +24,21 @@ public class Kreuz2Objekt<A extends DBObject<PA>, PA extends Number, B extends D
 		this.a = a;
 		this.b = b;
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-
 		Kreuz2Objekt<?, ?, ?, ?> that = (Kreuz2Objekt<?, ?, ?, ?>) o;
-
-		if (a != null ? !a.equals(that.a) : that.a != null) return false;
-		return b != null ? b.equals(that.b) : that.b == null;
+		return Objects.equals(a, that.a) &&
+				Objects.equals(b, that.b);
 	}
-
+	
 	@Override
 	public int hashCode() {
-		int result = a != null ? a.hashCode() : 0;
-		result = 31 * result + (b != null ? b.hashCode() : 0);
-		return result;
+		return Objects.hash(a, b);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Kreuz2Objekt{" +

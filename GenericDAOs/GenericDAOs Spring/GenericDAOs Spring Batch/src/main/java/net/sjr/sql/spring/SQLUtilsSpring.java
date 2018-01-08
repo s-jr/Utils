@@ -5,6 +5,7 @@ import net.sjr.sql.SQLUtils;
 import net.sjr.sql.exceptions.UnsupportedPrimaryException;
 import org.springframework.batch.item.ExecutionContext;
 
+@SuppressWarnings("WeakerAccess")
 public class SQLUtilsSpring extends SQLUtils {
 	@SuppressWarnings("unchecked")
 	public static <T extends DBObject<P>, P extends Number> P loadLastPrimaryFromContext(PaginationDAO<T, P> dao, ExecutionContext executionContext, String executionContextKey) {

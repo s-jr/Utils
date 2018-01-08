@@ -19,6 +19,7 @@ import java.util.Date;
  *
  * @author Jan Reichl
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class JodaConverterUtils {
 
 	/**

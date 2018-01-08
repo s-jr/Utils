@@ -11,6 +11,7 @@ import java.time.LocalTime;
 /**
  * Klasse mit den Java 8 Date Klassen als ParameterType
  */
+@SuppressWarnings("unused")
 public class Java8ParameterType implements ParameterType {
 	static {
 		ParameterTypeRegistry.registerParameterType(new Java8ParameterType());

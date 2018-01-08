@@ -12,7 +12,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class TestRunner {
 
 	@Test
 	public void testLoadAll() {
-		List<TestClass> expected = Arrays.asList(testClass);
+		List<TestClass> expected = Collections.singletonList(testClass);
 		try (TestDAO tdao = new TestDAO(con)) {
 			List<TestClass> actual = tdao.loadAll();
 			Assert.assertEquals(actual, expected);
@@ -134,7 +134,7 @@ public class TestRunner {
 
 	@Test
 	public void testLoadAfromB() {
-		List<TestClass> expected = Arrays.asList(testClass);
+		List<TestClass> expected = Collections.singletonList(testClass);
 		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
 			List<TestClass> actual = kdao.loadAfromB(testClass2);
 			Assert.assertEquals(actual, expected);
@@ -143,7 +143,7 @@ public class TestRunner {
 
 	@Test
 	public void testLoadBfromA() {
-		List<TestClass2> expected = Arrays.asList(testClass2);
+		List<TestClass2> expected = Collections.singletonList(testClass2);
 		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
 			List<TestClass2> actual = kdao.loadBfromA(testClass);
 			Assert.assertEquals(actual, expected);
@@ -189,7 +189,7 @@ public class TestRunner {
 
 	@Test
 	public void testLoadAllKreuze() {
-		List<Kreuz2Objekt<TestClass, Integer, TestClass2, Long>> expected = Arrays.asList(new Kreuz2Objekt<TestClass, Integer, TestClass2, Long>(testClass, testClass2));
+		List<Kreuz2Objekt<TestClass, Integer, TestClass2, Long>> expected = Collections.singletonList(new Kreuz2Objekt<>(testClass, testClass2));
 		try (KreuzTestDAO kdao = new KreuzTestDAO(con)) {
 			List<Kreuz2Objekt<TestClass, Integer, TestClass2, Long>> actual = kdao.loadAllKreuze();
 			Assert.assertEquals(actual, expected);

@@ -1,11 +1,13 @@
 package net.sjr.sql;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by Jan on 06.05.2017.
  */
 public class TestClass extends DBObjectImpl<Integer> {
+	private static final long serialVersionUID = -7366625836519728088L;
 	private String s = null;
 	private int i = 1;
 	private Date d = null;
@@ -42,29 +44,23 @@ public class TestClass extends DBObjectImpl<Integer> {
 	public void setTest2(TestClass2 test2) {
 		this.test2 = test2;
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-
 		TestClass testClass = (TestClass) o;
-
-		if (i != testClass.i) return false;
-		if (s != null ? !s.equals(testClass.s) : testClass.s != null) return false;
-		if (d != null ? !d.equals(testClass.d) : testClass.d != null) return false;
-		return test2 != null ? test2.equals(testClass.test2) : testClass.test2 == null;
+		return i == testClass.i &&
+				Objects.equals(s, testClass.s) &&
+				Objects.equals(d, testClass.d) &&
+				Objects.equals(test2, testClass.test2);
 	}
-
+	
 	@Override
 	public int hashCode() {
-		int result = s != null ? s.hashCode() : 0;
-		result = 31 * result + i;
-		result = 31 * result + (d != null ? d.hashCode() : 0);
-		result = 31 * result + (test2 != null ? test2.hashCode() : 0);
-		return result;
+		return Objects.hash(s, i, d, test2);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "TestClass{" +

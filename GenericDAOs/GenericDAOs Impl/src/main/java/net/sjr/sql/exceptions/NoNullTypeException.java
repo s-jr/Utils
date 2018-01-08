@@ -10,7 +10,7 @@ public class NoNullTypeException extends RuntimeException implements Serializabl
 	
 	public NoNullTypeException(PreparedStatement pst, int position) {
 		super("Es wurde ein null-Wert an Position " + position + " [" + pstToPositionName(pst, position) + " ] übergeben, aber kein Typ spezifiziert\n"
-				+ "(Poblem SQL) " + SQLUtils.pstToSQL(pst));
+				+ "(Problem SQL) " + SQLUtils.pstToSQL(pst));
 	}
 
 	private static String pstToPositionName(PreparedStatement pst, int position) {
@@ -30,10 +30,10 @@ public class NoNullTypeException extends RuntimeException implements Serializabl
 				names = namesStr.split(",");
 			}
 			else return "Unbekannt";
+			return names[position - 1];
 		}
 		catch (ArrayIndexOutOfBoundsException ignored) {
 			return "Unbekannt";
 		}
-		return names[position - 1];
 	}
 }

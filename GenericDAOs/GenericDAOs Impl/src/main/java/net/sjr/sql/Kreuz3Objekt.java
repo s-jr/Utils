@@ -9,8 +9,9 @@ package net.sjr.sql;
  * @param <C> Typ des dritten Java Objektes
  * @param <PC> Typ des Primary Keys des dritten Java Objektes
  */
+@SuppressWarnings("WeakerAccess")
 public class Kreuz3Objekt<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, C extends DBObject<PC>, PC extends Number> extends Kreuz2Objekt<A, PA, B, PB> {
-	public final C c;
+	protected final C c;
 	
 	/**
 	 * Erstellt ein neues Kreuzobjekt

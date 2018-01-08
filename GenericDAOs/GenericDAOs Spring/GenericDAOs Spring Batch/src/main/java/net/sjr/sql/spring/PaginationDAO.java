@@ -1,16 +1,17 @@
 package net.sjr.sql.spring;
 
-import net.sjr.sql.DAO;
-import net.sjr.sql.DBObject;
-import net.sjr.sql.Parameter;
-import net.sjr.sql.ParameterList;
+import net.sjr.sql.*;
+import net.sjr.sql.exceptions.UncheckedSQLException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamWriter;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> extends DAO<T, P> implements ItemStreamWriter<T> {
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private int done = 0;
 	
 	/**
@@ -56,6 +58,24 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 		return DataSourceUtils.doGetConnection(dataSource);
 	}
 	
+	@Override
+	public void close() {
+		if (log != null) log.debug("Closing DAO...");
+		if (pstCache != null) {
+			for (PreparedStatement pst : pstCache.values()) {
+				SQLUtils.closeSqlAutocloseable(pst, log);
+			}
+			pstCache.clear();
+		}
+		if (dataSource != null) {
+			try {
+				DataSourceUtils.doReleaseConnection(connection, dataSource);
+			}
+			catch (SQLException e) {
+				throw new UncheckedSQLException(e);
+			}
+		}
+	}
 	
 	/**
 	 * Lädt eine Seite aus der Datenbank mit erweiterten Bedingungen

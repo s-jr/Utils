@@ -11,6 +11,7 @@ import java.sql.SQLException;
 /**
  * Klasse mit den Joda Time Klassen als ParameterType
  */
+@SuppressWarnings("unused")
 public class JodaParameterType implements ParameterType {
 	static {
 		ParameterTypeRegistry.registerParameterType(new JodaParameterType());

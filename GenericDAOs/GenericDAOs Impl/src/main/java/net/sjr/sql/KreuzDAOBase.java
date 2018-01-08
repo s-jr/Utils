@@ -21,7 +21,7 @@ import java.util.Map;
  * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  * @param <KO> Typ des KreuzObjektes mit allen verbundenen Objekten
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
+@SuppressWarnings({"WeakerAccess", "unused", "SameReturnValue"})
 public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, KO extends Kreuz2Objekt<A, PA, B, PB>> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Map<String, PreparedStatement> pstCache = new HashMap<>();

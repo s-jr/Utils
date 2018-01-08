@@ -13,7 +13,7 @@ import java.util.List;
  * @param <C> Typ des dritten Java Objektes
  * @param <PC> Typ des Primary Keys des dritten Java Objektes
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused", "WeakerAccess", "SameReturnValue"})
 public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, C extends DBObject<PC>, PC extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz3Objekt<A, PA, B, PB, C, PC>> {
 	/**
 	 * gibt die {@link DAO} zurück, welche für das Laden der C Objekte genutzt werden soll

@@ -22,12 +22,12 @@ import java.util.Map;
  * @param <T> Typ des zu speichernden Java Objektes
  * @param <P> Typ des Primary Keys
  */
-@SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue"})
+@SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue", "SameReturnValue"})
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements DAOBase<T, P> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	protected final DataSource dataSource;
-	private Connection connection;
+	protected Connection connection;
 	protected final Map<String, PreparedStatement> pstCache = new HashMap<>();
 	
 	private Class<P> primaryClass = null;

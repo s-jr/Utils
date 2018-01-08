@@ -10,6 +10,7 @@ import java.sql.SQLException;
  * @param <B> Typ des zweiten Java Objektes
  * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  */
+@SuppressWarnings("unused")
 public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz2Objekt<A, PA, B, PB>> implements AutoCloseable {
 	/**
 	 * Gibt alle Spalten der Kreuztabelle zurück

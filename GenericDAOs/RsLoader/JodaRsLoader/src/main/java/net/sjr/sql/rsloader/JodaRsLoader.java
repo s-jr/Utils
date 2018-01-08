@@ -7,7 +7,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Erweitert den {@link RsLoader} um die Joda Time Klassen
@@ -23,7 +22,7 @@ public class JodaRsLoader extends RsLoader {
 	 *
 	 * @return das aktuelle {@code LocalDate}
 	 */
-	public LocalDate nextLocalDate() throws SQLException {
+	public LocalDate nextLocalDate() {
 		return JodaConverterUtils.SQLDate.sqlDateToJodaDate(nextDate());
 	}
 	
@@ -31,7 +30,7 @@ public class JodaRsLoader extends RsLoader {
 	 * Gibt die {@code LocalDateTime} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return die aktuelle {@code LocalDateTime}
 	 */
-	public LocalDateTime nextLocalDateTime() throws SQLException {
+	public LocalDateTime nextLocalDateTime() {
 		return JodaConverterUtils.SQLDate.timestampToJodaDateTime(nextTimestamp());
 	}
 	
@@ -39,7 +38,7 @@ public class JodaRsLoader extends RsLoader {
 	 * Gibt die {@code LocalTime} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return die aktuelle {@code LocalTime}
 	 */
-	public LocalTime nextLocalTime() throws SQLException {
+	public LocalTime nextLocalTime() {
 		return JodaConverterUtils.SQLDate.sqlTimeToJodaTime(nextTime());
 	}
 }

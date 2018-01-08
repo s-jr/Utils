@@ -6,6 +6,7 @@ import java.sql.*;
 /**
  * Klasse mit den Standard Java Klassen als ParameterType
  */
+@SuppressWarnings("unused")
 public final class BasicParameterType implements ParameterType {
 	static {
 		ParameterTypeRegistry.registerParameterType(new BasicParameterType());

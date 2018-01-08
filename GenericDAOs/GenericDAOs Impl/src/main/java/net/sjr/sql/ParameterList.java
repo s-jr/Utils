@@ -38,6 +38,7 @@ public class ParameterList extends LinkedList<Parameter> {
 	 * @param objects Alle Objekte, die angefügt werden sollen
 	 * @return sich selbst
 	 */
+	@SuppressWarnings("UnusedReturnValue")
 	public ParameterList addParameter(final Object... objects) {
 		for (Object o : objects) {
 			if (o instanceof Parameter) {

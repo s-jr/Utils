@@ -10,6 +10,7 @@ import java.util.Date;
 /**
  * Created by Jan on 06.05.2017.
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class TestDAO extends DAO<TestClass, Integer> {
 	private static final String FELDER = "s, i, d, test2";
 	private static final String PRIMARY = "testID";
