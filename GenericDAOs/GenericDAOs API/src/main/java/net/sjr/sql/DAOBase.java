@@ -1,9 +1,11 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Basisinterface für die DAOs inkl. der CRUD Methoden
@@ -19,44 +21,38 @@ public interface DAOBase<T extends DBObject<P>, P extends Number> extends AutoCl
 	 *
 	 * @return das Objekt, niemals {@code null}
 	 */
-	T loadFromID(P primary);
+	@NotNull T loadFromID(@NotNull P primary);
 	
 	/**
 	 * Lädt eine Liste aller Objekte von T
 	 *
 	 * @return Eine Liste aller Objekte von T. Niemals {@code null}
 	 */
-	List<T> loadAll();
+	@NotNull List<T> loadAll();
 	
 	/**
 	 * Fügt ein Objekt von T in die Datenbank ein<br>
 	 *
 	 * @param v das einzufügende Objekt
-	 *
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	Map<String, P> insertIntoDB(T v);
+	void insertIntoDB(@NotNull T v);
 	
 	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank<br>
 	 *
 	 * @param v das zu aktualisierende Objekt
-	 *
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	Map<String, P> updateIntoDB(T v);
+	void updateIntoDB(@NotNull T v);
 	
 	/**
 	 * Löscht ein Objekt von T aus der Datenbank<br>
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu löschende Objekt
-	 *
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	Map<String, P> deleteFromDB(T v);
-
-	Map<String, P> insertOrUpdate(T v);
+	void deleteFromDB(@NotNull T v);
+	
+	void insertOrUpdate(@NotNull T v);
 	
 	/**
 	 * Holt den Primary Key aus der Datenbank
@@ -65,5 +61,5 @@ public interface DAOBase<T extends DBObject<P>, P extends Number> extends AutoCl
 	 * @return der Primary Key
 	 * @throws SQLException wenn eine SQLException auftritt
 	 */
-	P getPrimary(ResultSet rs, int pos) throws SQLException;
+	@Nullable P getPrimary(@NotNull ResultSet rs, int pos) throws SQLException;
 }

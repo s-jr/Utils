@@ -1,6 +1,8 @@
 package net.sjr.sql.parametertype;
 
 import net.sjr.converterutils.JodaConverterUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -21,7 +23,7 @@ public class JodaParameterType implements ParameterType {
 	}
 
 	@Override
-	public int set(PreparedStatement pst, int pos, Object value) throws SQLException {
+	public int set(final @NotNull PreparedStatement pst, final int pos, final @Nullable Object value) throws SQLException {
 		if (value instanceof LocalDate) {
 			pst.setDate(pos, JodaConverterUtils.SQLDate.jodaDateToSqlDate((LocalDate) value));
 		}

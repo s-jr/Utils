@@ -1,5 +1,8 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -20,19 +23,19 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die {@link DAO}
 	 */
-	protected abstract DAO<C, PC> getcDAO();
+	protected abstract @NotNull DAO<C, PC> getcDAO();
 	
 	/**
 	 * gibt die Spalte der C Objetke in der Kreuztabelle zurück
 	 * @return der Spaltenname
 	 */
-	protected abstract String getKreuzColC();
+	protected abstract @NotNull String getKreuzColC();
 	
 	/**
 	 * gibt den Spaltentyp aus der {@link java.sql.Types} Klasse der C Objetke in der Kreuztabelle zurück
 	 * @return der Spaltentyp
 	 */
-	protected Integer getTypeC() {
+	protected @Nullable Integer getTypeC() {
 		return null;
 	}
 	
@@ -41,7 +44,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @return die Spalten
 	 */
 	@Override
-	protected String getAllKreuzCols() {
+	protected @NotNull String getAllKreuzCols() {
 		return getKreuzColA() + ", " + getKreuzColB() + ", " + getKreuzColC();
 	}
 	
@@ -53,7 +56,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	@Override
-	protected Kreuz3Objekt<A, PA, B, PB, C, PC> getKreuzObjekt(ResultSet rs, DBObject... loadedObjects) throws SQLException {
+	protected @NotNull Kreuz3Objekt<A, PA, B, PB, C, PC> getKreuzObjekt(final @NotNull ResultSet rs, final DBObject... loadedObjects) throws SQLException {
 		A a = SQLUtils.loadedObjectsOrNull(1, rs, getaDAO(), loadedObjects);
 		B b = SQLUtils.loadedObjectsOrNull(2, rs, getbDAO(), loadedObjects);
 		C c = SQLUtils.loadedObjectsOrNull(3, rs, getcDAO(), loadedObjects);
@@ -70,7 +73,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<A> loadAfromC(C c, DBObject... loadedObjects) {
+	public @NotNull List<A> loadAfromC(final @Nullable C c, final DBObject... loadedObjects) {
 		return executeFrom1(c, getaDAO(), getKreuzColA(), getKreuzColC(), getTypeC(), loadedObjects);
 	}
 
@@ -82,7 +85,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<B> loadBfromC(C c, DBObject... loadedObjects) {
+	public @NotNull List<B> loadBfromC(final @Nullable C c, final DBObject... loadedObjects) {
 		return executeFrom1(c, getbDAO(), getKreuzColB(), getKreuzColC(), getTypeC(), loadedObjects);
 	}
 
@@ -94,7 +97,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<C> loadCfromA(A a, DBObject... loadedObjects) {
+	public @NotNull List<C> loadCfromA(final @Nullable A a, final DBObject... loadedObjects) {
 		return executeFrom1(a, getcDAO(), getKreuzColC(), getKreuzColA(), getTypeA(), loadedObjects);
 	}
 
@@ -106,7 +109,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<C> loadCfromB(B b, DBObject... loadedObjects) {
+	public @NotNull List<C> loadCfromB(final @Nullable B b, final DBObject... loadedObjects) {
 		return executeFrom1(b, getcDAO(), getKreuzColC(), getKreuzColB(), getTypeB(), loadedObjects);
 	}
 
@@ -119,7 +122,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<A> loadAfromBundC(B b, C c, DBObject... loadedObjects) {
+	public @NotNull List<A> loadAfromBundC(final @Nullable B b, final @Nullable C c, final DBObject... loadedObjects) {
 		return executeFrom2(b, c, getaDAO(), getKreuzColA(), getKreuzColB(), getKreuzColC(), getTypeB(), getTypeC(), loadedObjects);
 	}
 
@@ -132,7 +135,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<B> loadBfromAundC(A a, C c, DBObject... loadedObjects) {
+	public @NotNull List<B> loadBfromAundC(final @Nullable A a, final @Nullable C c, final DBObject... loadedObjects) {
 		return executeFrom2(a, c, getbDAO(), getKreuzColB(), getKreuzColA(), getKreuzColC(), getTypeA(), getTypeC(), loadedObjects);
 	}
 
@@ -145,7 +148,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<C> loadCfromAundB(A a, B b, DBObject... loadedObjects) {
+	public @NotNull List<C> loadCfromAundB(final @Nullable A a, final @Nullable B b, final DBObject... loadedObjects) {
 		return executeFrom2(a, b, getcDAO(), getKreuzColC(), getKreuzColA(), getKreuzColB(), getTypeA(), getTypeB(), loadedObjects);
 	}
 	
@@ -164,7 +167,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @param <P> Typ des Primary Key des Zielobjektes
 	 * @return eine Liste aller gefundenen Zielobjekte. Niemals {@code null}
 	 */
-	protected <T extends DBObject<P>, P extends Number> List<T> executeFrom2(DBObject a, DBObject b, DAO<T, P> dao, String resultKreuzCol, String aKreuzCol, String bKreuzCol, Integer typeA, Integer typeB, DBObject... loadedObjects) {
+	protected @NotNull <T extends DBObject<P>, P extends Number> List<T> executeFrom2(final @Nullable DBObject a, final @Nullable DBObject b, final @NotNull DAO<T, P> dao, final @NotNull String resultKreuzCol, final @NotNull String aKreuzCol, final @NotNull String bKreuzCol, final @Nullable Integer typeA, final @Nullable Integer typeB, final DBObject... loadedObjects) {
 		return dao.loadAllFromWhere(
 				getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
 				getKreuzTable() + '.' + aKreuzCol + "=? AND " + getKreuzTable() + '.' + bKreuzCol + "=?", new ParameterList(new Parameter(a, typeA), new Parameter(b, typeB)),
@@ -179,8 +182,8 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @param b das zweite zu verbindende Objekt
 	 * @param c das dritte zu verbindende Objekt
 	 */
-	public void createKreuzInDB(final A a, final B b, final C c) {
-		super.createKreuzInDB(a, b, c);
+	public void createKreuzInDB(final @Nullable A a, final @Nullable B b, final @Nullable C c) {
+		super.createKreuzInDB(new Parameter(a, getTypeA()), new Parameter(b, getTypeB()), new Parameter(c, getTypeC()));
 	}
 
 	/**
@@ -190,8 +193,8 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @param b das zweite verbundene Objekt
 	 * @param c das dritte verbundene Objekt
 	 */
-	public void deleteKreuzFromDB(final A a, final B b, final C c) {
-		super.deleteKreuzFromDB(a, b, c);
+	public void deleteKreuzFromDB(final @Nullable A a, final @Nullable B b, final @Nullable C c) {
+		super.deleteKreuzFromDB(new Parameter(a, getTypeA()), new Parameter(b, getTypeB()), new Parameter(c, getTypeC()));
 	}
 
 	/**
@@ -201,7 +204,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return Die Liste aller Kreuzobjekte. Niemals null
 	 */
-	public List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromA(A a) {
+	public @NotNull List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromA(final @Nullable A a) {
 		return loadKreuzeFromCol(null, getKreuzColA(), a, null, null, "loadKreuzeFromA", a);
 	}
 
@@ -212,7 +215,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return Die Liste aller Kreuzobjekte. Niemals null
 	 */
-	public List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromB(B b) {
+	public @NotNull List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromB(final @Nullable B b) {
 		return loadKreuzeFromCol(null, getKreuzColB(), b, null, null, "loadKreuzeFromB", b);
 	}
 
@@ -223,7 +226,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return Die Liste aller Kreuzobjekte. Niemals null
 	 */
-	public List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromC(C c) {
+	public @NotNull List<Kreuz3Objekt<A, PA, B, PB, C, PC>> loadKreuzeFromC(final @Nullable C c) {
 		return loadKreuzeFromCol(null, getKreuzColC(), c, null, null, "loadKreuzeFromC", c);
 	}
 
@@ -234,7 +237,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromC(C c) {
+	public long loadAllCountFromC(final @Nullable C c) {
 		return loadCountFromCol(null, getKreuzColC(), c, "loadAllCountFromC");
 	}
 
@@ -246,7 +249,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromAundB(A a, B b) {
+	public long loadAllCountFromAundB(final @Nullable A a, final @Nullable B b) {
 		return loadCountFromWhere(null, getKreuzColA() + "=? AND " + getKreuzColB() + "=?", new ParameterList(new Parameter(a, getTypeA()), new Parameter(b, getTypeB())), "loadAllCountFromAundB");
 	}
 
@@ -258,7 +261,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromAundC(A a, C c) {
+	public long loadAllCountFromAundC(final @Nullable A a, final @Nullable C c) {
 		return loadCountFromWhere(null, getKreuzColA() + "=? AND " + getKreuzColC() + "=?", new ParameterList(new Parameter(a, getTypeA()), new Parameter(c, getTypeC())), "loadAllCountFromAundC");
 	}
 
@@ -270,7 +273,7 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromBundC(B b, C c) {
+	public long loadAllCountFromBundC(final @Nullable B b, final @Nullable C c) {
 		return loadCountFromWhere(null, getKreuzColB() + "=? AND " + getKreuzColC() + "=?", new ParameterList(new Parameter(b, getTypeB()), new Parameter(c, getTypeC())), "loadAllCountFromBundC");
 	}
 }

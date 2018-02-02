@@ -1,5 +1,8 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -18,7 +21,7 @@ public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @return die Spalten
 	 */
 	@Override
-	protected String getAllKreuzCols() {
+	protected @NotNull String getAllKreuzCols() {
 		return getKreuzColA() + ", " + getKreuzColB();
 	}
 	
@@ -30,7 +33,7 @@ public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
 	@Override
-	protected Kreuz2Objekt<A, PA, B, PB> getKreuzObjekt(ResultSet rs, DBObject... loadedObjects) throws SQLException {
+	protected @NotNull Kreuz2Objekt<A, PA, B, PB> getKreuzObjekt(final @NotNull ResultSet rs, final DBObject... loadedObjects) throws SQLException {
 		A a = SQLUtils.loadedObjectsOrNull(1, rs, getaDAO(), loadedObjects);
 		B b = SQLUtils.loadedObjectsOrNull(2, rs, getbDAO(), loadedObjects);
 
@@ -43,8 +46,8 @@ public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @param a das erste zu verbindende Objekt
 	 * @param b das zweite zu verbindende Objekt
 	 */
-	public void createKreuzInDB(A a, B b) {
-		super.createKreuzInDB(a, b);
+	public void createKreuzInDB(final @Nullable A a, final @Nullable B b) {
+		super.createKreuzInDB(new Parameter(a, getTypeA()), new Parameter(b, getTypeB()));
 	}
 
 	/**
@@ -53,7 +56,7 @@ public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 * @param a das erste verbundene Objekt
 	 * @param b das zweite verbundene Objekt
 	 */
-	public void deleteKreuzFromDB(final A a, final B b) {
-		super.deleteKreuzFromDB(a, b);
+	public void deleteKreuzFromDB(final @Nullable A a, final @Nullable B b) {
+		super.deleteKreuzFromDB(new Parameter(a, getTypeA()), new Parameter(b, getTypeB()));
 	}
 }

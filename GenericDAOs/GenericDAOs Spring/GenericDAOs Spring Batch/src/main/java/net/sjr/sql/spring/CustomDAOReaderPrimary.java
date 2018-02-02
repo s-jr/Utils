@@ -3,6 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -58,7 +60,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	 * @param mapper           Funktion, die de Rückgabe der DAO nachträglich noch mappt
 	 * @param primaryExtractor Funktion, welche aus dem Result Objekt die letzte Primary ID extrahiert
 	 */
-	public CustomDAOReaderPrimary(PaginationDAO<T, P> dao, KlauselFunction<P> join, KlauselFunction<P> where, BiFunction<P, Integer, ParameterList> params, KlauselFunction<P> limit, KlauselFunction<P> order, final Function<List<T>, List<R>> mapper, Function<R, P> primaryExtractor) {
+	public CustomDAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction<P> join, final @Nullable KlauselFunction<P> where, final @Nullable BiFunction<P, Integer, ParameterList> params, final @Nullable KlauselFunction<P> limit, final @Nullable KlauselFunction<P> order, final @Nullable Function<List<T>, List<R>> mapper, final @NotNull Function<R, P> primaryExtractor) {
 		this(dao, join, where, params, limit, order, mapper, primaryExtractor, null);
 	}
 	
@@ -76,7 +78,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	 * @param primaryExtractor Funktion, welche aus dem Result Objekt die letzte Primary ID extrahiert
 	 * @param pageSize         die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public CustomDAOReaderPrimary(PaginationDAO<T, P> dao, KlauselFunction<P> join, KlauselFunction<P> where, BiFunction<P, Integer, ParameterList> params, KlauselFunction<P> limit, KlauselFunction<P> order, final Function<List<T>, List<R>> mapper, Function<R, P> primaryExtractor, int pageSize) {
+	public CustomDAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction<P> join, final @Nullable KlauselFunction<P> where, final @Nullable BiFunction<P, Integer, ParameterList> params, final @Nullable KlauselFunction<P> limit, final @Nullable KlauselFunction<P> order, final @Nullable Function<List<T>, List<R>> mapper, final @NotNull Function<R, P> primaryExtractor, final int pageSize) {
 		this(dao, join, where, params, limit, order, mapper, primaryExtractor, null, pageSize);
 	}
 	
@@ -94,7 +96,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	 * @param primaryExtractor Funktion, welche aus dem Result Objekt die letzte Primary ID extrahiert
 	 * @param loadedObjects    Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 */
-	public CustomDAOReaderPrimary(PaginationDAO<T, P> dao, KlauselFunction<P> join, KlauselFunction<P> where, BiFunction<P, Integer, ParameterList> params, KlauselFunction<P> limit, KlauselFunction<P> order, final Function<List<T>, List<R>> mapper, Function<R, P> primaryExtractor, DBObjectFunction<P> loadedObjects) {
+	public CustomDAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction<P> join, final @Nullable KlauselFunction<P> where, final @Nullable BiFunction<P, Integer, ParameterList> params, final @Nullable KlauselFunction<P> limit, final @Nullable KlauselFunction<P> order, final @Nullable Function<List<T>, List<R>> mapper, final @NotNull Function<R, P> primaryExtractor, final @Nullable DBObjectFunction<P> loadedObjects) {
 		this(dao, join, where, params, limit, order, mapper, primaryExtractor, loadedObjects, 10);
 	}
 	
@@ -113,7 +115,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	 * @param loadedObjects    Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @param pageSize         die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public CustomDAOReaderPrimary(PaginationDAO<T, P> dao, KlauselFunction<P> join, KlauselFunction<P> where, BiFunction<P, Integer, ParameterList> params, KlauselFunction<P> limit, KlauselFunction<P> order, final Function<List<T>, List<R>> mapper, Function<R, P> primaryExtractor, DBObjectFunction<P> loadedObjects, int pageSize) {
+	public CustomDAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction<P> join, final @Nullable KlauselFunction<P> where, final @Nullable BiFunction<P, Integer, ParameterList> params, final @Nullable KlauselFunction<P> limit, final @Nullable KlauselFunction<P> order, final @Nullable Function<List<T>, List<R>> mapper, final @NotNull Function<R, P> primaryExtractor, final @Nullable DBObjectFunction<P> loadedObjects, final int pageSize) {
 		this.dao = dao;
 		this.join = join;
 		this.where = where;
@@ -128,7 +130,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	}
 	
 	@Override
-	public R read() {
+	public @Nullable R read() {
 		synchronized (lock) {
 			if (results == null || indexInList >= pageSize) {
 				log.debug("Lese Seite nach Primary {}", lastPrimary);
@@ -165,7 +167,7 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	}
 	
 	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
+	public void open(final @NotNull ExecutionContext executionContext) throws ItemStreamException {
 		super.open(executionContext);
 		
 		if (executionContext.containsKey(getExecutionContextKey(LAST_PRIMARY))) {
@@ -174,13 +176,13 @@ public class CustomDAOReaderPrimary<T extends DBObject<P>, P extends Number, R> 
 	}
 	
 	@Override
-	public void update(ExecutionContext executionContext) throws ItemStreamException {
+	public void update(final @NotNull ExecutionContext executionContext) throws ItemStreamException {
 		super.update(executionContext);
 		SQLUtilsSpring.saveLastPrimaryToContext(dao, lastPrimary, executionContext, getExecutionContextKey(LAST_PRIMARY));
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CustomDAOReaderPrimary<?, ?, ?> that = (CustomDAOReaderPrimary<?, ?, ?>) o;

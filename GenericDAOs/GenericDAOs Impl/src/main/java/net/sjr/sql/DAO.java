@@ -4,6 +4,8 @@ import net.sjr.sql.exceptions.EntryNotFoundException;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import net.sjr.sql.exceptions.UnsupportedPrimaryException;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +14,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO Oberklasse um Datenbankzugriffe zu vereinfachen
@@ -22,13 +24,13 @@ import java.util.Map;
  * @param <T> Typ des zu speichernden Java Objektes
  * @param <P> Typ des Primary Keys
  */
-@SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue", "SameReturnValue"})
+@SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue", "SameReturnValue", "SynchronizationOnLocalVariableOrMethodParameter"})
 public abstract class DAO<T extends DBObject<P>, P extends Number> implements DAOBase<T, P> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	protected final DataSource dataSource;
 	protected Connection connection;
-	protected final Map<String, PreparedStatement> pstCache = new HashMap<>();
+	protected final Map<String, PreparedStatement> pstCache = new ConcurrentHashMap<>();
 	
 	private Class<P> primaryClass = null;
 	
@@ -37,7 +39,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param ds die {@link DataSource}
 	 */
-	public DAO(final DataSource ds) {
+	public DAO(final @NotNull DataSource ds) {
 		dataSource = ds;
 		connection = null;
 	}
@@ -47,7 +49,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param con die bereits vorhandene Datenbankverbindung
 	 */
-	public DAO(final Connection con) {
+	public DAO(final @NotNull Connection con) {
 		connection = con;
 		dataSource = null;
 	}
@@ -57,7 +59,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param dao die bereits vorhandene {@link DAO}
 	 */
-	public DAO(final DAO<? extends DBObject, ? extends Number> dao) {
+	public DAO(final @NotNull DAO<? extends DBObject, ? extends Number> dao) {
 		if (dao.dataSource == null) {
 			connection = dao.getConnection();
 			dataSource = null;
@@ -74,7 +76,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return eine Datenbankverbindung
 	 * @throws IllegalStateException wenn keine Connection und keine {@link DataSource}
 	 */
-	protected Connection getConnection() {
+	protected synchronized @NotNull Connection getConnection() {
 		try {
 			if (connection == null || connection.isClosed()) {
 				if (dataSource != null) {
@@ -86,7 +88,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 			}
 			return connection;
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -97,37 +99,45 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return die Connection
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	protected Connection getConnectionFromDataSource() throws SQLException {
+	protected @NotNull Connection getConnectionFromDataSource() throws SQLException {
 		return dataSource.getConnection();
+	}
+	
+	/**
+	 * Öffnet die Datenbankverbindung. Wenn shouldCloseAlways true zurück gibt, wird diese direkt wieder geschlossen. Sonst nicht
+	 */
+	public synchronized void tryConnection() {
+		getConnection();
+		doCloseAlways(null);
 	}
 	
 	/**
 	 * @return Alle Datenbankfelder inklusive ID mit Komma getrennt
 	 */
-	protected String getFelderID() {
+	protected @NotNull String getFelderID() {
 		return SQLUtils.fullQualifyTableName(getPrimaryCol() + ", " + getFelder(), getTable());
 	}
 	
 	/**
 	 * @return Alle Datenbankfelder exclusive ID mit Komma getrennt
 	 */
-	protected abstract String getFelder();
+	protected abstract @NotNull String getFelder();
 	
 	/**
 	 * @return Der Tabellenname
 	 */
-	protected abstract String getTable();
+	protected abstract @NotNull String getTable();
 	
 	/**
 	 * @return Der name der Primary Zeile
 	 */
-	protected abstract String getPrimaryCol();
+	protected abstract @NotNull String getPrimaryCol();
 	
 	/**
 	 * @param v Das Objekt von dem die {@link ParameterList} erstellt werden soll
 	 * @return eine {@link ParameterList} aller {@link Parameter} Spalten für die DB
 	 */
-	protected abstract ParameterList getPList(T v);
+	protected abstract @NotNull ParameterList getPList(@NotNull T v);
 	
 	/**
 	 * An Hand der Rückgabe wird entschieden, ob nach jeder Funktion die Datenbankverbindung inkl. {@link PreparedStatement}s geschlossen werden soll.
@@ -142,60 +152,48 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen vor einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v das einzufügende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> cascadeInsert(T v) {
-		return null;
+	protected void cascadeInsert(final @NotNull T v) {
 	}
 	
 	/**
 	 * Wird aufgerufen vor einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v das upzudatende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> cascadeUpdate(T v) {
-		return null;
+	protected void cascadeUpdate(final @NotNull T v) {
 	}
 	
 	/**
 	 * Wird aufgerufen vor einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v das zu löschende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> cascadeDelete(T v) {
-		return null;
+	protected void cascadeDelete(final @NotNull T v) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
 	 *
 	 * @param v das eingefügte Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> afterInsert(T v) {
-		return null;
+	protected void afterInsert(final @NotNull T v) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
 	 *
 	 * @param v das upgedatete Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> afterUpdate(T v) {
-		return null;
+	protected void afterUpdate(final @NotNull T v) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
 	 *
 	 * @param v das gelöschte Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
-	protected Map<String, P> afterDelete(T v) {
-		return null;
+	protected void afterDelete(final @NotNull T v) {
 	}
 	
 	/**
@@ -206,7 +204,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return Ein neues Objekt aus dem {@link ResultSet}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	protected abstract T getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException;
+	protected abstract @NotNull T getFromRS(@NotNull ResultSet rs, DBObject... loadedObjects) throws SQLException;
 	
 	/**
 	 * Fülllt ein vorhandenes Objekt mit den Werten aus dem {@link ResultSet}
@@ -216,14 +214,14 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	protected abstract void fillObject(ResultSet rs, T result, DBObject... loadedObjects) throws SQLException;
+	protected abstract void fillObject(@NotNull ResultSet rs, @NotNull T result, DBObject... loadedObjects) throws SQLException;
 	
 	/**
 	 * Gibt den Dtype zurück, welcher bei vererbten Objekten den effektiven Typ angibt
 	 *
 	 * @return der DType
 	 */
-	protected String getDtype() {
+	protected @Nullable String getDtype() {
 		return null;
 	}
 	
@@ -235,7 +233,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @throws EntryNotFoundException wenn es kein Objekt mit der ID gibt
 	 */
 	@Override
-	public T loadFromID(final P primary) {
+	public @NotNull T loadFromID(final @NotNull P primary) {
 		return loadOneFromCol(null, getPrimaryCol(), primary, "loadFromID");
 	}
 	
@@ -245,7 +243,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return Eine Liste aller Objekte von T. Niemals {@code null}
 	 */
 	@Override
-	public List<T> loadAll() {
+	public @NotNull List<T> loadAll() {
 		return loadAllFromWhere(null, null, null, null, null, "loadAll");
 	}
 	
@@ -255,19 +253,22 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement insertPst() throws SQLException {
-		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("insert");
-		if (result == null) {
-			String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-			if (getDatabaseType() == DatabaseType.ORACLE) {
-				result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', new String[] {getPrimaryCol()});
+	private @NotNull PreparedStatement insertPst() throws SQLException {
+		Connection connection = getConnection();
+		synchronized (connection) {
+			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("insert");
+			if (result == null) {
+				String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
+				if (getDatabaseType() == DatabaseType.ORACLE) {
+					result = connection.prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', new String[] {getPrimaryCol()});
+				}
+				else {
+					result = connection.prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', Statement.RETURN_GENERATED_KEYS);
+				}
+				if (!shouldCloseAlways()) pstCache.put("insert", result);
 			}
-			else {
-				result = getConnection().prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', Statement.RETURN_GENERATED_KEYS);
-			}
-			if (!shouldCloseAlways()) pstCache.put("insert", result);
+			return result;
 		}
-		return result;
 	}
 	
 	/**
@@ -275,54 +276,45 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt darf noch keine PrimaryID haben!</b>
 	 *
 	 * @param v das einzufügende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 * @throws IllegalStateException wenn das Objekt eine PrimaryID hat
 	 */
 	@Override
-	public Map<String, P> insertIntoDB(final T v) {
+	public void insertIntoDB(final @NotNull T v) {
 		if (v.getPrimary() == null) {
-			Map<String, P> result = new HashMap<>();
-			
-			Map<String, P> cascadeIDs = cascadeInsert(v);
-			if (cascadeIDs != null) {
-				result.putAll(cascadeIDs);
-			}
+			cascadeInsert(v);
 			
 			PreparedStatement pst = null;
 			try {
-				pst = insertPst();
 				int pos = 1;
-				if (getDtype() != null) {
-					pos = new Parameter(getDtype()).setParameter(pst, pos);
-				}
-				
-				ParameterList pList = getPList(v);
-				
-				pList.setParameter(pst, pos);
-				logPst(pst);
-				pst.executeUpdate();
-				
-				try (ResultSet rs = pst.getGeneratedKeys()) {
-					if (rs.next()) {
-						v.setPrimary(getPrimary(rs));
-						result.put(getTable() + '.' + getPrimaryCol(), v.getPrimary());
-						Map<String, P> afterIDs = afterInsert(v);
-						if (afterIDs != null) {
-							result.putAll(afterIDs);
-						}
-						return result;
+				pst = insertPst();
+				synchronized (pst) {
+					if (getDtype() != null) {
+						pos = new Parameter(getDtype()).setParameter(pst, pos);
 					}
-					throw new RuntimeException("rs.next returned false for generated keys");
+					
+					ParameterList pList = getPList(v);
+					
+					pList.setParameter(pst, pos);
+					logPst(pst);
+					pst.executeUpdate();
+					
+					try (ResultSet rs = pst.getGeneratedKeys()) {
+						if (rs.next()) {
+							v.setPrimary(getPrimary(rs));
+							afterInsert(v);
+						}
+						else throw new RuntimeException("rs.next returned false for generated keys");
+					}
 				}
 			}
-			catch (SQLException e) {
+			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
 			finally {
 				doCloseAlways(pst);
 			}
 		}
-		throw new IllegalStateException("Der Eintrag wurde bereits in die Datenbank eingefügt!");
+		else throw new IllegalStateException("Der Eintrag wurde bereits in die Datenbank eingefügt!");
 	}
 	
 	/**
@@ -330,13 +322,14 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @return die Klasse des Primary Keys
 	 */
-	Class<P> getPrimaryClass() {
+	protected synchronized @NotNull Class<P> getPrimaryClass() {
 		if (primaryClass == null) {
 			Type type = getClass();
 			while (type instanceof Class) {
 				type = ((Class) type).getGenericSuperclass();
 			}
 			primaryClass = (Class<P>) ((ParameterizedType) type).getActualTypeArguments()[1];
+			if (primaryClass == null) throw new RuntimeException("Primary class konnte nicht an Hand der Generics ermittelt werden");
 		}
 		return primaryClass;
 	}
@@ -351,7 +344,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @throws UnsupportedPrimaryException wenn der Typ des Primary Keys nicht unterstützt wird
 	 */
 	@Override
-	public P getPrimary(ResultSet rs, int pos) throws SQLException {
+	public @Nullable P getPrimary(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		Class<P> genericClass = getPrimaryClass();
 		if (genericClass.equals(Integer.class)) return (P) SQLUtils.getNullableInt(rs, pos);
 		if (genericClass.equals(Long.class)) return (P) SQLUtils.getNullableLong(rs, pos);
@@ -370,7 +363,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @throws SQLException                Wenn eine {@link SQLException} aufgetreten ist
 	 * @throws UnsupportedPrimaryException wenn der Typ des Primary Keys nicht unterstützt wird
 	 */
-	private P getPrimary(ResultSet rs) throws SQLException {
+	private @Nullable P getPrimary(final @NotNull ResultSet rs) throws SQLException {
 		return getPrimary(rs, 1);
 	}
 	
@@ -380,14 +373,17 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement updatePst() throws SQLException {
-		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("update");
-		if (result == null) {
-			String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-			result = getConnection().prepareStatement("UPDATE " + getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + getPrimaryCol() + "=?");
-			if (!shouldCloseAlways()) pstCache.put("update", result);
+	private @NotNull PreparedStatement updatePst() throws SQLException {
+		Connection connection = getConnection();
+		synchronized (connection) {
+			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("update");
+			if (result == null) {
+				String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
+				result = connection.prepareStatement("UPDATE " + getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + getPrimaryCol() + "=?");
+				if (!shouldCloseAlways()) pstCache.put("update", result);
+			}
+			return result;
 		}
-		return result;
 	}
 	
 	/**
@@ -395,50 +391,39 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu aktualisierende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	@Override
-	public Map<String, P> updateIntoDB(final T v) {
+	public void updateIntoDB(final @NotNull T v) {
 		if (v.getPrimary() != null) {
-			Map<String, P> result = new HashMap<>();
+			cascadeUpdate(v);
 			
-			Map<String, P> cascadeIDs = cascadeUpdate(v);
-			if (cascadeIDs != null) {
-				result.putAll(cascadeIDs);
-			}
+			ParameterList pList = getPList(v);
+			pList.addParameter(v.getPrimary());
 			
+			int pos = 1;
 			PreparedStatement pst = null;
 			try {
 				pst = updatePst();
-				ParameterList pList = getPList(v);
-				pList.addParameter(v.getPrimary());
-				
-				int pos = 1;
-				if (getDtype() != null) {
-					pos = new Parameter(getDtype()).setParameter(pst, pos);
+				synchronized (pst) {
+					if (getDtype() != null) {
+						pos = new Parameter(getDtype()).setParameter(pst, pos);
+					}
+					
+					pList.setParameter(pst, pos);
+					logPst(pst);
+					pst.executeUpdate();
 				}
-				
-				pList.setParameter(pst, pos);
-				logPst(pst);
-				pst.executeUpdate();
-				
-				Map<String, P> afterIDs = afterUpdate(v);
-				if (afterIDs != null) {
-					result.putAll(afterIDs);
-				}
-				
-				return result;
+				afterUpdate(v);
 			}
-			catch (SQLException e) {
+			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
-			
 			finally {
 				doCloseAlways(pst);
 			}
 		}
-		throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
+		else throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
 	}
 	
 	/**
@@ -447,13 +432,16 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement deletePst() throws SQLException {
-		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("delete");
-		if (result == null) {
-			result = getConnection().prepareStatement("DELETE FROM " + getTable() + " WHERE " + getPrimaryCol() + "=?" + (getDtype() != null ? " AND DType=?" : ""));
-			if (!shouldCloseAlways()) pstCache.put("delete", result);
+	private @NotNull PreparedStatement deletePst() throws SQLException {
+		Connection connection = getConnection();
+		synchronized (connection) {
+			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("delete");
+			if (result == null) {
+				result = connection.prepareStatement("DELETE FROM " + getTable() + " WHERE " + getPrimaryCol() + "=?" + (getDtype() != null ? " AND DType=?" : ""));
+				if (!shouldCloseAlways()) pstCache.put("delete", result);
+			}
+			return result;
 		}
-		return result;
 	}
 	
 	/**
@@ -461,62 +449,51 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
 	 * @param v das zu löschende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
 	 */
 	@Override
-	public Map<String, P> deleteFromDB(final T v) {
+	public void deleteFromDB(final @NotNull T v) {
 		if (v.getPrimary() != null) {
-			Map<String, P> result = new HashMap<>();
-			
-			Map<String, P> cascadeIDs = cascadeDelete(v);
-			if (cascadeIDs != null) {
-				result.putAll(cascadeIDs);
-			}
+			cascadeDelete(v);
 			
 			PreparedStatement pst = null;
 			try {
 				pst = deletePst();
-				new Parameter(v.getPrimary()).setParameter(pst, 1);
-				
-				if (getDtype() != null) {
-					new Parameter(getDtype()).setParameter(pst, 2);
+				synchronized (pst) {
+					new Parameter(v.getPrimary()).setParameter(pst, 1);
+					
+					if (getDtype() != null) {
+						new Parameter(getDtype()).setParameter(pst, 2);
+					}
+					logPst(pst);
+					pst.executeUpdate();
 				}
-				logPst(pst);
-				pst.executeUpdate();
 				v.setPrimary(null);
-				result.put(getTable() + '.' + getPrimaryCol(), null);
 				
-				Map<String, P> afterIDs = afterDelete(v);
-				if (afterIDs != null) {
-					result.putAll(afterIDs);
-				}
-				
-				return result;
+				afterDelete(v);
 			}
-			catch (SQLException e) {
+			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
 			finally {
 				doCloseAlways(pst);
 			}
 		}
-		throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
+		else throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
 	}
 	
 	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
 	 *
 	 * @param v das einzufügende oder zu aktualisierende Objekt
-	 * @return eine {@link Map} mit allen geänderten Werten
 	 */
 	@Override
-	public Map<String, P> insertOrUpdate(final T v) {
+	public void insertOrUpdate(final @NotNull T v) {
 		if (v.getPrimary() == null) {
-			return insertIntoDB(v);
+			insertIntoDB(v);
 		}
 		else {
-			return updateIntoDB(v);
+			updateIntoDB(v);
 		}
 	}
 	
@@ -530,7 +507,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das gefundene Objekt. Niemals {@code null}
 	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
-	protected T loadOneFromCol(final String join, final String col, final Object param, final DBObject... loadedObjects) {
+	protected @NotNull T loadOneFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final DBObject... loadedObjects) {
 		return loadOneFromCol(join, col, param, null, loadedObjects);
 	}
 	
@@ -545,7 +522,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das gefundene Objekt. Niemals {@code null}
 	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
-	protected T loadOneFromCol(final String join, final String col, final Object param, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull T loadOneFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		List<T> list = loadAllFromCol(join, col, param, "1", null, cacheKey, loadedObjects);
 		if (list.size() < 1) {
 			throw new EntryNotFoundException(col, param);
@@ -568,7 +545,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final DBObject... loadedObjects) {
+	protected @NotNull List<T> loadAllFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String limit, final @Nullable String order, final DBObject... loadedObjects) {
 		return loadAllFromCol(join, col, param, limit, order, null, loadedObjects);
 	}
 	
@@ -584,7 +561,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected List<T> loadAllFromCol(final String join, final String col, final Object param, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull List<T> loadAllFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		return loadAllFromWhere(join, col + "=?", new ParameterList(param), limit, order, cacheKey, loadedObjects);
 	}
 	
@@ -597,7 +574,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final DBObject... loadedObjects) {
+	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final DBObject... loadedObjects) {
 		return loadOneFromWhere(join, where, params, null, loadedObjects);
 	}
 	
@@ -611,7 +588,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected T loadOneFromWhere(final String join, final String where, final ParameterList params, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		List<T> list = loadAllFromWhere(join, where, params, "1", null, cacheKey, loadedObjects);
 		if (list.size() < 1) {
 			throw new EntryNotFoundException(where, params);
@@ -634,7 +611,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final DBObject... loadedObjects) {
+	protected @NotNull List<T> loadAllFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final DBObject... loadedObjects) {
 		return loadAllFromWhere(join, where, params, limit, order, null, loadedObjects);
 	}
 	
@@ -650,22 +627,24 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected List<T> loadAllFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull List<T> loadAllFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		PreparedStatement pst = null;
 		try {
 			pst = getPst(getFelderID(), join, where, limit, order, cacheKey, params);
-			setParameter(params, pst);
-			
-			try (ResultSet rs = getResultSet(pst)) {
-				List<T> result = new ArrayList<>();
-				while (rs.next()) {
-					T b = getFromRS(rs, loadedObjects);
-					result.add(b);
+			synchronized (pst) {
+				setParameter(params, pst);
+				
+				try (ResultSet rs = getResultSet(pst)) {
+					List<T> result = new ArrayList<>();
+					while (rs.next()) {
+						T b = getFromRS(rs, loadedObjects);
+						result.add(b);
+					}
+					return result;
 				}
-				return result;
 			}
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -680,7 +659,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das {@link ResultSet}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private ResultSet getResultSet(PreparedStatement pst) throws SQLException {
+	private @NotNull ResultSet getResultSet(final @NotNull PreparedStatement pst) throws SQLException {
 		logPst(pst);
 		return pst.executeQuery();
 	}
@@ -693,7 +672,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param param Der Wert für WHERE
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected long loadCountFromCol(final String join, final String col, final Object param) {
+	protected long loadCountFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param) {
 		return loadCountFromCol(join, col, param, null);
 	}
 	
@@ -706,7 +685,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey der Key für den pstCache
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
-	protected long loadCountFromCol(final String join, final String col, final Object param, final String cacheKey) {
+	protected long loadCountFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String cacheKey) {
 		return loadCountFromWhere(join, col + "=?", new ParameterList(param), cacheKey);
 	}
 	
@@ -718,7 +697,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param params Die Parameter
 	 * @return die Anzahl der Parameter
 	 */
-	protected long loadCountFromWhere(final String join, final String where, final ParameterList params) {
+	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		return loadCountFromWhere(join, where, params, null);
 	}
 	
@@ -731,20 +710,22 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey der Key für den pstCache
 	 * @return die Anzahl der Parameter
 	 */
-	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
+	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey) {
 		PreparedStatement pst = null;
 		try {
 			pst = getPst("count(*)", join, where, null, null, cacheKey, params);
-			setParameter(params, pst);
-			
-			try (ResultSet rs = getResultSet(pst)) {
-				if (rs.next()) {
-					return rs.getLong(1);
+			synchronized (pst) {
+				setParameter(params, pst);
+				
+				try (ResultSet rs = getResultSet(pst)) {
+					if (rs.next()) {
+						return rs.getLong(1);
+					}
+					throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
 				}
-				throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
 			}
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -763,7 +744,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param order  Die ORDER Klausel oder {@code null}
 	 * @return die Liste mit Strings
 	 */
-	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order) {
+	protected @NotNull List<String> loadSingleValuesAsString(final @Nullable String feld, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order) {
 		return loadSingleValuesAsString(feld, join, where, params, limit, order, null);
 	}
 	
@@ -779,21 +760,23 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey der Key für den pstCache
 	 * @return die Liste mit Strings
 	 */
-	protected List<String> loadSingleValuesAsString(final String feld, final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey) {
+	protected @NotNull List<String> loadSingleValuesAsString(final @Nullable String feld, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey) {
 		PreparedStatement pst = null;
 		try {
 			pst = getPst("DISTINCT " + feld, join, where, limit, order, cacheKey, params);
-			setParameter(params, pst);
-			
-			try (ResultSet rs = getResultSet(pst)) {
-				List<String> result = new ArrayList<>();
-				while (rs.next()) {
-					result.add(rs.getString(1));
+			synchronized (pst) {
+				setParameter(params, pst);
+				
+				try (ResultSet rs = getResultSet(pst)) {
+					List<String> result = new ArrayList<>();
+					while (rs.next()) {
+						result.add(rs.getString(1));
+					}
+					return result;
 				}
-				return result;
 			}
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -806,8 +789,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @return der Datenbanktyp
 	 */
-	protected DatabaseType getDatabaseType() {
-		return getDatabaseType(getConnection());
+	protected @NotNull DatabaseType getDatabaseType() {
+		Connection connection = getConnection();
+		synchronized (connection) {
+			return getDatabaseType(connection);
+		}
 	}
 	
 	/**
@@ -816,13 +802,13 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param connection die Datenbankverbindung, von der der Datenbanktyp herausgefunden werden soll
 	 * @return der Datenbanktyp
 	 */
-	protected static DatabaseType getDatabaseType(Connection connection) {
+	protected static @NotNull DatabaseType getDatabaseType(final @NotNull Connection connection) {
 		try {
 			DatabaseMetaData metaData = connection.getMetaData();
 			String productName = metaData.getDatabaseProductName();
 			return DatabaseType.getFromIdentifier(productName);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -834,7 +820,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param pst    das {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private void setParameter(ParameterList params, PreparedStatement pst) throws SQLException {
+	private void setParameter(final @Nullable ParameterList params, final @NotNull PreparedStatement pst) throws SQLException {
 		if (params == null) return;
 		int pos = params.setParameter(pst, 1);
 		
@@ -861,7 +847,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das zusammengebaute {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	static PreparedStatement getPst(final Connection connection, final Map<String, PreparedStatement> pstCache, final String table, final String dType, final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final boolean shouldCloseAlways, final ParameterList params) throws SQLException {
+	static @NotNull PreparedStatement getPst(final @NotNull Connection connection, final @NotNull Map<String, PreparedStatement> pstCache, final @NotNull String table, final @Nullable String dType, final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final boolean shouldCloseAlways, final @Nullable ParameterList params) throws SQLException {
 		PreparedStatement result = shouldCloseAlways || cacheKey == null ? null : pstCache.get(cacheKey);
 		if (result == null || result.isClosed()) {
 			result = connection.prepareStatement("SELECT " + select + " FROM " + table + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils
@@ -887,8 +873,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return das zusammengebaute {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement getPst(final String select, final String join, final String where, final String limit, final String order, final String cacheKey, final ParameterList params) throws SQLException {
-		return getPst(getConnection(), pstCache, getTable(), getDtype(), select, join, where, limit, order, cacheKey, shouldCloseAlways(), params);
+	private @NotNull PreparedStatement getPst(final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final @Nullable ParameterList params) throws SQLException {
+		Connection connection = getConnection();
+		synchronized (connection) {
+			return getPst(connection, pstCache, getTable(), getDtype(), select, join, where, limit, order, cacheKey, shouldCloseAlways(), params);
+		}
 	}
 	
 	/**
@@ -896,7 +885,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param pst das {@link PreparedStatement}
 	 */
-	private void logPst(PreparedStatement pst) {
+	private void logPst(final @NotNull PreparedStatement pst) {
 		log.debug(SQLUtils.pstToSQL(pst));
 	}
 	
@@ -905,7 +894,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param pst das {@link PreparedStatement}
 	 */
-	private void doCloseAlways(PreparedStatement pst) {
+	private void doCloseAlways(final @Nullable PreparedStatement pst) {
 		if (shouldCloseAlways()) {
 			close();
 			closeSqlAutocloseable(pst);
@@ -922,7 +911,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param log               der {@link Logger}
 	 * @param pstCache          der {@link PreparedStatement} Cache
 	 */
-	static void doCloseAlways(final PreparedStatement pst, final boolean shouldCloseAlways, final Connection connection, final DataSource dataSource, final Logger log, final Map<String, PreparedStatement> pstCache) {
+	static void doCloseAlways(final @Nullable PreparedStatement pst, final boolean shouldCloseAlways, final @Nullable Connection connection, final @Nullable DataSource dataSource, final @Nullable Logger log, final @Nullable Map<String, PreparedStatement> pstCache) {
 		if (shouldCloseAlways) {
 			close(connection, dataSource, log, pstCache);
 			SQLUtils.closeSqlAutocloseable(pst, log);
@@ -945,10 +934,10 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param log        der {@link Logger}
 	 * @param pstCache   der {@link PreparedStatement} Cache
 	 */
-	static void close(final Connection connection, final DataSource dataSource, final Logger log, final Map<String, PreparedStatement> pstCache) {
+	static void close(final @Nullable Connection connection, final @Nullable DataSource dataSource, final @Nullable Logger log, final @Nullable Map<String, PreparedStatement> pstCache) {
 		if (log != null) log.debug("Closing DAO...");
 		if (pstCache != null) {
-			for (PreparedStatement pst : pstCache.values()) {
+			for (final PreparedStatement pst : pstCache.values()) {
 				SQLUtils.closeSqlAutocloseable(pst, log);
 			}
 			pstCache.clear();
@@ -963,7 +952,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @param closeable das {@link AutoCloseable}
 	 */
-	protected void closeSqlAutocloseable(final AutoCloseable closeable) {
+	protected void closeSqlAutocloseable(final @Nullable AutoCloseable closeable) {
 		SQLUtils.closeSqlAutocloseable(closeable, log);
 	}
 	

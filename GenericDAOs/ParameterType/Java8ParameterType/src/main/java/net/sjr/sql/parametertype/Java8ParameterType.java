@@ -1,6 +1,8 @@
 package net.sjr.sql.parametertype;
 
 import net.sjr.converterutils.Java8ConverterUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,7 +23,7 @@ public class Java8ParameterType implements ParameterType {
 	}
 
 	@Override
-	public int set(PreparedStatement pst, int pos, Object value) throws SQLException {
+	public int set(final @NotNull PreparedStatement pst, final int pos, final @Nullable Object value) throws SQLException {
 		if (value instanceof LocalDate) {
 			pst.setDate(pos, Java8ConverterUtils.SQLDate.localDateToSqlDate((LocalDate) value));
 		}

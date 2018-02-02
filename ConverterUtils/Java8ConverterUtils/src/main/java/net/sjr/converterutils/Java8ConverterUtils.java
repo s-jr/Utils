@@ -1,6 +1,7 @@
 package net.sjr.converterutils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -22,42 +23,42 @@ public final class Java8ConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class UtilJava8Date {
-		public static LocalDate utilDateToLocalDate(final Date d) {
+		public static @Nullable LocalDate utilDateToLocalDate(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return Instant.ofEpochMilli(d.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
 		}
-
-		public static Date localDateToUtilDate(final LocalDate d) {
+		
+		public static @Nullable Date localDateToUtilDate(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return Date.from(d.atStartOfDay(ZoneId.systemDefault()).toInstant());
 		}
-
-		public static LocalDateTime utilDateToLocalDateTime(final Date d) {
+		
+		public static @Nullable LocalDateTime utilDateToLocalDateTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return LocalDateTime.ofInstant(d.toInstant(), ZoneId.systemDefault());
 		}
-
-		public static Date localDateTimeToUtilDate(final LocalDateTime d) {
+		
+		public static @Nullable Date localDateTimeToUtilDate(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return Date.from(d.atZone(ZoneId.systemDefault()).toInstant());
 		}
-
-		public static LocalTime utilDateToLocalTime(final Date d) {
+		
+		public static @Nullable LocalTime utilDateToLocalTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return Instant.ofEpochMilli(d.getTime()).atZone(ZoneId.systemDefault()).toLocalTime();
 		}
-
-		public static Date localTimeToUtilDate(final LocalTime d) {
+		
+		public static @Nullable Date localTimeToUtilDate(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
@@ -77,85 +78,85 @@ public final class Java8ConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmm = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 		private static final DateTimeFormatter HHmm = DateTimeFormatter.ofPattern("HH:mm");
-
-		public static String localDateToMonthYearString(final LocalDate d) {
+		
+		public static @Nullable String localDateToMonthYearString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(MMMyyyy);
 		}
-
-		public static LocalDate monthYearStringToLocalDate(final String s) {
+		
+		public static LocalDate monthYearStringToLocalDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDate.parse(s, MMMyyyy);
 		}
-
-		public static String localDateToWeekdayString(final LocalDate d) {
+		
+		public static @Nullable String localDateToWeekdayString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(EEddMMyyyy);
 		}
-
-		public static LocalDate weekdayStringToLocalDate(final String s) {
+		
+		public static LocalDate weekdayStringToLocalDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDate.parse(s, EEddMMyyyy);
 		}
-
-		public static String localDateToString(final LocalDate d) {
+		
+		public static @Nullable String localDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyy);
 		}
-
-		public static LocalDate stringToLocalDate(final String s) {
+		
+		public static LocalDate stringToLocalDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDate.parse(s, ddMMyyyy);
 		}
-
-		public static String localDateTimeToString(final LocalDateTime d) {
+		
+		public static @Nullable String localDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyyHHmm);
 		}
-
-		public static LocalDateTime stringToLocalDateTime(final String s) {
+		
+		public static LocalDateTime stringToLocalDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDateTime.parse(s, ddMMyyyyHHmm);
 		}
-
-		public static String localDateTimeToStringWithSeconds(final LocalDateTime d) {
+		
+		public static @Nullable String localDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyyHHmmss);
 		}
-
-		public static LocalDateTime stringWithSecondsToLocalDateTime(final String s) {
+		
+		public static LocalDateTime stringWithSecondsToLocalDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDateTime.parse(s, ddMMyyyyHHmmss);
 		}
-
-		public static String localTimeToString(final LocalTime d) {
+		
+		public static @Nullable String localTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(HHmm);
 		}
-
-		public static LocalTime stringToLocalTime(final String s) {
+		
+		public static LocalTime stringToLocalTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -173,57 +174,57 @@ public final class Java8ConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmm = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		private static final DateTimeFormatter HHmm = DateTimeFormatter.ofPattern("HH:mm");
-
-		public static String localDateToString(final LocalDate d) {
+		
+		public static @Nullable String localDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyy);
 		}
-
-		public static LocalDate stringToLocalDate(final String s) {
+		
+		public static LocalDate stringToLocalDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDate.parse(s, ddMMyyyy);
 		}
-
-		public static String localDateTimeToString(final LocalDateTime d) {
+		
+		public static @Nullable String localDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyyHHmm);
 		}
-
-		public static LocalDateTime stringToLocalDateTime(final String s) {
+		
+		public static LocalDateTime stringToLocalDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDateTime.parse(s, ddMMyyyyHHmm);
 		}
-
-		public static String localDateTimeToStringWithSeconds(final LocalDateTime d) {
+		
+		public static @Nullable String localDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(ddMMyyyyHHmmss);
 		}
-
-		public static LocalDateTime stringWithSecondsToLocalDateTime(final String s) {
+		
+		public static LocalDateTime stringWithSecondsToLocalDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return LocalDateTime.parse(s, ddMMyyyyHHmmss);
 		}
-
-		public static String localTimeToString(final LocalTime d) {
+		
+		public static @Nullable String localTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.format(HHmm);
 		}
-
-		public static LocalTime stringToLocalTime(final String s) {
+		
+		public static LocalTime stringToLocalTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -237,42 +238,42 @@ public final class Java8ConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class SQLDate {
-		public static java.sql.Date localDateToSqlDate(final LocalDate value) {
+		public static @Nullable java.sql.Date localDateToSqlDate(final @Nullable LocalDate value) {
 			if (value == null) {
 				return null;
 			}
 			return java.sql.Date.valueOf(value);
 		}
-
-		public static LocalDate sqlDateToLocalDate(final java.sql.Date value) {
+		
+		public static @Nullable LocalDate sqlDateToLocalDate(final @Nullable java.sql.Date value) {
 			if (value == null) {
 				return null;
 			}
 			return value.toLocalDate();
 		}
-
-		public static Timestamp localDateTimeToTimestamp(final LocalDateTime value) {
+		
+		public static @Nullable Timestamp localDateTimeToTimestamp(final @Nullable LocalDateTime value) {
 			if (value == null) {
 				return null;
 			}
 			return Timestamp.valueOf(value);
 		}
-
-		public static LocalDateTime timestampToLocalDateTime(final Timestamp value) {
+		
+		public static @Nullable LocalDateTime timestampToLocalDateTime(final @Nullable Timestamp value) {
 			if (value == null) {
 				return null;
 			}
 			return value.toLocalDateTime();
 		}
-
-		public static Time localTimeToSqlTime(final LocalTime value) {
+		
+		public static @Nullable Time localTimeToSqlTime(final @Nullable LocalTime value) {
 			if (value == null) {
 				return null;
 			}
 			return Time.valueOf(value);
 		}
-
-		public static LocalTime sqlTimeToLocalTime(final Time value) {
+		
+		public static @Nullable LocalTime sqlTimeToLocalTime(final @Nullable Time value) {
 			if (value == null) {
 				return null;
 			}

@@ -1,6 +1,7 @@
 package net.sjr.sql.exceptions;
 
 import net.sjr.sql.SQLUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
@@ -8,12 +9,16 @@ import java.sql.PreparedStatement;
 public class NoNullTypeException extends RuntimeException implements Serializable {
 	private static final long serialVersionUID = 879471158051022442L;
 	
-	public NoNullTypeException(PreparedStatement pst, int position) {
+	public NoNullTypeException(final @NotNull PreparedStatement pst, final int position) {
 		super("Es wurde ein null-Wert an Position " + position + " [" + pstToPositionName(pst, position) + " ] übergeben, aber kein Typ spezifiziert\n"
 				+ "(Problem SQL) " + SQLUtils.pstToSQL(pst));
 	}
-
-	private static String pstToPositionName(PreparedStatement pst, int position) {
+	
+	public NoNullTypeException(final @NotNull String s) {
+		super(s);
+	}
+	
+	private static @NotNull String pstToPositionName(final @NotNull PreparedStatement pst, final int position) {
 		String sql = SQLUtils.pstToSQL(pst);
 		String[] names;
 		try {
@@ -32,7 +37,7 @@ public class NoNullTypeException extends RuntimeException implements Serializabl
 			else return "Unbekannt";
 			return names[position - 1];
 		}
-		catch (ArrayIndexOutOfBoundsException ignored) {
+		catch (final ArrayIndexOutOfBoundsException ignored) {
 			return "Unbekannt";
 		}
 	}

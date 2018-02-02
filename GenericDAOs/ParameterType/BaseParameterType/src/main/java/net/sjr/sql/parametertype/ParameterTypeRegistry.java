@@ -1,5 +1,7 @@
 package net.sjr.sql.parametertype;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +16,7 @@ public final class ParameterTypeRegistry {
 	 *
 	 * @param type der {@link ParameterType}
 	 */
-	public static void registerParameterType(ParameterType type) {
+	public static void registerParameterType(final @NotNull ParameterType type) {
 		PARAMETER_TYPES.add(type);
 	}
 

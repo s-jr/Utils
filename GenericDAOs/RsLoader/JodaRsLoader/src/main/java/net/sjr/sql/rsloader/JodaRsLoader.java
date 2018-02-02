@@ -2,6 +2,8 @@ package net.sjr.sql.rsloader;
 
 import net.sjr.converterutils.JodaConverterUtils;
 import net.sjr.sql.DBObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -13,7 +15,7 @@ import java.sql.ResultSet;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class JodaRsLoader extends RsLoader {
-	public JodaRsLoader(final ResultSet rs, final DBObject... loadedObjects) {
+	public JodaRsLoader(final @NotNull ResultSet rs, final DBObject... loadedObjects) {
 		super(rs, loadedObjects);
 	}
 	
@@ -22,7 +24,7 @@ public class JodaRsLoader extends RsLoader {
 	 *
 	 * @return das aktuelle {@code LocalDate}
 	 */
-	public LocalDate nextLocalDate() {
+	public @Nullable LocalDate nextLocalDate() {
 		return JodaConverterUtils.SQLDate.sqlDateToJodaDate(nextDate());
 	}
 	
@@ -30,7 +32,7 @@ public class JodaRsLoader extends RsLoader {
 	 * Gibt die {@code LocalDateTime} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return die aktuelle {@code LocalDateTime}
 	 */
-	public LocalDateTime nextLocalDateTime() {
+	public @Nullable LocalDateTime nextLocalDateTime() {
 		return JodaConverterUtils.SQLDate.timestampToJodaDateTime(nextTimestamp());
 	}
 	
@@ -38,7 +40,7 @@ public class JodaRsLoader extends RsLoader {
 	 * Gibt die {@code LocalTime} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return die aktuelle {@code LocalTime}
 	 */
-	public LocalTime nextLocalTime() {
+	public @Nullable LocalTime nextLocalTime() {
 		return JodaConverterUtils.SQLDate.sqlTimeToJodaTime(nextTime());
 	}
 }

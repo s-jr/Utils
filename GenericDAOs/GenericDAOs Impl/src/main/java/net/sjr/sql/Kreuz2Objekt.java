@@ -1,5 +1,8 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -20,13 +23,13 @@ public class Kreuz2Objekt<A extends DBObject<PA>, PA extends Number, B extends D
 	 * @param a erstes verbundene Objekt
 	 * @param b zweites verbundene Objekt
 	 */
-	public Kreuz2Objekt(A a, B b) {
+	public Kreuz2Objekt(final @Nullable A a, final @Nullable B b) {
 		this.a = a;
 		this.b = b;
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Kreuz2Objekt<?, ?, ?, ?> that = (Kreuz2Objekt<?, ?, ?, ?>) o;
@@ -40,7 +43,7 @@ public class Kreuz2Objekt<A extends DBObject<PA>, PA extends Number, B extends D
 	}
 	
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return "Kreuz2Objekt{" +
 				"a=" + a +
 				", b=" + b +

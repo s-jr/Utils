@@ -3,6 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.AbstractPagingItemReader;
@@ -28,7 +30,7 @@ public class DAOReaderLimit<T extends DBObject<P>, P extends Number> extends Abs
 	 *
 	 * @param dao die {@link PaginationDAO}
 	 */
-	public DAOReaderLimit(PaginationDAO<T, P> dao) {
+	public DAOReaderLimit(final @NotNull PaginationDAO<T, P> dao) {
 		this(dao, null, null, null);
 	}
 	
@@ -38,7 +40,7 @@ public class DAOReaderLimit<T extends DBObject<P>, P extends Number> extends Abs
 	 * @param dao      die {@link PaginationDAO}
 	 * @param pageSize die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public DAOReaderLimit(PaginationDAO<T, P> dao, int pageSize) {
+	public DAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final int pageSize) {
 		this(dao, null, null, null);
 		setPageSize(pageSize);
 	}
@@ -51,7 +53,7 @@ public class DAOReaderLimit<T extends DBObject<P>, P extends Number> extends Abs
 	 * @param where  Die WHERE Klausel oder {@code null}
 	 * @param params Die {@link Parameter} oder {@code null}
 	 */
-	public DAOReaderLimit(PaginationDAO<T, P> dao, String join, String where, ParameterList params) {
+	public DAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		this.dao = dao;
 		this.join = join;
 		this.where = where;
@@ -68,7 +70,7 @@ public class DAOReaderLimit<T extends DBObject<P>, P extends Number> extends Abs
 	 * @param params   Die {@link Parameter} oder {@code null}
 	 * @param pageSize die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public DAOReaderLimit(PaginationDAO<T, P> dao, String join, String where, ParameterList params, int pageSize) {
+	public DAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final int pageSize) {
 		this(dao, join, where, params);
 		setPageSize(pageSize);
 	}
@@ -82,11 +84,11 @@ public class DAOReaderLimit<T extends DBObject<P>, P extends Number> extends Abs
 	}
 	
 	@Override
-	protected void doJumpToPage(int itemIndex) {
+	protected void doJumpToPage(final int itemIndex) {
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		DAOReaderLimit<?, ?> that = (DAOReaderLimit<?, ?>) o;

@@ -3,6 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -41,7 +43,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	 *
 	 * @param dao die {@link PaginationDAO}
 	 */
-	public DAOReaderPrimary(PaginationDAO<T, P> dao) {
+	public DAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao) {
 		this(dao, null, null, null);
 	}
 	
@@ -51,7 +53,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	 * @param dao      die {@link PaginationDAO}
 	 * @param pageSize die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public DAOReaderPrimary(PaginationDAO<T, P> dao, int pageSize) {
+	public DAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final int pageSize) {
 		this(dao, null, null, null, pageSize);
 	}
 	
@@ -63,7 +65,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	 * @param where  Die WHERE Klausel oder {@code null}
 	 * @param params Die {@link Parameter} oder {@code null}
 	 */
-	public DAOReaderPrimary(PaginationDAO<T, P> dao, String join, String where, ParameterList params) {
+	public DAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		this(dao, join, where, params, 10);
 		
 	}
@@ -77,7 +79,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	 * @param params   Die {@link Parameter} oder {@code null}
 	 * @param pageSize die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public DAOReaderPrimary(PaginationDAO<T, P> dao, String join, String where, ParameterList params, int pageSize) {
+	public DAOReaderPrimary(final @NotNull PaginationDAO<T, P> dao, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final int pageSize) {
 		this.dao = dao;
 		this.join = join;
 		this.where = where;
@@ -87,7 +89,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	}
 	
 	@Override
-	public T read() {
+	public @Nullable T read() {
 		synchronized (lock) {
 			if (results == null || indexInList >= pageSize) {
 				log.debug("Lese Seite nach Primary {}", lastPrimary);
@@ -117,7 +119,7 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	}
 	
 	@Override
-	public void open(ExecutionContext executionContext) throws ItemStreamException {
+	public void open(final @NotNull ExecutionContext executionContext) throws ItemStreamException {
 		super.open(executionContext);
 		
 		if (executionContext.containsKey(getExecutionContextKey(LAST_PRIMARY))) {
@@ -126,13 +128,13 @@ public class DAOReaderPrimary<T extends DBObject<P>, P extends Number> extends A
 	}
 	
 	@Override
-	public void update(ExecutionContext executionContext) throws ItemStreamException {
+	public void update(final @NotNull ExecutionContext executionContext) throws ItemStreamException {
 		super.update(executionContext);
 		SQLUtilsSpring.saveLastPrimaryToContext(dao, lastPrimary, executionContext, getExecutionContextKey(LAST_PRIMARY));
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		DAOReaderPrimary<?, ?> that = (DAOReaderPrimary<?, ?>) o;

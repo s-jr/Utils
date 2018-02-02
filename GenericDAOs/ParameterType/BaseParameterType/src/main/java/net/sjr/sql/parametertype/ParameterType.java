@@ -1,5 +1,8 @@
 package net.sjr.sql.parametertype;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -18,5 +21,5 @@ public interface ParameterType {
 	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	int set(PreparedStatement pst, int pos, Object value) throws SQLException;
+	int set(@NotNull PreparedStatement pst, int pos, @Nullable Object value) throws SQLException;
 }

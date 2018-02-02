@@ -1,5 +1,8 @@
 package net.sjr.sql;
 
+import net.sjr.sql.exceptions.NoNullTypeException;
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -24,9 +27,9 @@ public class ParameterList extends LinkedList<Parameter> {
 	 * @return die Position hinter dem zuletzt eingefügten Parameter
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
+	public int setParameter(final @NotNull PreparedStatement pst, final int position) throws SQLException {
 		int newPosition = position;
-		for (Parameter param : this) {
+		for (final Parameter param : this) {
 			newPosition = param.setParameter(pst, newPosition);
 		}
 		return newPosition;
@@ -39,16 +42,19 @@ public class ParameterList extends LinkedList<Parameter> {
 	 * @return sich selbst
 	 */
 	@SuppressWarnings("UnusedReturnValue")
-	public ParameterList addParameter(final Object... objects) {
-		for (Object o : objects) {
+	public @NotNull ParameterList addParameter(final Object... objects) {
+		for (final Object o : objects) {
 			if (o instanceof Parameter) {
 				add((Parameter) o);
 			}
 			else if (o instanceof ParameterList) {
 				addAll((ParameterList) o);
 			}
-			else {
+			else if (o != null) {
 				addParameter(new Parameter(o));
+			}
+			else {
+				throw new NoNullTypeException("Kann null nicht ohne Parametertyp hinzufügen");
 			}
 		}
 		return this;

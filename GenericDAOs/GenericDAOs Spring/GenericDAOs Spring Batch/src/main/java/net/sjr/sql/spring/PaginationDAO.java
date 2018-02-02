@@ -3,6 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.*;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ExecutionContext;
@@ -31,7 +33,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 *
 	 * @param ds die {@link DataSource}
 	 */
-	public PaginationDAO(DataSource ds) {
+	public PaginationDAO(final @NotNull DataSource ds) {
 		super(ds);
 	}
 	
@@ -40,7 +42,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 *
 	 * @param con die bereits vorhandene Datenbankverbindung
 	 */
-	public PaginationDAO(Connection con) {
+	public PaginationDAO(final @NotNull Connection con) {
 		super(con);
 	}
 	
@@ -49,12 +51,12 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 *
 	 * @param dao die bereits vorhandene {@link DAO}
 	 */
-	public PaginationDAO(DAO<? extends DBObject, ? extends Number> dao) {
+	public PaginationDAO(final @NotNull DAO<? extends DBObject, ? extends Number> dao) {
 		super(dao);
 	}
 	
 	@Override
-	protected Connection getConnectionFromDataSource() throws SQLException {
+	protected @NotNull Connection getConnectionFromDataSource() throws SQLException {
 		return DataSourceUtils.doGetConnection(dataSource);
 	}
 	
@@ -62,7 +64,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	public void close() {
 		if (log != null) log.debug("Closing DAO...");
 		if (pstCache != null) {
-			for (PreparedStatement pst : pstCache.values()) {
+			for (final PreparedStatement pst : pstCache.values()) {
 				SQLUtils.closeSqlAutocloseable(pst, log);
 			}
 			pstCache.clear();
@@ -71,7 +73,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 			try {
 				DataSourceUtils.doReleaseConnection(connection, dataSource);
 			}
-			catch (SQLException e) {
+			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
 		}
@@ -88,7 +90,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 *
 	 * @return die Seite. Niemals {@code null}
 	 */
-	public List<T> loadPage(int pageNumber, int pageSize, String join, String where, ParameterList params) {
+	public @NotNull List<T> loadPage(final int pageNumber, final int pageSize, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		return loadAllFromWhere(join, where, params, (pageNumber * pageSize) + ", " + ((pageNumber + 1) * pageSize), getPrimaryCol());
 	}
 	
@@ -102,7 +104,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 * @param params      Die {@link Parameter} oder {@code null}
 	 * @return die Seite. Niemals {@code null}
 	 */
-	public List<T> loadPageFromPrimary(P lastPrimary, int pageSize, String join, String where, ParameterList params) {
+	public @NotNull List<T> loadPageFromPrimary(final @Nullable P lastPrimary, final int pageSize, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		String fullWhere;
 		if (StringUtils.isBlank(where)) fullWhere = "";
 		else fullWhere = '(' + where + ") AND ";
@@ -128,12 +130,12 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	 *
 	 * @return die Seite. Niemals {@code null}
 	 */
-	public List<T> loadCustomPage(final String join, final String where, final ParameterList params, final String limit, final String order, final DBObject... loadedObjects) {
+	public @NotNull List<T> loadCustomPage(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final DBObject... loadedObjects) {
 		return loadAllFromWhere(join, where, params, limit, order, loadedObjects);
 	}
 	
 	@Override
-	public void write(List<? extends T> items) {
+	public void write(final @NotNull List<? extends T> items) {
 		for (int itemsSize = items.size(); done < itemsSize; done++) {
 			T item = items.get(done);
 			insertOrUpdate(item);
@@ -142,14 +144,14 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	}
 	
 	@Override
-	public void open(ExecutionContext executionContext) {
+	public void open(final @NotNull ExecutionContext executionContext) {
 		if (executionContext.containsKey("paginationdao.done")) {
 			done = executionContext.getInt("paginationdao.done");
 		}
 	}
 	
 	@Override
-	public void update(ExecutionContext executionContext) {
+	public void update(final @NotNull ExecutionContext executionContext) {
 		executionContext.putInt("paginationdao.done", done);
 	}
 }

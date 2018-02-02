@@ -1,5 +1,7 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,34 +23,34 @@ public class Test2DAO extends DAO<TestClass2, Long> {
 	}
 
 	@Override
-	protected String getFelder() {
+	protected @NotNull String getFelder() {
 		return FELDER;
 	}
 
 	@Override
-	protected String getTable() {
+	protected @NotNull String getTable() {
 		return TABLE;
 	}
 
 	@Override
-	protected String getPrimaryCol() {
+	protected @NotNull String getPrimaryCol() {
 		return PRIMARY;
 	}
 
 	@Override
-	protected ParameterList getPList(TestClass2 v) {
+	protected @NotNull ParameterList getPList(@NotNull TestClass2 v) {
 		return new ParameterList(v.getB());
 	}
 
 	@Override
-	protected TestClass2 getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException {
+	protected @NotNull TestClass2 getFromRS(ResultSet rs, DBObject... loadedObjects) throws SQLException {
 		TestClass2 result = new TestClass2();
 		fillObject(rs, result, loadedObjects);
 		return result;
 	}
 
 	@Override
-	protected void fillObject(ResultSet rs, TestClass2 result, DBObject... loadedObjects) throws SQLException {
+	protected void fillObject(@NotNull ResultSet rs, @NotNull TestClass2 result, DBObject... loadedObjects) throws SQLException {
 		result.setPrimary(rs.getLong(1));
 		result.setB(rs.getBoolean(2));
 	}

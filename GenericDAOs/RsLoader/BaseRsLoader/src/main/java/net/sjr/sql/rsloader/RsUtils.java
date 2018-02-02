@@ -3,6 +3,8 @@ package net.sjr.sql.rsloader;
 import net.sjr.sql.DAOBase;
 import net.sjr.sql.DBEnum;
 import net.sjr.sql.DBObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -30,16 +32,16 @@ public class RsUtils {
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
 	@SuppressWarnings({"unchecked", "WeakerAccess"})
-	public static <T extends DBObject<P>, P extends Number> T loadedObjectsOrNull(final int rsPos, final ResultSet rs, final DAOBase<T, P> dao, final DBObject... loadedObjects)
+	public static @Nullable <T extends DBObject<P>, P extends Number> T loadedObjectsOrNull(final int rsPos, final @NotNull ResultSet rs, final @NotNull DAOBase<T, P> dao, final DBObject... loadedObjects)
 			throws SQLException {
 		P id = dao.getPrimary(rs, rsPos);
-		if (rs.wasNull()) {
+		if (rs.wasNull() || id == null) {
 			return null;
 		}
 		
 		if (loadedObjects != null) {
-			for (DBObject o : loadedObjects) {
-				if (o != null && o.getPrimary().equals(id)) {
+			for (final DBObject o : loadedObjects) {
+				if (o != null && o.getPrimary() != null && o.getPrimary().equals(id)) {
 					Type type = dao.getClass();
 					while (type instanceof Class) {
 						type = ((Class) type).getGenericSuperclass();
@@ -64,9 +66,9 @@ public class RsUtils {
 	 *
 	 * @return die Enum oder null, wenn nicht vorhanden
 	 */
-	public static <E extends DBEnum<T>, T> E getFromDBIdentifier(T identifier, Class<E> enumClass) {
+	public static @Nullable <E extends DBEnum<T>, T> E getFromDBIdentifier(final @Nullable T identifier, final @NotNull Class<E> enumClass) {
 		E[] values = enumClass.getEnumConstants();
-		for (E value : values) {
+		for (final E value : values) {
 			if (value.getDBIdentifier().equals(identifier)) {
 				return value;
 			}
@@ -84,7 +86,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Boolean getNullableBoolean(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Boolean getNullableBoolean(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		boolean result = rs.getBoolean(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -100,7 +102,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Byte getNullableByte(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Byte getNullableByte(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		byte result = rs.getByte(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -116,7 +118,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Short getNullableShort(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Short getNullableShort(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		short result = rs.getShort(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -132,7 +134,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Integer getNullableInt(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Integer getNullableInt(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		int result = rs.getInt(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -148,7 +150,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Long getNullableLong(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Long getNullableLong(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		long result = rs.getLong(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -164,7 +166,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Float getNullableFloat(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Float getNullableFloat(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		float result = rs.getFloat(pos);
 		if (rs.wasNull()) return null;
 		return result;
@@ -180,7 +182,7 @@ public class RsUtils {
 	 *
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
-	public static Double getNullableDouble(ResultSet rs, int pos) throws SQLException {
+	public static @Nullable Double getNullableDouble(final @NotNull ResultSet rs, final int pos) throws SQLException {
 		double result = rs.getDouble(pos);
 		if (rs.wasNull()) return null;
 		return result;

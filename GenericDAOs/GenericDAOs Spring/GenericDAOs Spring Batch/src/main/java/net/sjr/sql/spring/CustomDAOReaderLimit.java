@@ -3,6 +3,8 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.Parameter;
 import net.sjr.sql.ParameterList;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.database.AbstractPagingItemReader;
@@ -44,7 +46,7 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 	 * @param order  Die ORDER Klausel oder {@code null}
 	 * @param mapper Funktion, die de Rückgabe der DAO nachträglich noch mappt
 	 */
-	public CustomDAOReaderLimit(PaginationDAO<T, P> dao, KlauselFunction join, KlauselFunction where, BiFunction<Integer, Integer, ParameterList> params, KlauselFunction limit, KlauselFunction order, final Function<List<T>, List<R>> mapper) {
+	public CustomDAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction join, final @Nullable KlauselFunction where, final @Nullable BiFunction<Integer, Integer, ParameterList> params, final @Nullable KlauselFunction limit, final @Nullable KlauselFunction order, final @Nullable Function<List<T>, List<R>> mapper) {
 		this(dao, join, where, params, limit, order, mapper, null);
 	}
 	
@@ -61,7 +63,7 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 	 * @param mapper   Funktion, die de Rückgabe der DAO nachträglich noch mappt
 	 * @param pageSize die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public CustomDAOReaderLimit(PaginationDAO<T, P> dao, KlauselFunction join, KlauselFunction where, BiFunction<Integer, Integer, ParameterList> params, KlauselFunction limit, KlauselFunction order, final Function<List<T>, List<R>> mapper, int pageSize) {
+	public CustomDAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction join, final @Nullable KlauselFunction where, final @Nullable BiFunction<Integer, Integer, ParameterList> params, final @Nullable KlauselFunction limit, final @Nullable KlauselFunction order, final @Nullable Function<List<T>, List<R>> mapper, final int pageSize) {
 		this(dao, join, where, params, limit, order, mapper);
 		setPageSize(pageSize);
 	}
@@ -79,7 +81,7 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 	 * @param mapper        Funktion, die de Rückgabe der DAO nachträglich noch mappt
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 */
-	public CustomDAOReaderLimit(PaginationDAO<T, P> dao, KlauselFunction join, KlauselFunction where, BiFunction<Integer, Integer, ParameterList> params, KlauselFunction limit, KlauselFunction order, final Function<List<T>, List<R>> mapper, DBObjectFunction loadedObjects) {
+	public CustomDAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction join, final @Nullable KlauselFunction where, final @Nullable BiFunction<Integer, Integer, ParameterList> params, final @Nullable KlauselFunction limit, final @Nullable KlauselFunction order, final @Nullable Function<List<T>, List<R>> mapper, final @Nullable DBObjectFunction loadedObjects) {
 		this.dao = dao;
 		this.join = join;
 		this.where = where;
@@ -105,7 +107,7 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @param pageSize      die Größe einer Seite. Je größer, desto weniger Datenbankabfragen werden benötigt, aber auch mehr Arbeitsspeicher
 	 */
-	public CustomDAOReaderLimit(PaginationDAO<T, P> dao, KlauselFunction join, KlauselFunction where, BiFunction<Integer, Integer, ParameterList> params, KlauselFunction limit, KlauselFunction order, final Function<List<T>, List<R>> mapper, DBObjectFunction loadedObjects, int pageSize) {
+	public CustomDAOReaderLimit(final @NotNull PaginationDAO<T, P> dao, final @Nullable KlauselFunction join, final @Nullable KlauselFunction where, final @Nullable BiFunction<Integer, Integer, ParameterList> params, final @Nullable KlauselFunction limit, final @Nullable KlauselFunction order, final @Nullable Function<List<T>, List<R>> mapper, final @Nullable DBObjectFunction loadedObjects, final int pageSize) {
 		this(dao, join, where, params, limit, order, mapper, loadedObjects);
 		setPageSize(pageSize);
 	}
@@ -125,11 +127,11 @@ public class CustomDAOReaderLimit<T extends DBObject<P>, P extends Number, R> ex
 	}
 	
 	@Override
-	protected void doJumpToPage(int itemIndex) {
+	protected void doJumpToPage(final int itemIndex) {
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CustomDAOReaderLimit<?, ?, ?> that = (CustomDAOReaderLimit<?, ?, ?>) o;

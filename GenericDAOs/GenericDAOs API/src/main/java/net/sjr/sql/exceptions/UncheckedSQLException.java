@@ -1,5 +1,7 @@
 package net.sjr.sql.exceptions;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.sql.SQLException;
 
@@ -14,7 +16,7 @@ public class UncheckedSQLException extends RuntimeException implements Serializa
 	 *
 	 * @param grund der Grund
 	 */
-	public UncheckedSQLException(SQLException grund) {
+	public UncheckedSQLException(final @NotNull SQLException grund) {
 		super(grund);
 	}
 }

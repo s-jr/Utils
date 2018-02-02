@@ -1,5 +1,7 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Klasse mit Typen von DBMS
  */
@@ -12,7 +14,7 @@ public enum DatabaseType {
 	 *
 	 * @param identifier der Identifier
 	 */
-	DatabaseType(String identifier) {
+	DatabaseType(final @NotNull String identifier) {
 		this.identifier = identifier;
 	}
 	
@@ -28,8 +30,8 @@ public enum DatabaseType {
 	 * @param identifier der Identifier
 	 * @return der {@link DatabaseType}
 	 */
-	public static DatabaseType getFromIdentifier(String identifier) {
-		for (DatabaseType databaseType : DatabaseType.values()) {
+	public static @NotNull DatabaseType getFromIdentifier(final @NotNull String identifier) {
+		for (final DatabaseType databaseType : DatabaseType.values()) {
 			if (databaseType.identifier == null) continue;
 			if (identifier.startsWith(databaseType.identifier)) return databaseType;
 		}

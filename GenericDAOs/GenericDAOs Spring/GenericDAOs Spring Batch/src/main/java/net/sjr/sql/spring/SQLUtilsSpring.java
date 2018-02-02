@@ -3,12 +3,14 @@ package net.sjr.sql.spring;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.SQLUtils;
 import net.sjr.sql.exceptions.UnsupportedPrimaryException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.batch.item.ExecutionContext;
 
 @SuppressWarnings("WeakerAccess")
 public class SQLUtilsSpring extends SQLUtils {
 	@SuppressWarnings("unchecked")
-	public static <T extends DBObject<P>, P extends Number> P loadLastPrimaryFromContext(PaginationDAO<T, P> dao, ExecutionContext executionContext, String executionContextKey) {
+	public static @NotNull <T extends DBObject<P>, P extends Number> P loadLastPrimaryFromContext(final @NotNull PaginationDAO<T, P> dao, final @NotNull ExecutionContext executionContext, final @NotNull String executionContextKey) {
 		Class<P> genericClass = getPrimaryClass(dao);
 		if (genericClass.equals(Integer.class)) return (P) (Integer) executionContext.getInt(executionContextKey);
 		if (genericClass.equals(Long.class)) return (P) (Long) executionContext.getLong(executionContextKey);
@@ -19,7 +21,7 @@ public class SQLUtilsSpring extends SQLUtils {
 		throw new UnsupportedPrimaryException(genericClass.getName());
 	}
 	
-	public static <T extends DBObject<P>, P extends Number> void saveLastPrimaryToContext(PaginationDAO<T, P> dao, P lastPrimary, ExecutionContext executionContext, String executionContextKey) {
+	public static <T extends DBObject<P>, P extends Number> void saveLastPrimaryToContext(final @NotNull PaginationDAO<T, P> dao, final @Nullable P lastPrimary, final @NotNull ExecutionContext executionContext, final @NotNull String executionContextKey) {
 		if (lastPrimary == null) executionContext.remove(executionContextKey);
 		else {
 			Class<P> genericClass = getPrimaryClass(dao);

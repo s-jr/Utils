@@ -5,6 +5,8 @@ import net.sjr.sql.exceptions.NoNullTypeException;
 import net.sjr.sql.exceptions.UnsupportedValueException;
 import net.sjr.sql.parametertype.ParameterType;
 import net.sjr.sql.parametertype.ParameterTypeRegistry;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,11 +31,11 @@ public class Parameter {
 	 *
 	 * @param name der full qualified Klassenname
 	 */
-	private static void loadClass(String name) {
+	private static void loadClass(final @NotNull String name) {
 		try {
 			Class.forName(name);
 		}
-		catch (ClassNotFoundException ignored) {
+		catch (final ClassNotFoundException ignored) {
 		}
 	}
 	
@@ -42,7 +44,7 @@ public class Parameter {
 	 *
 	 * @param value der Wert des Parameters
 	 */
-	public Parameter(final Object value) {
+	public Parameter(final @NotNull Object value) {
 		this(value, null);
 	}
 	
@@ -52,7 +54,7 @@ public class Parameter {
 	 * @param value der Wert des Parameters
 	 * @param type  der Typ aus der {@link java.sql.Types} Klasse, welcher im {@code null} Fall gebraucht wird
 	 */
-	public Parameter(final Object value, final Integer type) {
+	public Parameter(final @Nullable Object value, final @Nullable Integer type) {
 		this.value = value;
 		this.type = type;
 	}
@@ -67,7 +69,7 @@ public class Parameter {
 	 *
 	 * @throws SQLException wenn eine SQLException aufgetreten ist
 	 */
-	public int setParameter(final PreparedStatement pst, final int position) throws SQLException {
+	public int setParameter(final @NotNull PreparedStatement pst, final int position) throws SQLException {
 		Object actualValue = value;
 		while (actualValue instanceof DBConvertable) {
 			if (actualValue instanceof DBEnum) actualValue = ((DBEnum) value).getDBIdentifier();
@@ -87,7 +89,7 @@ public class Parameter {
 			}
 		}
 		else {
-			for (ParameterType type : ParameterTypeRegistry.PARAMETER_TYPES) {
+			for (final ParameterType type : ParameterTypeRegistry.PARAMETER_TYPES) {
 				int newPos = type.set(pst, position, actualValue);
 				if (newPos > 0) return newPos;
 			}
@@ -96,12 +98,12 @@ public class Parameter {
 	}
 	
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return "Parameter [value=" + value + ", type=" + type + ']';
 	}
 	
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Parameter parameter = (Parameter) o;

@@ -1,5 +1,8 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Eine Klasse um drei über Kreuztabellen verbundene Objekte zu beinhalten
  * @param <A> Typ des ersten Java Objektes
@@ -20,13 +23,13 @@ public class Kreuz3Objekt<A extends DBObject<PA>, PA extends Number, B extends D
 	 * @param b zweites verbundene Objekt
 	 * @param c drittes verbundene Objekt
 	 */
-	public Kreuz3Objekt(A a, B b, C c) {
+	public Kreuz3Objekt(final @Nullable A a, final @Nullable B b, final @Nullable C c) {
 		super(a, b);
 		this.c = c;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final @Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		if (!super.equals(o)) return false;
@@ -44,7 +47,7 @@ public class Kreuz3Objekt<A extends DBObject<PA>, PA extends Number, B extends D
 	}
 
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return "Kreuz3Objekt{" +
 				"a=" + a +
 				", b=" + b +

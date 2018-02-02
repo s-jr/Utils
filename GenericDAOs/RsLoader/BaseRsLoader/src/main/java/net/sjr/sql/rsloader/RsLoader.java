@@ -3,6 +3,8 @@ package net.sjr.sql.rsloader;
 import net.sjr.sql.DAOBase;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.exceptions.UncheckedSQLException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -22,7 +24,7 @@ public class RsLoader {
 	 * @param rs            das für die Datenbankabfragen zu nutzende {@link ResultSet}
 	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBase) nextDBObject} Aufrufen genutzt werden
 	 */
-	public RsLoader(ResultSet rs, final DBObject... loadedObjects) {
+	public RsLoader(final @NotNull ResultSet rs, final DBObject... loadedObjects) {
 		this.rs = rs;
 		this.loadedObjects = loadedObjects;
 	}
@@ -31,7 +33,7 @@ public class RsLoader {
 	 * Überspringt die nächste Spalte im ResultSet
 	 * @return sich Selbst
 	 */
-	public RsLoader skip() {
+	public @NotNull RsLoader skip() {
 		return skip(1);
 	}
 	
@@ -40,7 +42,7 @@ public class RsLoader {
 	 * @param steps Anzahl an zu überspringenden Spalten
 	 * @return sich selbst
 	 */
-	public RsLoader skip(int steps) {
+	public @NotNull RsLoader skip(final int steps) {
 		pos += steps;
 		return this;
 	}
@@ -49,11 +51,11 @@ public class RsLoader {
 	 * Gibt den {@link String} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link String}
 	 */
-	public String nextString() {
+	public @Nullable String nextString() {
 		try {
 			return rs.getString(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -76,7 +78,7 @@ public class RsLoader {
 	 *
 	 * @return der aktuelle {@link Character}
 	 */
-	public Character nextNullChar() {
+	public @Nullable Character nextNullChar() {
 		String value = nextString();
 		if (value == null || value.isEmpty()) return null;
 		return value.charAt(0);
@@ -90,7 +92,7 @@ public class RsLoader {
 		try {
 			return rs.getBoolean(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -99,11 +101,11 @@ public class RsLoader {
 	 * Gibt den {@link Boolean} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Boolean}
 	 */
-	public Boolean nextNullBoolean() {
+	public @Nullable Boolean nextNullBoolean() {
 		try {
 			return RsUtils.getNullableBoolean(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -116,7 +118,7 @@ public class RsLoader {
 		try {
 			return rs.getByte(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -125,11 +127,11 @@ public class RsLoader {
 	 * Gibt den {@link Byte} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Byte}
 	 */
-	public Byte nextNullByte() {
+	public @Nullable Byte nextNullByte() {
 		try {
 			return RsUtils.getNullableByte(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -142,7 +144,7 @@ public class RsLoader {
 		try {
 			return rs.getShort(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -151,11 +153,11 @@ public class RsLoader {
 	 * Gibt den {@link Short} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Short}
 	 */
-	public Short nextNullShort() {
+	public @Nullable Short nextNullShort() {
 		try {
 			return RsUtils.getNullableShort(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -168,7 +170,7 @@ public class RsLoader {
 		try {
 			return rs.getInt(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -177,11 +179,11 @@ public class RsLoader {
 	 * Gibt den {@link Integer} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Integer}
 	 */
-	public Integer nextNullInt() {
+	public @Nullable Integer nextNullInt() {
 		try {
 			return RsUtils.getNullableInt(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -194,7 +196,7 @@ public class RsLoader {
 		try {
 			return rs.getLong(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -203,11 +205,11 @@ public class RsLoader {
 	 * Gibt den {@link Long} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Long}
 	 */
-	public Long nextNullLong() {
+	public @Nullable Long nextNullLong() {
 		try {
 			return RsUtils.getNullableLong(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -220,7 +222,7 @@ public class RsLoader {
 		try {
 			return rs.getFloat(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -229,11 +231,11 @@ public class RsLoader {
 	 * Gibt den {@link Float} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Float}
 	 */
-	public Float nextNullFloat() {
+	public @Nullable Float nextNullFloat() {
 		try {
 			return RsUtils.getNullableFloat(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -246,7 +248,7 @@ public class RsLoader {
 		try {
 			return rs.getFloat(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -255,11 +257,11 @@ public class RsLoader {
 	 * Gibt den {@link Double} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Double}
 	 */
-	public Double nextNullDouble() {
+	public @Nullable Double nextNullDouble() {
 		try {
 			return RsUtils.getNullableDouble(rs, pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -268,11 +270,11 @@ public class RsLoader {
 	 * Gibt den {@link BigDecimal} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link BigDecimal}
 	 */
-	public BigDecimal nextBigDecimal() {
+	public @Nullable BigDecimal nextBigDecimal() {
 		try {
 			return rs.getBigDecimal(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -281,11 +283,11 @@ public class RsLoader {
 	 * Gibt das {@link Date} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return das aktuelle {@link Date}
 	 */
-	public Date nextDate() {
+	public @Nullable Date nextDate() {
 		try {
 			return rs.getDate(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -294,11 +296,11 @@ public class RsLoader {
 	 * Gibt die {@link Time} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return die aktuelle {@link Time}
 	 */
-	public Time nextTime() {
+	public @Nullable Time nextTime() {
 		try {
 			return rs.getTime(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -307,11 +309,11 @@ public class RsLoader {
 	 * Gibt den {@link Timestamp} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return der aktuelle {@link Timestamp}
 	 */
-	public Timestamp nextTimestamp() {
+	public @Nullable Timestamp nextTimestamp() {
 		try {
 			return rs.getTimestamp(pos++);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}
@@ -320,7 +322,7 @@ public class RsLoader {
 	 * Gibt das {@link java.util.Date} an der aktuellen Position zurück und geht eine Position weiter
 	 * @return das aktuelle {@link java.util.Date}
 	 */
-	public java.util.Date nextUtilDate() {
+	public @Nullable java.util.Date nextUtilDate() {
 		Timestamp value = nextTimestamp();
 		if (value == null) return null;
 		return new java.util.Date(value.getTime());
@@ -333,11 +335,11 @@ public class RsLoader {
 	 * @param <P> Typ des Primary Keys des {@link DBObject}
 	 * @return das aktuelle {@link DBObject}
 	 */
-	public <T extends DBObject<P>, P extends Number> T nextDBObject(final DAOBase<T, P> dao) {
+	public @Nullable <T extends DBObject<P>, P extends Number> T nextDBObject(final @NotNull DAOBase<T, P> dao) {
 		try {
 			return RsUtils.loadedObjectsOrNull(pos++, rs, dao, loadedObjects);
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 	}

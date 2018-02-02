@@ -1,5 +1,7 @@
 package net.sjr.sql;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.Connection;
 
 /**
@@ -19,27 +21,27 @@ public class KreuzTestDAO extends Kreuz2DAO<TestClass, Integer, TestClass2, Long
 
 
 	@Override
-	protected DAO<TestClass, Integer> getaDAO() {
+	protected @NotNull DAO<TestClass, Integer> getaDAO() {
 		return tdao;
 	}
 
 	@Override
-	protected DAO<TestClass2, Long> getbDAO() {
+	protected @NotNull DAO<TestClass2, Long> getbDAO() {
 		return t2dao;
 	}
 
 	@Override
-	protected String getKreuzTable() {
+	protected @NotNull String getKreuzTable() {
 		return KREUZ;
 	}
 
 	@Override
-	protected String getKreuzColA() {
+	protected @NotNull String getKreuzColA() {
 		return COLA;
 	}
 
 	@Override
-	protected String getKreuzColB() {
+	protected @NotNull String getKreuzColB() {
 		return COLB;
 	}
 

@@ -5,6 +5,8 @@ import net.sjr.sql.DAOBase;
 import net.sjr.sql.DBColumn;
 import net.sjr.sql.DBEnum;
 import net.sjr.sql.DBObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -25,12 +27,22 @@ import java.util.function.Supplier;
 public class Java8RsLoader extends RsLoader {
 	
 	/**
+	 * Erstellt einen {@link Java8RsLoader} für das gegebene {@link ResultSet} und die bereits geladenen Objekte
+	 *
+	 * @param rs            das für die Datenbankabfragen zu nutzende {@link ResultSet}
+	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBase) nextDBObject} Aufrufen genutzt werden
+	 */
+	public Java8RsLoader(final @NotNull ResultSet rs, final DBObject... loadedObjects) {
+		super(rs, loadedObjects);
+	}
+	
+	/**
 	 * Überspringt die nächste Spalte im {@link ResultSet}
 	 *
 	 * @return sich Selbst
 	 */
 	@Override
-	public Java8RsLoader skip() {
+	public @NotNull Java8RsLoader skip() {
 		return (Java8RsLoader) super.skip();
 	}
 	
@@ -42,7 +54,7 @@ public class Java8RsLoader extends RsLoader {
 	 * @return sich selbst
 	 */
 	@Override
-	public Java8RsLoader skip(final int steps) {
+	public @NotNull Java8RsLoader skip(final int steps) {
 		return (Java8RsLoader) super.skip(steps);
 	}
 	
@@ -55,7 +67,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader skip(Supplier<T> getter, Consumer<T> setter) {
+	public @NotNull <T> Java8RsLoader skip(final @NotNull Supplier<T> getter, final @NotNull Consumer<T> setter) {
 		setter.accept(getter.get());
 		return skip();
 	}
@@ -70,19 +82,9 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader skip(Supplier<T> getter, Consumer<T> setter, final int steps) {
+	public @NotNull <T> Java8RsLoader skip(final @NotNull Supplier<T> getter, final @NotNull Consumer<T> setter, final int steps) {
 		setter.accept(getter.get());
 		return skip(steps);
-	}
-	
-	/**
-	 * Erstellt einen {@link Java8RsLoader} für das gegebene {@link ResultSet} und die bereits geladenen Objekte
-	 *
-	 * @param rs            das für die Datenbankabfragen zu nutzende {@link ResultSet}
-	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBase) nextDBObject} Aufrufen genutzt werden
-	 */
-	public Java8RsLoader(final ResultSet rs, final DBObject... loadedObjects) {
-		super(rs, loadedObjects);
 	}
 	
 	/**
@@ -92,7 +94,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextString(Consumer<String> setter) {
+	public @NotNull Java8RsLoader nextString(final @NotNull Consumer<String> setter) {
 		return nextString(setter, Function.identity());
 	}
 	
@@ -105,7 +107,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextString(Consumer<T> setter, Function<String, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextString(final @NotNull Consumer<T> setter, final @NotNull Function<String, T> mapper) {
 		setter.accept(mapper.apply(nextString()));
 		return this;
 	}
@@ -119,7 +121,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @throws IllegalArgumentException wenn das Datenbankfeld null oder leer ist
 	 */
-	public Java8RsLoader nextChar(Consumer<Character> setter) {
+	public @NotNull Java8RsLoader nextChar(final @NotNull Consumer<Character> setter) {
 		return nextChar(setter, Function.identity());
 	}
 	
@@ -134,7 +136,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @throws IllegalArgumentException wenn das Datenbankfeld null oder leer ist
 	 */
-	public <T> Java8RsLoader nextChar(Consumer<T> setter, Function<Character, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextChar(final @NotNull Consumer<T> setter, final @NotNull Function<Character, T> mapper) {
 		setter.accept(mapper.apply(nextChar()));
 		return this;
 	}
@@ -146,7 +148,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullChar(Consumer<Character> setter) {
+	public @NotNull Java8RsLoader nextNullChar(final @NotNull Consumer<Character> setter) {
 		return nextNullChar(setter, Function.identity());
 	}
 	
@@ -159,7 +161,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullChar(Consumer<T> setter, Function<Character, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullChar(final @NotNull Consumer<T> setter, final @NotNull Function<Character, T> mapper) {
 		setter.accept(mapper.apply(nextNullChar()));
 		return this;
 	}
@@ -171,7 +173,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextBoolean(Consumer<Boolean> setter) {
+	public @NotNull Java8RsLoader nextBoolean(final @NotNull Consumer<Boolean> setter) {
 		return nextBoolean(setter, Function.identity());
 	}
 	
@@ -184,7 +186,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextBoolean(Consumer<T> setter, Function<Boolean, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextBoolean(final @NotNull Consumer<T> setter, final @NotNull Function<Boolean, T> mapper) {
 		setter.accept(mapper.apply(nextBoolean()));
 		return this;
 	}
@@ -196,7 +198,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullBoolean(Consumer<Boolean> setter) {
+	public @NotNull Java8RsLoader nextNullBoolean(final @NotNull Consumer<Boolean> setter) {
 		return nextNullBoolean(setter, Function.identity());
 	}
 	
@@ -209,7 +211,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullBoolean(Consumer<T> setter, Function<Boolean, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullBoolean(final @NotNull Consumer<T> setter, final @NotNull Function<Boolean, T> mapper) {
 		setter.accept(mapper.apply(nextNullBoolean()));
 		return this;
 	}
@@ -221,7 +223,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextByte(Consumer<Byte> setter) {
+	public @NotNull Java8RsLoader nextByte(final @NotNull Consumer<Byte> setter) {
 		return nextByte(setter, Function.identity());
 	}
 	
@@ -234,7 +236,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextByte(Consumer<T> setter, Function<Byte, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextByte(final @NotNull Consumer<T> setter, final @NotNull Function<Byte, T> mapper) {
 		setter.accept(mapper.apply(nextByte()));
 		return this;
 	}
@@ -246,7 +248,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullByte(Consumer<Byte> setter) {
+	public @NotNull Java8RsLoader nextNullByte(final @NotNull Consumer<Byte> setter) {
 		return nextNullByte(setter, Function.identity());
 	}
 	
@@ -259,7 +261,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullByte(Consumer<T> setter, Function<Byte, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullByte(final @NotNull Consumer<T> setter, final @NotNull Function<Byte, T> mapper) {
 		setter.accept(mapper.apply(nextNullByte()));
 		return this;
 	}
@@ -271,7 +273,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextShort(Consumer<Short> setter) {
+	public @NotNull Java8RsLoader nextShort(final @NotNull Consumer<Short> setter) {
 		return nextShort(setter, Function.identity());
 	}
 	
@@ -284,7 +286,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextShort(Consumer<T> setter, Function<Short, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextShort(final @NotNull Consumer<T> setter, final @NotNull Function<Short, T> mapper) {
 		setter.accept(mapper.apply(nextShort()));
 		return this;
 	}
@@ -296,7 +298,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullShort(Consumer<Short> setter) {
+	public @NotNull Java8RsLoader nextNullShort(final @NotNull Consumer<Short> setter) {
 		return nextNullShort(setter, Function.identity());
 	}
 	
@@ -309,7 +311,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullShort(Consumer<T> setter, Function<Short, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullShort(final @NotNull Consumer<T> setter, final @NotNull Function<Short, T> mapper) {
 		setter.accept(mapper.apply(nextNullShort()));
 		return this;
 	}
@@ -321,7 +323,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextInt(Consumer<Integer> setter) {
+	public @NotNull Java8RsLoader nextInt(final @NotNull Consumer<Integer> setter) {
 		return nextInt(setter, Function.identity());
 	}
 	
@@ -334,7 +336,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextInt(Consumer<T> setter, Function<Integer, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextInt(final @NotNull Consumer<T> setter, final @NotNull Function<Integer, T> mapper) {
 		setter.accept(mapper.apply(nextInt()));
 		return this;
 	}
@@ -346,7 +348,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullInt(Consumer<Integer> setter) {
+	public @NotNull Java8RsLoader nextNullInt(final @NotNull Consumer<Integer> setter) {
 		return nextNullInt(setter, Function.identity());
 	}
 	
@@ -359,7 +361,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullInt(Consumer<T> setter, Function<Integer, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullInt(final @NotNull Consumer<T> setter, final @NotNull Function<Integer, T> mapper) {
 		setter.accept(mapper.apply(nextNullInt()));
 		return this;
 	}
@@ -371,7 +373,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextLong(Consumer<Long> setter) {
+	public @NotNull Java8RsLoader nextLong(final @NotNull Consumer<Long> setter) {
 		return nextLong(setter, Function.identity());
 	}
 	
@@ -384,7 +386,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextLong(Consumer<T> setter, Function<Long, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextLong(final @NotNull Consumer<T> setter, final @NotNull Function<Long, T> mapper) {
 		setter.accept(mapper.apply(nextLong()));
 		return this;
 	}
@@ -396,7 +398,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullLong(Consumer<Long> setter) {
+	public @NotNull Java8RsLoader nextNullLong(final @NotNull Consumer<Long> setter) {
 		return nextNullLong(setter, Function.identity());
 	}
 	
@@ -409,7 +411,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullLong(Consumer<T> setter, Function<Long, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullLong(final @NotNull Consumer<T> setter, final @NotNull Function<Long, T> mapper) {
 		setter.accept(mapper.apply(nextNullLong()));
 		return this;
 	}
@@ -421,7 +423,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextFloat(Consumer<Float> setter) {
+	public @NotNull Java8RsLoader nextFloat(final @NotNull Consumer<Float> setter) {
 		return nextFloat(setter, Function.identity());
 	}
 	
@@ -434,7 +436,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextFloat(Consumer<T> setter, Function<Float, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextFloat(final @NotNull Consumer<T> setter, final @NotNull Function<Float, T> mapper) {
 		setter.accept(mapper.apply(nextFloat()));
 		return this;
 	}
@@ -446,7 +448,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullFloat(Consumer<Float> setter) {
+	public @NotNull Java8RsLoader nextNullFloat(final @NotNull Consumer<Float> setter) {
 		return nextNullFloat(setter, Function.identity());
 	}
 	
@@ -459,7 +461,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullFloat(Consumer<T> setter, Function<Float, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullFloat(final @NotNull Consumer<T> setter, final @NotNull Function<Float, T> mapper) {
 		setter.accept(mapper.apply(nextNullFloat()));
 		return this;
 	}
@@ -471,7 +473,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextDouble(Consumer<Double> setter) {
+	public @NotNull Java8RsLoader nextDouble(final @NotNull Consumer<Double> setter) {
 		return nextDouble(setter, Function.identity());
 	}
 	
@@ -484,7 +486,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextDouble(Consumer<T> setter, Function<Double, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextDouble(final @NotNull Consumer<T> setter, final @NotNull Function<Double, T> mapper) {
 		setter.accept(mapper.apply(nextDouble()));
 		return this;
 	}
@@ -496,7 +498,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextNullDouble(Consumer<Double> setter) {
+	public @NotNull Java8RsLoader nextNullDouble(final @NotNull Consumer<Double> setter) {
 		return nextNullDouble(setter, Function.identity());
 	}
 	
@@ -509,7 +511,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextNullDouble(Consumer<T> setter, Function<Double, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextNullDouble(final @NotNull Consumer<T> setter, final @NotNull Function<Double, T> mapper) {
 		setter.accept(mapper.apply(nextNullDouble()));
 		return this;
 	}
@@ -521,7 +523,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextBigDecimal(Consumer<BigDecimal> setter) {
+	public @NotNull Java8RsLoader nextBigDecimal(final @NotNull Consumer<BigDecimal> setter) {
 		return nextBigDecimal(setter, Function.identity());
 	}
 	
@@ -534,7 +536,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextBigDecimal(Consumer<T> setter, Function<BigDecimal, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextBigDecimal(final @NotNull Consumer<T> setter, final @NotNull Function<BigDecimal, T> mapper) {
 		setter.accept(mapper.apply(nextBigDecimal()));
 		return this;
 	}
@@ -546,7 +548,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextDate(Consumer<Date> setter) {
+	public @NotNull Java8RsLoader nextDate(final @NotNull Consumer<Date> setter) {
 		return nextDate(setter, Function.identity());
 	}
 	
@@ -559,7 +561,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextDate(Consumer<T> setter, Function<Date, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextDate(final @NotNull Consumer<T> setter, final @NotNull Function<Date, T> mapper) {
 		setter.accept(mapper.apply(nextDate()));
 		return this;
 	}
@@ -571,7 +573,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextTime(Consumer<Time> setter) {
+	public @NotNull Java8RsLoader nextTime(final @NotNull Consumer<Time> setter) {
 		return nextTime(setter, Function.identity());
 	}
 	
@@ -584,7 +586,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextTime(Consumer<T> setter, Function<Time, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextTime(final @NotNull Consumer<T> setter, final @NotNull Function<Time, T> mapper) {
 		setter.accept(mapper.apply(nextTime()));
 		return this;
 	}
@@ -596,7 +598,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextTimestamp(Consumer<Timestamp> setter) {
+	public @NotNull Java8RsLoader nextTimestamp(final @NotNull Consumer<Timestamp> setter) {
 		return nextTimestamp(setter, Function.identity());
 	}
 	
@@ -609,7 +611,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextTimestamp(Consumer<T> setter, Function<Timestamp, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextTimestamp(final @NotNull Consumer<T> setter, final @NotNull Function<Timestamp, T> mapper) {
 		setter.accept(mapper.apply(nextTimestamp()));
 		return this;
 	}
@@ -621,7 +623,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextUtilDate(Consumer<java.util.Date> setter) {
+	public @NotNull Java8RsLoader nextUtilDate(final @NotNull Consumer<java.util.Date> setter) {
 		return nextUtilDate(setter, Function.identity());
 	}
 	
@@ -634,7 +636,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextUtilDate(Consumer<T> setter, Function<java.util.Date, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextUtilDate(final @NotNull Consumer<T> setter, final @NotNull Function<java.util.Date, T> mapper) {
 		setter.accept(mapper.apply(nextUtilDate()));
 		return this;
 	}
@@ -649,7 +651,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T extends DBObject<P>, P extends Number> Java8RsLoader nextDBObject(final DAOBase<T, P> dao, Consumer<T> setter) {
+	public @NotNull <T extends DBObject<P>, P extends Number> Java8RsLoader nextDBObject(final @NotNull DAOBase<T, P> dao, final @NotNull Consumer<T> setter) {
 		return nextDBObject(dao, setter, Function.identity());
 	}
 	
@@ -665,7 +667,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T extends DBObject<P>, P extends Number, R> Java8RsLoader nextDBObject(final DAOBase<T, P> dao, Consumer<R> setter, Function<T, R> mapper) {
+	public @NotNull <T extends DBObject<P>, P extends Number, R> Java8RsLoader nextDBObject(final @NotNull DAOBase<T, P> dao, final @NotNull Consumer<R> setter, final @NotNull Function<T, R> mapper) {
 		setter.accept(mapper.apply(nextDBObject(dao)));
 		return this;
 	}
@@ -675,7 +677,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return das aktuelle {@link LocalDate}
 	 */
-	public LocalDate nextLocalDate() {
+	public @Nullable LocalDate nextLocalDate() {
 		return Java8ConverterUtils.SQLDate.sqlDateToLocalDate(nextDate());
 	}
 	
@@ -686,7 +688,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextLocalDate(Consumer<LocalDate> setter) {
+	public @NotNull Java8RsLoader nextLocalDate(final @NotNull Consumer<LocalDate> setter) {
 		return nextLocalDate(setter, Function.identity());
 	}
 	
@@ -699,7 +701,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextLocalDate(Consumer<T> setter, Function<LocalDate, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextLocalDate(final @NotNull Consumer<T> setter, final @NotNull Function<LocalDate, T> mapper) {
 		setter.accept(mapper.apply(nextLocalDate()));
 		return this;
 	}
@@ -709,7 +711,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return die aktuelle {@link LocalDateTime}
 	 */
-	public LocalDateTime nextLocalDateTime() {
+	public @Nullable LocalDateTime nextLocalDateTime() {
 		return Java8ConverterUtils.SQLDate.timestampToLocalDateTime(nextTimestamp());
 	}
 	
@@ -720,7 +722,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextLocalDateTime(Consumer<LocalDateTime> setter) {
+	public @NotNull Java8RsLoader nextLocalDateTime(final @NotNull Consumer<LocalDateTime> setter) {
 		return nextLocalDateTime(setter, Function.identity());
 	}
 	
@@ -733,7 +735,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextLocalDateTime(Consumer<T> setter, Function<LocalDateTime, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextLocalDateTime(final @NotNull Consumer<T> setter, final @NotNull Function<LocalDateTime, T> mapper) {
 		setter.accept(mapper.apply(nextLocalDateTime()));
 		return this;
 	}
@@ -743,7 +745,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return die aktuelle {@link LocalDateTime}
 	 */
-	public LocalTime nextLocalTime() {
+	public @Nullable LocalTime nextLocalTime() {
 		return Java8ConverterUtils.SQLDate.sqlTimeToLocalTime(nextTime());
 	}
 	
@@ -754,7 +756,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public Java8RsLoader nextLocalTime(Consumer<LocalTime> setter) {
+	public @NotNull Java8RsLoader nextLocalTime(final @NotNull Consumer<LocalTime> setter) {
 		return nextLocalTime(setter, Function.identity());
 	}
 	
@@ -767,7 +769,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <T> Java8RsLoader nextLocalTime(Consumer<T> setter, Function<LocalTime, T> mapper) {
+	public @NotNull <T> Java8RsLoader nextLocalTime(final @NotNull Consumer<T> setter, final @NotNull Function<LocalTime, T> mapper) {
 		setter.accept(mapper.apply(nextLocalTime()));
 		return this;
 	}
@@ -782,7 +784,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return das {@link DBEnum}
 	 */
-	public <E extends DBEnum<T>, T> E nextDBEnum(Supplier<T> getter, Class<E> enumClass) {
+	public @Nullable <E extends DBEnum<T>, T> E nextDBEnum(final @NotNull Supplier<T> getter, final @NotNull Class<E> enumClass) {
 		return RsUtils.getFromDBIdentifier(getter.get(), enumClass);
 	}
 	
@@ -797,7 +799,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <E extends DBEnum<T>, T> Java8RsLoader nextDBEnum(Supplier<T> getter, Class<E> enumClass, Consumer<E> setter) {
+	public @NotNull <E extends DBEnum<T>, T> Java8RsLoader nextDBEnum(final @NotNull Supplier<T> getter, final @NotNull Class<E> enumClass, final @NotNull Consumer<E> setter) {
 		return nextDBEnum(getter, enumClass, setter, Function.identity());
 	}
 	
@@ -814,7 +816,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <E extends DBEnum<T>, T, R> Java8RsLoader nextDBEnum(Supplier<T> getter, Class<E> enumClass, Consumer<R> setter, Function<E, R> mapper) {
+	public @NotNull <E extends DBEnum<T>, T, R> Java8RsLoader nextDBEnum(final @NotNull Supplier<T> getter, final @NotNull Class<E> enumClass, final @NotNull Consumer<R> setter, final @NotNull Function<E, R> mapper) {
 		setter.accept(mapper.apply(nextDBEnum(getter, enumClass)));
 		return this;
 	}
@@ -830,7 +832,7 @@ public class Java8RsLoader extends RsLoader {
 	 * @return die {@link DBColumn}
 	 */
 	@SuppressWarnings("unchecked")
-	public <E extends DBColumn<T>, T> E nextDBColumn(Supplier<T> getter, E instance) {
+	public @NotNull <E extends DBColumn<T>, T> E nextDBColumn(final @NotNull Supplier<T> getter, final @NotNull E instance) {
 		return (E) instance.fillFromColumn(getter.get());
 	}
 	
@@ -845,7 +847,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <E extends DBColumn<T>, T> Java8RsLoader nextDBColumn(Supplier<T> getter, E instance, Consumer<E> setter) {
+	public @NotNull <E extends DBColumn<T>, T> Java8RsLoader nextDBColumn(final @NotNull Supplier<T> getter, final @NotNull E instance, final @NotNull Consumer<E> setter) {
 		return nextDBColumn(getter, instance, setter, Function.identity());
 	}
 	
@@ -862,7 +864,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public <E extends DBColumn<T>, T, R> Java8RsLoader nextDBColumn(Supplier<T> getter, E instance, Consumer<R> setter, Function<E, R> mapper) {
+	public @NotNull <E extends DBColumn<T>, T, R> Java8RsLoader nextDBColumn(final @NotNull Supplier<T> getter, final @NotNull E instance, final @NotNull Consumer<R> setter, final @NotNull Function<E, R> mapper) {
 		setter.accept(mapper.apply(nextDBColumn(getter, instance)));
 		return this;
 	}

@@ -1,6 +1,8 @@
 package net.sjr.sql;
 
 import net.sjr.sql.exceptions.UncheckedSQLException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ import java.util.Map;
  * @param <PB> Typ des Primary Keys des zweiten Java Objektes
  * @param <KO> Typ des KreuzObjektes mit allen verbundenen Objekten
  */
-@SuppressWarnings({"WeakerAccess", "unused", "SameReturnValue"})
+@SuppressWarnings({"WeakerAccess", "unused", "SameReturnValue", "SqlDialectInspection"})
 public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, KO extends Kreuz2Objekt<A, PA, B, PB>> {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Map<String, PreparedStatement> pstCache = new HashMap<>();
@@ -31,42 +33,42 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die {@link DAO} des ersten Objekts
 	 */
-	protected abstract DAO<A, PA> getaDAO();
+	protected abstract @NotNull DAO<A, PA> getaDAO();
 	
 	/**
 	 * Gibt die {@link DAO} des zweiten Objekts zurück
 	 *
 	 * @return die {@link DAO} des zweiten Objekts
 	 */
-	protected abstract DAO<B, PB> getbDAO();
+	protected abstract @NotNull DAO<B, PB> getbDAO();
 	
 	/**
 	 * Gibt den Namen der Kreuztabelle zurück
 	 *
 	 * @return der Name der Kreuztabelle
 	 */
-	protected abstract String getKreuzTable();
+	protected abstract @NotNull String getKreuzTable();
 	
 	/**
 	 * Gibt den Namen der A Spalte der Kreuztabelle zurück
 	 *
 	 * @return der Name der A Spalte Kreuztabelle
 	 */
-	protected abstract String getKreuzColA();
+	protected abstract @NotNull String getKreuzColA();
 	
 	/**
 	 * Gibt den Namen der B Spalte derKreuztabelle zurück
 	 *
 	 * @return der Name der B Spalte der Kreuztabelle
 	 */
-	protected abstract String getKreuzColB();
+	protected abstract @NotNull String getKreuzColB();
 	
 	/**
 	 * Gibt die Namen aller Spalten der Kreuztabelle zurück
 	 *
 	 * @return die Name aller Spalten der Kreuztabelle
 	 */
-	protected abstract String getAllKreuzCols();
+	protected abstract @NotNull String getAllKreuzCols();
 	
 	/**
 	 * Erstellt aus einem {@link ResultSet} mindestens ein {@link Kreuz2Objekt} mit allen Verbundenen Objekten
@@ -78,14 +80,14 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	protected abstract KO getKreuzObjekt(ResultSet rs, DBObject... loadedObjects) throws SQLException;
+	protected abstract @NotNull KO getKreuzObjekt(@NotNull ResultSet rs, DBObject... loadedObjects) throws SQLException;
 	
 	/**
 	 * gibt den Spaltentyp aus der {@link java.sql.Types} Klasse der A Objetke in der Kreuztabelle zurück
 	 *
 	 * @return der Spaltentyp
 	 */
-	protected Integer getTypeA() {
+	protected @Nullable Integer getTypeA() {
 		return null;
 	}
 	
@@ -94,7 +96,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return der Spaltentyp
 	 */
-	protected Integer getTypeB() {
+	protected @Nullable Integer getTypeB() {
 		return null;
 	}
 	
@@ -115,7 +117,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<A> loadAfromB(B b, DBObject... loadedObjects) {
+	public @NotNull List<A> loadAfromB(final @Nullable B b, final DBObject... loadedObjects) {
 		return executeFrom1(b, getaDAO(), getKreuzColA(), getKreuzColB(), getTypeB(), loadedObjects);
 	}
 	
@@ -127,7 +129,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Liste aller verbundenen Objekte
 	 */
-	public List<B> loadBfromA(A a, DBObject... loadedObjects) {
+	public @NotNull List<B> loadBfromA(final @Nullable A a, final DBObject... loadedObjects) {
 		return executeFrom1(a, getbDAO(), getKreuzColB(), getKreuzColA(), getTypeA(), loadedObjects);
 	}
 	
@@ -145,7 +147,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Zielobjekte. Niemals {@code {@code null}}
 	 */
-	protected <T extends DBObject<P>, P extends Number> List<T> executeFrom1(DBObject a, DAO<T, P> dao, String resultKreuzCol, String aKreuzCol, Integer typeA, DBObject... loadedObjects) {
+	protected @NotNull <T extends DBObject<P>, P extends Number> List<T> executeFrom1(final @Nullable DBObject a, final @NotNull DAO<T, P> dao, final @NotNull String resultKreuzCol, final @NotNull String aKreuzCol, final @Nullable Integer typeA, final DBObject... loadedObjects) {
 		return dao.loadAllFromCol(getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
 				getKreuzTable() + '.' + aKreuzCol, new Parameter(a, typeA),
 				null, null, getKreuzTable() + ".load" + resultKreuzCol + "from" + aKreuzCol, loadedObjects);
@@ -158,7 +160,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement createKreuzPst() throws SQLException {
+	private @NotNull PreparedStatement createKreuzPst() throws SQLException {
 		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("createKreuz");
 		if (result == null) {
 			result = getaDAO().getConnection()
@@ -173,7 +175,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @param params die zu verbindende Objekte
 	 */
-	protected void createKreuzInDB(DBObject... params) {
+	protected void createKreuzInDB(final Parameter... params) {
 		PreparedStatement pst = null;
 		try {
 			pst = createKreuzPst();
@@ -182,7 +184,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 			logPst(pst);
 			pst.executeUpdate();
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -197,7 +199,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	private PreparedStatement deleteKreuzPst() throws SQLException {
+	private @NotNull PreparedStatement deleteKreuzPst() throws SQLException {
 		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("deleteKreuz");
 		if (result == null) {
 			result = getaDAO().getConnection()
@@ -212,7 +214,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @param params die verbundene Objekte
 	 */
-	protected void deleteKreuzFromDB(DBObject... params) {
+	protected void deleteKreuzFromDB(final Parameter... params) {
 		PreparedStatement pst = null;
 		try {
 			pst = deleteKreuzPst();
@@ -221,7 +223,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 			logPst(pst);
 			pst.executeUpdate();
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -234,7 +236,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
-	public List<KO> loadAllKreuze() {
+	public @NotNull List<KO> loadAllKreuze() {
 		return loadKreuzeFromWhere(null, null, null, null, null, "loadAllKreuze");
 	}
 	
@@ -250,7 +252,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
-	protected List<KO> loadKreuzeFromCol(final String join, final String col, final Object param, final String limit, final String order, final DBObject... loadedObjects) {
+	protected @NotNull List<KO> loadKreuzeFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String limit, final @Nullable String order, final DBObject... loadedObjects) {
 		return loadKreuzeFromCol(join, col, param, limit, order, null, loadedObjects);
 	}
 	
@@ -267,7 +269,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
-	protected List<KO> loadKreuzeFromCol(final String join, final String col, final Object param, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull List<KO> loadKreuzeFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		return loadKreuzeFromWhere(join, col + "=?", new ParameterList(param), limit, order, cacheKey, loadedObjects);
 	}
 	
@@ -283,7 +285,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
-	protected List<KO> loadKreuzeFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final DBObject... loadedObjects) {
+	protected @NotNull List<KO> loadKreuzeFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final DBObject... loadedObjects) {
 		return loadKreuzeFromWhere(join, where, params, limit, order, null, loadedObjects);
 	}
 	
@@ -300,7 +302,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
-	protected List<KO> loadKreuzeFromWhere(final String join, final String where, final ParameterList params, final String limit, final String order, final String cacheKey, final DBObject... loadedObjects) {
+	protected @NotNull List<KO> loadKreuzeFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		PreparedStatement pst = null;
 		try {
 			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, getAllKreuzCols(), join, where, limit, order, cacheKey, shouldCloseAlways(), params);
@@ -317,7 +319,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 				return result;
 			}
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -341,8 +343,8 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromA(A a) {
-		return loadCountFromCol(null, getKreuzColA(), a, "loadAllCountFromA");
+	public long loadAllCountFromA(final @Nullable A a) {
+		return loadCountFromCol(null, getKreuzColA(), new Parameter(a, getTypeA()), "loadAllCountFromA");
 	}
 	
 	/**
@@ -352,8 +354,8 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	public long loadAllCountFromB(B b) {
-		return loadCountFromCol(null, getKreuzColB(), b, "loadAllCountFromB");
+	public long loadAllCountFromB(final @Nullable B b) {
+		return loadCountFromCol(null, getKreuzColB(), new Parameter(b, getTypeB()), "loadAllCountFromB");
 	}
 	
 	/**
@@ -365,7 +367,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	protected long loadCountFromCol(final String join, final String col, final Object param) {
+	protected long loadCountFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param) {
 		return loadCountFromCol(join, col, param, null);
 	}
 	
@@ -379,7 +381,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	protected long loadCountFromCol(final String join, final String col, final Object param, final String cacheKey) {
+	protected long loadCountFromCol(final @Nullable String join, final @NotNull String col, final @NotNull Object param, final @Nullable String cacheKey) {
 		return loadCountFromWhere(join, col + "=?", new ParameterList(param), cacheKey);
 	}
 	
@@ -392,7 +394,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	protected long loadCountFromWhere(final String join, final String where, final ParameterList params) {
+	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params) {
 		return loadCountFromWhere(join, where, params, null);
 	}
 	
@@ -406,7 +408,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @return die Anzahl aller Kreuze
 	 */
-	protected long loadCountFromWhere(final String join, final String where, final ParameterList params, final String cacheKey) {
+	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey) {
 		PreparedStatement pst = null;
 		try {
 			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, "count(*)", join, where, null, null, cacheKey, shouldCloseAlways(), params);
@@ -421,7 +423,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 				throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
 			}
 		}
-		catch (SQLException e) {
+		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
 		finally {
@@ -434,7 +436,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 *
 	 * @param pst das {@link PreparedStatement}
 	 */
-	private void logPst(PreparedStatement pst) {
+	private void logPst(final @NotNull PreparedStatement pst) {
 		log.debug(SQLUtils.pstToSQL(pst));
 	}
 	
@@ -442,7 +444,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * Schließt die Datenbankverbindung und alle {@link PreparedStatement} im Cache
 	 */
 	public void close() {
-		for (PreparedStatement pst : pstCache.values()) {
+		for (final PreparedStatement pst : pstCache.values()) {
 			SQLUtils.closeSqlAutocloseable(pst, log);
 		}
 		pstCache.clear();

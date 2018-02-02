@@ -1,6 +1,9 @@
 package net.sjr.sql;
 
 import net.sjr.sql.rsloader.RsUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.sql.PreparedStatement;
@@ -15,10 +18,9 @@ public class SQLUtils extends RsUtils {
 	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "?, ?" um
 	 *
 	 * @param felder der umzuwandelnde {@link String}
-	 *
 	 * @return der umgewandelte {@link String}
 	 */
-	public static String getFragezeichenInsert(final String felder) {
+	public static @NotNull String getFragezeichenInsert(final @NotNull String felder) {
 		return felder.replaceAll("[a-zA-Z0-9_]+", "?");
 	}
 	
@@ -26,10 +28,9 @@ public class SQLUtils extends RsUtils {
 	 * Wandelt den Felder {@link String} vom Format "colA, colB" in das Format "colA=?, colB=?" um
 	 *
 	 * @param felder der umzuwandelnde {@link String}
-	 *
 	 * @return der umgewandelte {@link String}
 	 */
-	public static String getFragezeichenUpdate(final String felder) {
+	public static @NotNull String getFragezeichenUpdate(final @NotNull String felder) {
 		return getFragezeichenSelect(felder, ", ", "=");
 	}
 	
@@ -39,10 +40,9 @@ public class SQLUtils extends RsUtils {
 	 * @param felder   der umzuwandelnde {@link String}
 	 * @param multOp   das Trennzeichen zwischen den Klauseln
 	 * @param operator der Operator
-	 *
 	 * @return der umgewandelte {@link String}
 	 */
-	public static String getFragezeichenSelect(final String felder, String multOp, String operator) {
+	public static @NotNull String getFragezeichenSelect(final @NotNull String felder, final @NotNull String multOp, final @NotNull String operator) {
 		return felder.replaceAll(", ", operator + '?' + multOp) + operator + '?';
 	}
 	
@@ -51,10 +51,9 @@ public class SQLUtils extends RsUtils {
 	 *
 	 * @param felder    der umzuwandelnde {@link String}
 	 * @param tableName der Tabellenname
-	 *
 	 * @return der umgewandelte {@link String}
 	 */
-	public static String fullQualifyTableName(final String felder, String tableName) {
+	public static @NotNull String fullQualifyTableName(final @NotNull String felder, final @NotNull String tableName) {
 		return tableName + '.' + felder.replaceAll(", ", ", " + tableName + '.');
 	}
 	
@@ -63,10 +62,10 @@ public class SQLUtils extends RsUtils {
 	 *
 	 * @param where  die WHERE Klausel
 	 * @param params die Parameter, die eingefügt werden
-	 *
 	 * @return die WHERE Klausel mit IS NULLs
 	 */
-	public static String nullableWhere(String where, ParameterList params) {
+	@Contract("null, _ -> null; !null, _ -> !null")
+	public static String nullableWhere(@Nullable String where, @Nullable ParameterList params) {
 		if (where == null || params == null) return where;
 		String[] terme = where.split(" ");
 		StringBuilder result = new StringBuilder();
@@ -90,13 +89,13 @@ public class SQLUtils extends RsUtils {
 	 * Extrahiert das SQL Statement aus einem {@link PreparedStatement}
 	 *
 	 * @param pst das {@link PreparedStatement} aus welchem extrahiert werden soll
-	 *
 	 * @return das SQL Statement
 	 */
-	public static String pstToSQL(PreparedStatement pst) {
+	public static @NotNull String pstToSQL(@NotNull PreparedStatement pst) {
 		return pst.toString()
 				  .replaceAll("org.apache.tomcat.jdbc.pool.StatementFacade\\$StatementProxy\\[Proxy=[0-9]+; Query=.+ Delegate=", "")
 				  .replaceAll("com\\.mysql\\.jdbc\\.JDBC42PreparedStatement@[0-9a-z]+: ", "")
+				  .replaceAll("HikariProxyPreparedStatement@[0-9a-z]+ wrapping ", "")
 				  .replaceAll("org\\.hsqldb\\.jdbc\\.JDBCPreparedStatement@[0-9a-z]+\\[", "");
 	}
 	
@@ -106,7 +105,7 @@ public class SQLUtils extends RsUtils {
 	 * @param closeable das {@link AutoCloseable}
 	 * @param log       der {@link Logger} im Fehlerfall
 	 */
-	public static void closeSqlAutocloseable(final AutoCloseable closeable, Logger log) {
+	public static void closeSqlAutocloseable(final @Nullable AutoCloseable closeable, @Nullable Logger log) {
 		if (closeable != null) {
 			try {
 				closeable.close();
@@ -128,7 +127,7 @@ public class SQLUtils extends RsUtils {
 	 * @param <P> der Typ des Primary Keys der DAO
 	 * @return die Klasse des Primary Keys
 	 */
-	public static <T extends DBObject<P>, P extends Number> Class<P> getPrimaryClass(DAO<T, P> dao) {
+	public static @NotNull <T extends DBObject<P>, P extends Number> Class<P> getPrimaryClass(@NotNull DAO<T, P> dao) {
 		return dao.getPrimaryClass();
 	}
 }

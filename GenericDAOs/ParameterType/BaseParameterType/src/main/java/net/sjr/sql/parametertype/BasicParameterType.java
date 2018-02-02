@@ -1,5 +1,8 @@
 package net.sjr.sql.parametertype;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.math.BigDecimal;
 import java.sql.*;
 
@@ -16,7 +19,7 @@ public final class BasicParameterType implements ParameterType {
 	}
 
 	@Override
-	public int set(PreparedStatement pst, int pos, Object value) throws SQLException {
+	public int set(final @NotNull PreparedStatement pst, final int pos, final @Nullable Object value) throws SQLException {
 		if (value instanceof String) {
 			pst.setString(pos, (String) value);
 		}

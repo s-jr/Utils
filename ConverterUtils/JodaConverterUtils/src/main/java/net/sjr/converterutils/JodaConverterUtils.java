@@ -1,6 +1,7 @@
 package net.sjr.converterutils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.joda.time.Duration;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -28,42 +29,42 @@ public final class JodaConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class UtilJodaDate {
-		public static LocalDate utilDateToJodaDate(final Date d) {
+		public static @Nullable LocalDate utilDateToJodaDate(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return LocalDate.fromDateFields(d);
 		}
-
-		public static Date jodaDateToUtilDate(final LocalDate d) {
+		
+		public static @Nullable Date jodaDateToUtilDate(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return d.toDate();
 		}
-
-		public static LocalDateTime utilDateToJodaDateTime(final Date d) {
+		
+		public static @Nullable LocalDateTime utilDateToJodaDateTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return LocalDateTime.fromDateFields(d);
 		}
-
-		public static Date jodaDateTimeToUtilDate(final LocalDateTime d) {
+		
+		public static @Nullable Date jodaDateTimeToUtilDate(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return d.toDate();
 		}
-
-		public static LocalTime utilDateToJodaTime(final Date d) {
+		
+		public static @Nullable LocalTime utilDateToJodaTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
 			}
 			return LocalTime.fromDateFields(d);
 		}
-
-		public static Date jodaTimeToUtilDate(final LocalTime d) {
+		
+		public static @Nullable Date jodaTimeToUtilDate(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
@@ -83,85 +84,85 @@ public final class JodaConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmm = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:sss");
 		private static final DateTimeFormatter HHmm = DateTimeFormat.forPattern("HH:mm");
-
-		public static String jodaDateToMonthYearString(final LocalDate d) {
+		
+		public static @Nullable String jodaDateToMonthYearString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return MMMyyyy.print(d);
 		}
-
-		public static LocalDate monthYearStringToJodaDate(final String s) {
+		
+		public static LocalDate monthYearStringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return MMMyyyy.parseLocalDate(s);
 		}
-
-		public static String jodaDateToWeekdayString(final LocalDate d) {
+		
+		public static @Nullable String jodaDateToWeekdayString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return EEddMMyyyy.print(d);
 		}
-
-		public static LocalDate weekdayStringToJodaDate(final String s) {
+		
+		public static LocalDate weekdayStringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return EEddMMyyyy.parseLocalDate(s);
 		}
-
-		public static String jodaDateToString(final LocalDate d) {
+		
+		public static @Nullable String jodaDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyy.print(d);
 		}
-
-		public static LocalDate stringToJodaDate(final String s) {
+		
+		public static LocalDate stringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyy.parseLocalDate(s);
 		}
-
-		public static String jodaDateTimeToString(final LocalDateTime d) {
+		
+		public static @Nullable String jodaDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyyHHmm.print(d);
 		}
-
-		public static LocalDateTime stringToJodaDateTime(final String s) {
+		
+		public static LocalDateTime stringToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmm.parseLocalDateTime(s);
 		}
-
-		public static String jodaDateTimeToStringWithSeconds(final LocalDateTime d) {
+		
+		public static @Nullable String jodaDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.print(d);
 		}
-
-		public static LocalDateTime stringWithSecondsToJodaDateTime(final String s) {
+		
+		public static LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.parseLocalDateTime(s);
 		}
-
-		public static String jodaTimeToString(final LocalTime d) {
+		
+		public static @Nullable String jodaTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
 			return HHmm.print(d);
 		}
-
-		public static LocalTime stringToJodaTime(final String s) {
+		
+		public static LocalTime stringToJodaTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -179,57 +180,57 @@ public final class JodaConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmm = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 		private static final DateTimeFormatter HHmm = DateTimeFormat.forPattern("HH:mm");
-
-		public static String jodaDateToString(final LocalDate d) {
+		
+		public static @Nullable String jodaDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyy.print(d);
 		}
-
-		public static LocalDate stringToJodaDate(final String s) {
+		
+		public static LocalDate stringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyy.parseLocalDate(s);
 		}
-
-		public static String jodaDateTimeToString(final LocalDateTime d) {
+		
+		public static @Nullable String jodaDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyyHHmm.print(d);
 		}
-
-		public static LocalDateTime stringToJodaDateTime(final String s) {
+		
+		public static LocalDateTime stringToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmm.parseLocalDateTime(s);
 		}
-
-		public static String jodaDateTimeToStringWithSeconds(final LocalDateTime d) {
+		
+		public static @Nullable String jodaDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.print(d);
 		}
-
-		public static LocalDateTime stringWithSecondsToJodaDateTime(final String s) {
+		
+		public static LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.parseLocalDateTime(s);
 		}
-
-		public static String jodaTimeToString(final LocalTime d) {
+		
+		public static @Nullable String jodaTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
 			}
 			return HHmm.print(d);
 		}
-
-		public static LocalTime stringToJodaTime(final String s) {
+		
+		public static LocalTime stringToJodaTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -243,42 +244,42 @@ public final class JodaConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class SQLDate {
-		public static java.sql.Date jodaDateToSqlDate(final LocalDate value) {
+		public static @Nullable java.sql.Date jodaDateToSqlDate(final @Nullable LocalDate value) {
 			if (value == null) {
 				return null;
 			}
 			return new java.sql.Date(value.toDate().getTime());
 		}
-
-		public static LocalDate sqlDateToJodaDate(final java.sql.Date value) {
+		
+		public static @Nullable LocalDate sqlDateToJodaDate(final @Nullable java.sql.Date value) {
 			if (value == null) {
 				return null;
 			}
 			return new LocalDate(value.getTime());
 		}
-
-		public static Timestamp jodaDateTimeToTimestamp(final LocalDateTime value) {
+		
+		public static @Nullable Timestamp jodaDateTimeToTimestamp(final @Nullable LocalDateTime value) {
 			if (value == null) {
 				return null;
 			}
 			return new Timestamp(value.toDateTime().getMillis());
 		}
-
-		public static LocalDateTime timestampToJodaDateTime(final Timestamp value) {
+		
+		public static @Nullable LocalDateTime timestampToJodaDateTime(final @Nullable Timestamp value) {
 			if (value == null) {
 				return null;
 			}
 			return new LocalDateTime(value.getTime());
 		}
-
-		public static Time jodaTimeToSqlTime(final LocalTime value) {
+		
+		public static @Nullable Time jodaTimeToSqlTime(final @Nullable LocalTime value) {
 			if (value == null) {
 				return null;
 			}
 			return new Time(value.getMillisOfDay());
 		}
-
-		public static LocalTime sqlTimeToJodaTime(final Time value) {
+		
+		public static @Nullable LocalTime sqlTimeToJodaTime(final @Nullable Time value) {
 			if (value == null) {
 				return null;
 			}
@@ -297,15 +298,15 @@ public final class JodaConverterUtils {
 				.appendSuffix("h ")
 				.appendMinutes()
 				.appendSuffix("min").toFormatter();
-
-		public static String jodaDurationToString(final Duration d) {
+		
+		public static @Nullable String jodaDurationToString(final Duration d) {
 			if (d.isShorterThan(new Duration(60000))) {
 				return "0min";
 			}
 			return ARBEITSZEITFORMAT.print(d.toPeriod());
 		}
-
-		public static Duration stringToJodaDuration(final String s) {
+		
+		public static Duration stringToJodaDuration(final @Nullable String s) {
 			return ARBEITSZEITFORMAT.parsePeriod(s).toStandardDuration();
 		}
 	}
