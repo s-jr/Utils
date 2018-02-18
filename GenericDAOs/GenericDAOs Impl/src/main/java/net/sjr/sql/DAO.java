@@ -573,6 +573,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param params        Die {@link Parameter} oder {@code null}
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
+	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final DBObject... loadedObjects) {
 		return loadOneFromWhere(join, where, params, null, loadedObjects);
@@ -587,6 +588,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
+	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		List<T> list = loadAllFromWhere(join, where, params, "1", null, cacheKey, loadedObjects);
