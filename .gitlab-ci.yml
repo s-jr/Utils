@@ -7,10 +7,28 @@ variables:
   # `installAtEnd` and `deployAtEnd`are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-
-deploy:
+build:
+  stage: build
   script:
-    - 'mvn $MAVEN_CLI_OPTS deploy'
+    - mvn $MAVEN_CLI_OPTS compile
   tags:
     - java
     - maven
+
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test
+  tags:
+    - java
+    - maven
+
+deploy:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy
+  tags:
+    - java
+    - maven
+  only:
+    - master
