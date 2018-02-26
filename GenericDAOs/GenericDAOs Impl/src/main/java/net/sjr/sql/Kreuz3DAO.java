@@ -3,6 +3,8 @@ package net.sjr.sql;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,6 +20,35 @@ import java.util.List;
  */
 @SuppressWarnings({"unused", "WeakerAccess", "SameReturnValue"})
 public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, C extends DBObject<PC>, PC extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz3Objekt<A, PA, B, PB, C, PC>> {
+	
+	
+	/**
+	 * Erstellt die {@link Kreuz3DAO} mit einer {@link DataSource}
+	 *
+	 * @param ds die {@link DataSource}
+	 */
+	public Kreuz3DAO(final @NotNull DataSource ds) {
+		super(ds);
+	}
+	
+	/**
+	 * Erstellt die {@link Kreuz3DAO} mit einer bereits vorhandenen Datenbankverbindung
+	 *
+	 * @param con die bereits vorhandene Datenbankverbindung
+	 */
+	public Kreuz3DAO(final @NotNull Connection con) {
+		super(con);
+	}
+	
+	/**
+	 * Erstellt die {@link Kreuz3DAO} mit einem bereits vorhandenen {@link DAOBase}
+	 *
+	 * @param dao die bereits vorhandene {@link DAOBase}
+	 */
+	public Kreuz3DAO(final @NotNull DAOBase<?, ?> dao) {
+		super(dao);
+	}
+	
 	/**
 	 * gibt die {@link DAO} zurück, welche für das Laden der C Objekte genutzt werden soll
 	 *
@@ -169,10 +200,10 @@ public abstract class Kreuz3DAO<A extends DBObject<PA>, PA extends Number, B ext
 	 */
 	protected @NotNull <T extends DBObject<P>, P extends Number> List<T> executeFrom2(final @Nullable DBObject a, final @Nullable DBObject b, final @NotNull DAO<T, P> dao, final @NotNull String resultKreuzCol, final @NotNull String aKreuzCol, final @NotNull String bKreuzCol, final @Nullable Integer typeA, final @Nullable Integer typeB, final DBObject... loadedObjects) {
 		return dao.loadAllFromWhere(
-				getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
-				getKreuzTable() + '.' + aKreuzCol + "=? AND " + getKreuzTable() + '.' + bKreuzCol + "=?", new ParameterList(new Parameter(a, typeA), new Parameter(b, typeB)),
+				getTable() + " ON " + getTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
+				getTable() + '.' + aKreuzCol + "=? AND " + getTable() + '.' + bKreuzCol + "=?", new ParameterList(new Parameter(a, typeA), new Parameter(b, typeB)),
 				null, null,
-				getKreuzTable() + ".load" + resultKreuzCol + "from" + aKreuzCol + "und" + bKreuzCol, loadedObjects);
+				getTable() + ".load" + resultKreuzCol + "from" + aKreuzCol + "und" + bKreuzCol, loadedObjects);
 	}
 
 	/**

@@ -3,6 +3,8 @@ package net.sjr.sql;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -15,6 +17,34 @@ import java.sql.SQLException;
  */
 @SuppressWarnings("unused")
 public abstract class Kreuz2DAO<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number> extends KreuzDAOBase<A, PA, B, PB, Kreuz2Objekt<A, PA, B, PB>> implements AutoCloseable {
+	
+	/**
+	 * Erstellt die {@link Kreuz2DAO} mit einer {@link DataSource}
+	 *
+	 * @param ds die {@link DataSource}
+	 */
+	public Kreuz2DAO(final @NotNull DataSource ds) {
+		super(ds);
+	}
+	
+	/**
+	 * Erstellt die {@link Kreuz2DAO} mit einer bereits vorhandenen Datenbankverbindung
+	 *
+	 * @param con die bereits vorhandene Datenbankverbindung
+	 */
+	public Kreuz2DAO(final @NotNull Connection con) {
+		super(con);
+	}
+	
+	/**
+	 * Erstellt die {@link Kreuz2DAO} mit einem bereits vorhandenen {@link DAOBase}
+	 *
+	 * @param dao die bereits vorhandene {@link DAOBase}
+	 */
+	public Kreuz2DAO(final @NotNull DAOBase<?, ?> dao) {
+		super(dao);
+	}
+	
 	/**
 	 * Gibt alle Spalten der Kreuztabelle zurück
 	 *

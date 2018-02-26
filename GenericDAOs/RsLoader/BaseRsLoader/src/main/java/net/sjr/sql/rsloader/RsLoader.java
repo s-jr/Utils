@@ -1,6 +1,6 @@
 package net.sjr.sql.rsloader;
 
-import net.sjr.sql.DAOBase;
+import net.sjr.sql.DAOBaseInterface;
 import net.sjr.sql.DBObject;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class RsLoader {
 	 * Erstellt einen RsLoader für das gegebene {@link ResultSet} und die bereits geladenen Objekte
 	 *
 	 * @param rs            das für die Datenbankabfragen zu nutzende {@link ResultSet}
-	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBase) nextDBObject} Aufrufen genutzt werden
+	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBaseInterface) nextDBObject} Aufrufen genutzt werden
 	 */
 	public RsLoader(final @NotNull ResultSet rs, final DBObject... loadedObjects) {
 		this.rs = rs;
@@ -330,12 +330,12 @@ public class RsLoader {
 	
 	/**
 	 * Gibt das {@link DBObject} an der aktuellen Position zurück und geht eine Position weiter
-	 * @param dao die {@link DAOBase}, welche wenn nötig zum Laden des Objektes genutzt werden soll
+	 * @param dao die {@link DAOBaseInterface}, welche wenn nötig zum Laden des Objektes genutzt werden soll
 	 * @param <T> Typ des {@link DBObject}
 	 * @param <P> Typ des Primary Keys des {@link DBObject}
 	 * @return das aktuelle {@link DBObject}
 	 */
-	public @Nullable <T extends DBObject<P>, P extends Number> T nextDBObject(final @NotNull DAOBase<T, P> dao) {
+	public @Nullable <T extends DBObject<P>, P extends Number> T nextDBObject(final @NotNull DAOBaseInterface<T, P> dao) {
 		try {
 			return RsUtils.loadedObjectsOrNull(pos++, rs, dao, loadedObjects);
 		}

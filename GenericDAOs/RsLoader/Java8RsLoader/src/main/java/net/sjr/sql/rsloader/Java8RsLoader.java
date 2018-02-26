@@ -1,7 +1,7 @@
 package net.sjr.sql.rsloader;
 
 import net.sjr.converterutils.Java8ConverterUtils;
-import net.sjr.sql.DAOBase;
+import net.sjr.sql.DAOBaseInterface;
 import net.sjr.sql.DBColumn;
 import net.sjr.sql.DBEnum;
 import net.sjr.sql.DBObject;
@@ -30,7 +30,7 @@ public class Java8RsLoader extends RsLoader {
 	 * Erstellt einen {@link Java8RsLoader} für das gegebene {@link ResultSet} und die bereits geladenen Objekte
 	 *
 	 * @param rs            das für die Datenbankabfragen zu nutzende {@link ResultSet}
-	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBase) nextDBObject} Aufrufen genutzt werden
+	 * @param loadedObjects bereits geladene Objekte, welche bei {@link #nextDBObject(DAOBaseInterface) nextDBObject} Aufrufen genutzt werden
 	 */
 	public Java8RsLoader(final @NotNull ResultSet rs, final DBObject... loadedObjects) {
 		super(rs, loadedObjects);
@@ -644,21 +644,21 @@ public class Java8RsLoader extends RsLoader {
 	/**
 	 * Lädt das {@link DBObject} an der aktuellen Position, gibt ihn in die Setter Funktion und geht eine Position weiter
 	 *
-	 * @param dao    die {@link DAOBase} die das Objekt zur Not laden soll
+	 * @param dao    die {@link DAOBaseInterface} die das Objekt zur Not laden soll
 	 * @param setter die Funktion, in die der Wert reingegeben werden soll
 	 * @param <T>    der Typ des Objektes
 	 * @param <P>    der Typ des Primary Keys
 	 *
 	 * @return sich Selbst
 	 */
-	public @NotNull <T extends DBObject<P>, P extends Number> Java8RsLoader nextDBObject(final @NotNull DAOBase<T, P> dao, final @NotNull Consumer<T> setter) {
+	public @NotNull <T extends DBObject<P>, P extends Number> Java8RsLoader nextDBObject(final @NotNull DAOBaseInterface<T, P> dao, final @NotNull Consumer<T> setter) {
 		return nextDBObject(dao, setter, Function.identity());
 	}
 	
 	/**
 	 * Lädt das {@link DBObject} an der aktuellen Position, gibt ihn in die mapper Funktion und das Ergebnis dann in die Setter Funktion und geht eine Position weiter
 	 *
-	 * @param dao    die {@link DAOBase} die das Objekt zur Not laden soll
+	 * @param dao    die {@link DAOBaseInterface} die das Objekt zur Not laden soll
 	 * @param setter die Funktion, in die der finale Wert reingegeben werden soll
 	 * @param mapper Funktion, die zwischen laden des Wertes und setter steht
 	 * @param <T>    der Typ des Objektes
@@ -667,7 +667,7 @@ public class Java8RsLoader extends RsLoader {
 	 *
 	 * @return sich Selbst
 	 */
-	public @NotNull <T extends DBObject<P>, P extends Number, R> Java8RsLoader nextDBObject(final @NotNull DAOBase<T, P> dao, final @NotNull Consumer<R> setter, final @NotNull Function<T, R> mapper) {
+	public @NotNull <T extends DBObject<P>, P extends Number, R> Java8RsLoader nextDBObject(final @NotNull DAOBaseInterface<T, P> dao, final @NotNull Consumer<R> setter, final @NotNull Function<T, R> mapper) {
 		setter.accept(mapper.apply(nextDBObject(dao)));
 		return this;
 	}

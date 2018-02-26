@@ -15,6 +15,7 @@ public class KreuzTestDAO extends Kreuz2DAO<TestClass, Integer, TestClass2, Long
 	private final Test2DAO t2dao;
 
 	public KreuzTestDAO(Connection con) {
+		super(con);
 		tdao = new TestDAO(con);
 		t2dao = new Test2DAO(tdao);
 	}
@@ -31,7 +32,7 @@ public class KreuzTestDAO extends Kreuz2DAO<TestClass, Integer, TestClass2, Long
 	}
 
 	@Override
-	protected @NotNull String getKreuzTable() {
+	protected @NotNull String getTable() {
 		return KREUZ;
 	}
 

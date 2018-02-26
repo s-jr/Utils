@@ -3,20 +3,18 @@ package net.sjr.sql;
 import net.sjr.sql.exceptions.EntryNotFoundException;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import net.sjr.sql.exceptions.UnsupportedPrimaryException;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO Oberklasse um Datenbankzugriffe zu vereinfachen
@@ -25,13 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <P> Typ des Primary Keys
  */
 @SuppressWarnings({"WeakerAccess", "JavaDoc", "SqlDialectInspection", "SqlNoDataSourceInspection", "unchecked", "unused", "SameParameterValue", "SqlResolve", "UnusedReturnValue", "SameReturnValue", "SynchronizationOnLocalVariableOrMethodParameter"})
-public abstract class DAO<T extends DBObject<P>, P extends Number> implements DAOBase<T, P> {
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	
-	protected final DataSource dataSource;
-	protected Connection connection;
-	protected final Map<String, PreparedStatement> pstCache = new ConcurrentHashMap<>();
-	
+public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBase<DAOConnectionPool, DAOConnection> implements DAOBaseInterface<T, P> {
 	private Class<P> primaryClass = null;
 	
 	/**
@@ -40,8 +32,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param ds die {@link DataSource}
 	 */
 	public DAO(final @NotNull DataSource ds) {
-		dataSource = ds;
-		connection = null;
+		super(ds);
 	}
 	
 	/**
@@ -50,65 +41,21 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param con die bereits vorhandene Datenbankverbindung
 	 */
 	public DAO(final @NotNull Connection con) {
-		connection = con;
-		dataSource = null;
+		super(con);
 	}
 	
 	/**
-	 * Erstellt die {@link DAO} mit einem bereits vorhandenen {@link DAO}
+	 * Erstellt die {@link DAO} mit einem bereits vorhandenen {@link DAOBase}
 	 *
-	 * @param dao die bereits vorhandene {@link DAO}
+	 * @param dao die bereits vorhandene {@link DAOBase}
 	 */
-	public DAO(final @NotNull DAO<? extends DBObject, ? extends Number> dao) {
-		if (dao.dataSource == null) {
-			connection = dao.getConnection();
-			dataSource = null;
-		}
-		else {
-			dataSource = dao.dataSource;
-			connection = dao.connection;
-		}
+	public DAO(final @NotNull DAOBase<?, ?> dao) {
+		super(dao);
 	}
 	
-	/**
-	 * Öffnet eine neue Datenbankverbindung oder gibt eine bestehende zurück
-	 *
-	 * @return eine Datenbankverbindung
-	 * @throws IllegalStateException wenn keine Connection und keine {@link DataSource}
-	 */
-	protected synchronized @NotNull Connection getConnection() {
-		try {
-			if (connection == null || connection.isClosed()) {
-				if (dataSource != null) {
-					connection = getConnectionFromDataSource();
-				}
-				else {
-					throw new IllegalStateException("Die DAO hat keine Connection und keine DataSource!");
-				}
-			}
-			return connection;
-		}
-		catch (final SQLException e) {
-			throw new UncheckedSQLException(e);
-		}
-	}
-	
-	/**
-	 * Holt aus der DataSource die Connection. Nützlich, wenn eine andere Methode als {@link DataSource#getConnection()} genutzt werden soll
-	 *
-	 * @return die Connection
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	protected @NotNull Connection getConnectionFromDataSource() throws SQLException {
-		return dataSource.getConnection();
-	}
-	
-	/**
-	 * Öffnet die Datenbankverbindung. Wenn shouldCloseAlways true zurück gibt, wird diese direkt wieder geschlossen. Sonst nicht
-	 */
-	public synchronized void tryConnection() {
-		getConnection();
-		doCloseAlways(null);
+	@Override
+	protected DAOConnectionPool createConnectionPool() {
+		return new DAOConnectionPool(this);
 	}
 	
 	/**
@@ -124,11 +71,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	protected abstract @NotNull String getFelder();
 	
 	/**
-	 * @return Der Tabellenname
-	 */
-	protected abstract @NotNull String getTable();
-	
-	/**
 	 * @return Der name der Primary Zeile
 	 */
 	protected abstract @NotNull String getPrimaryCol();
@@ -140,18 +82,9 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	protected abstract @NotNull ParameterList getPList(@NotNull T v);
 	
 	/**
-	 * An Hand der Rückgabe wird entschieden, ob nach jeder Funktion die Datenbankverbindung inkl. {@link PreparedStatement}s geschlossen werden soll.
-	 *
-	 * @return {@code true} wenn immer geschlossen werden soll (default) oder {@code false} wenn nicht
-	 */
-	protected boolean shouldCloseAlways() {
-		return true;
-	}
-	
-	/**
 	 * Wird aufgerufen vor einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
-	 * @param v das einzufügende Objekt
+	 * @param v            das einzufügende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void cascadeInsert(final @NotNull T v, final Object... cascadeInfos) {
@@ -160,7 +93,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Wird aufgerufen vor einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
-	 * @param v das upzudatende Objekt
+	 * @param v            das upzudatende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void cascadeUpdate(final @NotNull T v, final Object... cascadeInfos) {
@@ -169,7 +102,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Wird aufgerufen vor einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
-	 * @param v das zu löschende Objekt
+	 * @param v            das zu löschende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void cascadeDelete(final @NotNull T v, final Object... cascadeInfos) {
@@ -178,7 +111,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
 	 *
-	 * @param v das eingefügte Objekt
+	 * @param v            das eingefügte Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void afterInsert(final @NotNull T v, final Object... cascadeInfos) {
@@ -187,7 +120,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
 	 *
-	 * @param v das upgedatete Objekt
+	 * @param v            das upgedatete Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void afterUpdate(final @NotNull T v, final Object... cascadeInfos) {
@@ -196,7 +129,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
 	 *
-	 * @param v das gelöschte Objekt
+	 * @param v            das gelöschte Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
 	protected void afterDelete(final @NotNull T v, final Object... cascadeInfos) {
@@ -223,15 +156,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	protected abstract void fillObject(@NotNull ResultSet rs, @NotNull T result, DBObject... loadedObjects) throws SQLException;
 	
 	/**
-	 * Gibt den Dtype zurück, welcher bei vererbten Objekten den effektiven Typ angibt
-	 *
-	 * @return der DType
-	 */
-	protected @Nullable String getDtype() {
-		return null;
-	}
-	
-	/**
 	 * Lädt ein Objekt von T an Hand seiner PrimaryID
 	 *
 	 * @param primary die PrimaryID des Objektes
@@ -253,29 +177,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		return loadAllFromWhere(null, null, null, null, null, "loadAll");
 	}
 	
-	/**
-	 * Erstellt ein {@link PreparedStatement} zum Einfügen eines Objektes oder lädt es aus dem Cache
-	 *
-	 * @return das {@link PreparedStatement}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement insertPst() throws SQLException {
-		Connection connection = getConnection();
-		synchronized (connection) {
-			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("insert");
-			if (result == null) {
-				String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-				if (getDatabaseType() == DatabaseType.ORACLE) {
-					result = connection.prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', new String[] {getPrimaryCol()});
-				}
-				else {
-					result = connection.prepareStatement("INSERT INTO " + getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', Statement.RETURN_GENERATED_KEYS);
-				}
-				if (!shouldCloseAlways()) pstCache.put("insert", result);
-			}
-			return result;
-		}
-	}
 	
 	/**
 	 * Fügt ein Objekt von T in die Datenbank ein<br>
@@ -301,34 +202,40 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		if (v.getPrimary() == null) {
 			cascadeInsert(v, cascadeInfos);
 			
+			int pos = 1;
+			DAOConnection con = null;
 			PreparedStatement pst = null;
 			try {
-				int pos = 1;
-				pst = insertPst();
-				synchronized (pst) {
-					if (getDtype() != null) {
-						pos = new Parameter(getDtype()).setParameter(pst, pos);
-					}
-					
-					ParameterList pList = getPList(v);
-					
-					pList.setParameter(pst, pos);
-					logPst(pst);
-					pst.executeUpdate();
-					
-					try (ResultSet rs = pst.getGeneratedKeys()) {
-						if (rs.next()) {
-							v.setPrimary(getPrimary(rs));
-						}
-						else throw new RuntimeException("rs.next returned false for generated keys");
-					}
+				con = connectionPool.borrowObject();
+				pst = con.insertPst();
+				if (getDtype() != null) {
+					pos = new Parameter(getDtype()).setParameter(pst, pos);
 				}
+				
+				ParameterList pList = getPList(v);
+				
+				pList.setParameter(pst, pos);
+				logPst(pst);
+				pst.executeUpdate();
+				
+				try (ResultSet rs = pst.getGeneratedKeys()) {
+					if (rs.next()) {
+						v.setPrimary(getPrimary(rs));
+					}
+					else throw new RuntimeException("rs.next returned false for generated keys");
+				}
+			}
+			catch (final RuntimeException e) {
+				throw e;
 			}
 			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
+			catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
 			finally {
-				doCloseAlways(pst);
+				doCloseAlways(con, pst);
 			}
 			afterInsert(v, cascadeInfos);
 		}
@@ -340,7 +247,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 *
 	 * @return die Klasse des Primary Keys
 	 */
-	protected synchronized @NotNull Class<P> getPrimaryClass() {
+	protected @NotNull Class<P> getPrimaryClass() {
 		if (primaryClass == null) {
 			Type type = getClass();
 			while (type instanceof Class) {
@@ -386,25 +293,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	}
 	
 	/**
-	 * Erstellt ein {@link PreparedStatement} zum Updaten eines Objektes oder lädt es aus dem Cache
-	 *
-	 * @return das {@link PreparedStatement}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement updatePst() throws SQLException {
-		Connection connection = getConnection();
-		synchronized (connection) {
-			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("update");
-			if (result == null) {
-				String felder = (getDtype() == null ? "" : "DType, ") + getFelder();
-				result = connection.prepareStatement("UPDATE " + getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + getPrimaryCol() + "=?");
-				if (!shouldCloseAlways()) pstCache.put("update", result);
-			}
-			return result;
-		}
-	}
-	
-	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank<br>
 	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
 	 *
@@ -432,46 +320,35 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 			pList.addParameter(v.getPrimary());
 			
 			int pos = 1;
+			DAOConnection con = null;
 			PreparedStatement pst = null;
 			try {
-				pst = updatePst();
-				synchronized (pst) {
-					if (getDtype() != null) {
-						pos = new Parameter(getDtype()).setParameter(pst, pos);
-					}
-					
-					pList.setParameter(pst, pos);
-					logPst(pst);
-					pst.executeUpdate();
+				con = connectionPool.borrowObject();
+				pst = con.updatePst();
+				if (getDtype() != null) {
+					pos = new Parameter(getDtype()).setParameter(pst, pos);
 				}
+				
+				pList.setParameter(pst, pos);
+				logPst(pst);
+				pst.executeUpdate();
+				
+			}
+			catch (final RuntimeException e) {
+				throw e;
 			}
 			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
+			catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
 			finally {
-				doCloseAlways(pst);
+				doCloseAlways(con, pst);
 			}
 			afterUpdate(v, cascadeInfos);
 		}
 		else throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
-	}
-	
-	/**
-	 * Erstellt ein {@link PreparedStatement} zum Löschen eines Objektes oder lädt es aus dem Cache
-	 *
-	 * @return das {@link PreparedStatement}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement deletePst() throws SQLException {
-		Connection connection = getConnection();
-		synchronized (connection) {
-			PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("delete");
-			if (result == null) {
-				result = connection.prepareStatement("DELETE FROM " + getTable() + " WHERE " + getPrimaryCol() + "=?" + (getDtype() != null ? " AND DType=?" : ""));
-				if (!shouldCloseAlways()) pstCache.put("delete", result);
-			}
-			return result;
-		}
 	}
 	
 	/**
@@ -498,25 +375,32 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		if (v.getPrimary() != null) {
 			cascadeDelete(v, cascadeInfos);
 			
+			DAOConnection con = null;
 			PreparedStatement pst = null;
 			try {
-				pst = deletePst();
-				synchronized (pst) {
-					new Parameter(v.getPrimary()).setParameter(pst, 1);
-					
-					if (getDtype() != null) {
-						new Parameter(getDtype()).setParameter(pst, 2);
-					}
-					logPst(pst);
-					pst.executeUpdate();
+				con = connectionPool.borrowObject();
+				pst = con.deletePst();
+				new Parameter(v.getPrimary()).setParameter(pst, 1);
+				
+				if (getDtype() != null) {
+					new Parameter(getDtype()).setParameter(pst, 2);
 				}
+				logPst(pst);
+				pst.executeUpdate();
+				
 				v.setPrimary(null);
+			}
+			catch (final RuntimeException e) {
+				throw e;
 			}
 			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
 			}
+			catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
 			finally {
-				doCloseAlways(pst);
+				doCloseAlways(con, pst);
 			}
 			afterDelete(v, cascadeInfos);
 		}
@@ -525,8 +409,8 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	
 	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
-	 *  @param v das einzufügende oder zu aktualisierende Objekt
 	 *
+	 * @param v das einzufügende oder zu aktualisierende Objekt
 	 */
 	@Override
 	public void insertOrUpdate(final @NotNull T v) {
@@ -536,7 +420,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
 	 *
-	 * @param v das einzufügende oder zu aktualisierende Objekt
+	 * @param v            das einzufügende oder zu aktualisierende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die an die cascade Methoden weiter gegeben werden
 	 */
 	protected void insertOrUpdate(final @NotNull T v, final Object... cascadeInfos) {
@@ -679,40 +563,34 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
 	 */
 	protected @NotNull List<T> loadAllFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
+		DAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = getPst(getFelderID(), join, where, limit, order, cacheKey, params);
-			synchronized (pst) {
-				setParameter(params, pst);
-				
-				try (ResultSet rs = getResultSet(pst)) {
-					List<T> result = new ArrayList<>();
-					while (rs.next()) {
-						T b = getFromRS(rs, loadedObjects);
-						result.add(b);
-					}
-					return result;
+			con = connectionPool.borrowObject();
+			pst = con.getPst(getFelderID(), join, where, limit, order, cacheKey, params);
+			setParameter(params, pst);
+			
+			try (ResultSet rs = getResultSet(pst)) {
+				List<T> result = new ArrayList<>();
+				while (rs.next()) {
+					T b = getFromRS(rs, loadedObjects);
+					result.add(b);
 				}
+				return result;
 			}
+		}
+		catch (final RuntimeException e) {
+			throw e;
 		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
-		finally {
-			doCloseAlways(pst);
+		catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
-	}
-	
-	/**
-	 * Logt das {@link PreparedStatement}, führt es aus und gibt das {@link ResultSet} zurück
-	 *
-	 * @param pst das {@link PreparedStatement}
-	 * @return das {@link ResultSet}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull ResultSet getResultSet(final @NotNull PreparedStatement pst) throws SQLException {
-		logPst(pst);
-		return pst.executeQuery();
+		finally {
+			doCloseAlways(con, pst);
+		}
 	}
 	
 	/**
@@ -762,25 +640,31 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return die Anzahl der Parameter
 	 */
 	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey) {
+		DAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = getPst("count(*)", join, where, null, null, cacheKey, params);
-			synchronized (pst) {
-				setParameter(params, pst);
-				
-				try (ResultSet rs = getResultSet(pst)) {
-					if (rs.next()) {
-						return rs.getLong(1);
-					}
-					throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
+			con = connectionPool.borrowObject();
+			pst = con.getPst("count(*)", join, where, null, null, cacheKey, params);
+			setParameter(params, pst);
+			
+			try (ResultSet rs = getResultSet(pst)) {
+				if (rs.next()) {
+					return rs.getLong(1);
 				}
+				throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
 			}
+		}
+		catch (final RuntimeException e) {
+			throw e;
 		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			doCloseAlways(pst);
+			doCloseAlways(con, pst);
 		}
 	}
 	
@@ -812,55 +696,32 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @return die Liste mit Strings
 	 */
 	protected @NotNull List<String> loadSingleValuesAsString(final @Nullable String feld, final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey) {
+		DAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = getPst("DISTINCT " + feld, join, where, limit, order, cacheKey, params);
-			synchronized (pst) {
-				setParameter(params, pst);
-				
-				try (ResultSet rs = getResultSet(pst)) {
-					List<String> result = new ArrayList<>();
-					while (rs.next()) {
-						result.add(rs.getString(1));
-					}
-					return result;
+			con = connectionPool.borrowObject();
+			pst = con.getPst("DISTINCT " + feld, join, where, limit, order, cacheKey, params);
+			setParameter(params, pst);
+			
+			try (ResultSet rs = getResultSet(pst)) {
+				List<String> result = new ArrayList<>();
+				while (rs.next()) {
+					result.add(rs.getString(1));
 				}
+				return result;
 			}
 		}
+		catch (final RuntimeException e) {
+			throw e;
+		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
+		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
 		finally {
-			doCloseAlways(pst);
-		}
-	}
-	
-	/**
-	 * Findet den Typ der Datenbank heraus
-	 *
-	 * @return der Datenbanktyp
-	 */
-	protected @NotNull DatabaseType getDatabaseType() {
-		Connection connection = getConnection();
-		synchronized (connection) {
-			return getDatabaseType(connection);
-		}
-	}
-	
-	/**
-	 * Findet den Typ der Datenbank heraus
-	 *
-	 * @param connection die Datenbankverbindung, von der der Datenbanktyp herausgefunden werden soll
-	 * @return der Datenbanktyp
-	 */
-	protected static @NotNull DatabaseType getDatabaseType(final @NotNull Connection connection) {
-		try {
-			DatabaseMetaData metaData = connection.getMetaData();
-			String productName = metaData.getDatabaseProductName();
-			return DatabaseType.getFromIdentifier(productName);
-		}
-		catch (final SQLException e) {
-			throw new UncheckedSQLException(e);
+			doCloseAlways(con, pst);
 		}
 	}
 	
@@ -878,133 +739,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		if (getDtype() != null) {
 			new Parameter(getDtype()).setParameter(pst, pos);
 		}
-	}
-	
-	/**
-	 * Baut aus diversen Parametern ein {@link PreparedStatement} zusammen
-	 *
-	 * @param connection        die Datenbankverbindung mit der das {@link PreparedStatement} erstellt werden soll
-	 * @param pstCache          der {@link PreparedStatement} Cache
-	 * @param table             die Tabelle für die FROM Klausel
-	 * @param dType             der DType
-	 * @param select            die Felder für die SELECT Klausel
-	 * @param join              Die JOIN Klausel oder {@code null}
-	 * @param where             Die WHERE Klausel oder {@code null}
-	 * @param limit             das Limit für die Anzahl der Ergebnisse oder {@code null}
-	 * @param order             Die ORDER Klausel oder {@code null}
-	 * @param cacheKey          der Key für den pstCache
-	 * @param shouldCloseAlways die Angabe, ob nach jedem Statement die Datenbankverbindung geschlossen wird
-	 * @param params            die Parameter, die in das {@link PreparedStatement} eingefügt werden
-	 * @return das zusammengebaute {@link PreparedStatement}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	static @NotNull PreparedStatement getPst(final @NotNull Connection connection, final @NotNull Map<String, PreparedStatement> pstCache, final @NotNull String table, final @Nullable String dType, final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final boolean shouldCloseAlways, final @Nullable ParameterList params) throws SQLException {
-		PreparedStatement result = shouldCloseAlways || cacheKey == null ? null : pstCache.get(cacheKey);
-		if (result == null || result.isClosed()) {
-			result = connection.prepareStatement("SELECT " + select + " FROM " + table + (StringUtils.isBlank(join) ? "" : " JOIN " + join) + (StringUtils
-					.isBlank(where) && dType == null ? "" : " WHERE " + (StringUtils
-					.isBlank(where) ? "" : SQLUtils.nullableWhere(where, params)))
-					+ (dType != null ? " AND DType=?" : "") + (StringUtils.isBlank(order) ? "" : " ORDER BY " + order)
-					+ (StringUtils.isBlank(limit) || getDatabaseType(connection) == DatabaseType.ORACLE ? "" : " LIMIT " + limit));
-			if (cacheKey != null && !shouldCloseAlways) pstCache.put(cacheKey, result);
-		}
-		return result;
-	}
-	
-	/**
-	 * Baut aus diversen Parametern ein {@link PreparedStatement} zusammen
-	 *
-	 * @param select   die Felder für die SELECT Klausel
-	 * @param join     Die JOIN Klausel oder {@code null}
-	 * @param where    Die WHERE Klausel oder {@code null}
-	 * @param limit    das Limit für die Anzahl der Ergebnisse oder {@code null}
-	 * @param order    Die ORDER Klausel oder {@code null}
-	 * @param cacheKey der Key für den pstCache
-	 * @param params   die Parameter, die in das {@link PreparedStatement} eingefügt werden
-	 * @return das zusammengebaute {@link PreparedStatement}
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement getPst(final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final @Nullable ParameterList params) throws SQLException {
-		Connection connection = getConnection();
-		synchronized (connection) {
-			return getPst(connection, pstCache, getTable(), getDtype(), select, join, where, limit, order, cacheKey, shouldCloseAlways(), params);
-		}
-	}
-	
-	/**
-	 * Logt ein {@link PreparedStatement}
-	 *
-	 * @param pst das {@link PreparedStatement}
-	 */
-	private void logPst(final @NotNull PreparedStatement pst) {
-		log.debug(SQLUtils.pstToSQL(pst));
-	}
-	
-	/**
-	 * Schließt das {@link PreparedStatement} und die Datenbankverbindung, wenn gewünscht
-	 *
-	 * @param pst das {@link PreparedStatement}
-	 */
-	private void doCloseAlways(final @Nullable PreparedStatement pst) {
-		if (shouldCloseAlways()) {
-			close();
-			closeSqlAutocloseable(pst);
-		}
-	}
-	
-	/**
-	 * Schließt das {@link PreparedStatement} und die Datenbankverbindung, wenn gewünscht
-	 *
-	 * @param pst               das {@link PreparedStatement}
-	 * @param shouldCloseAlways die Angabe, ob nach jedem Statement die Datenbankverbindung geschlossen wird
-	 * @param connection        die Datenbankverbindung
-	 * @param dataSource        die {@link DataSource} oder {@code null}
-	 * @param log               der {@link Logger}
-	 * @param pstCache          der {@link PreparedStatement} Cache
-	 */
-	static void doCloseAlways(final @Nullable PreparedStatement pst, final boolean shouldCloseAlways, final @Nullable Connection connection, final @Nullable DataSource dataSource, final @Nullable Logger log, final @Nullable Map<String, PreparedStatement> pstCache) {
-		if (shouldCloseAlways) {
-			close(connection, dataSource, log, pstCache);
-			SQLUtils.closeSqlAutocloseable(log, pst);
-		}
-	}
-	
-	/**
-	 * Schließt die Datenbankverbindung und alle {@link PreparedStatement} im Cache
-	 */
-	@Override
-	public void close() {
-		close(connection, dataSource, log, pstCache);
-	}
-	
-	/**
-	 * Schließt die Datenbankverbindung und alle {@link PreparedStatement} im Cache
-	 *
-	 * @param connection die Datenbankverbindung
-	 * @param dataSource die {@link DataSource} oder {@code null}
-	 * @param log        der {@link Logger}
-	 * @param pstCache   der {@link PreparedStatement} Cache
-	 */
-	static void close(final @Nullable Connection connection, final @Nullable DataSource dataSource, final @Nullable Logger log, final @Nullable Map<String, PreparedStatement> pstCache) {
-		if (log != null) log.debug("Closing DAO...");
-		if (pstCache != null) {
-			for (final PreparedStatement pst : pstCache.values()) {
-				SQLUtils.closeSqlAutocloseable(log, pst);
-			}
-			pstCache.clear();
-		}
-		if (dataSource != null) {
-			SQLUtils.closeSqlAutocloseable(log, connection);
-		}
-	}
-	
-	/**
-	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
-	 *
-	 * @param closeables die {@link AutoCloseable}
-	 */
-	protected void closeSqlAutocloseable(final @Nullable AutoCloseable... closeables) {
-		SQLUtils.closeSqlAutocloseable(log, closeables);
 	}
 	
 }

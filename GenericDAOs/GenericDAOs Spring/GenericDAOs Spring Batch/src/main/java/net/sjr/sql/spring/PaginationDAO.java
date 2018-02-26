@@ -1,7 +1,9 @@
 package net.sjr.sql.spring;
 
-import net.sjr.sql.*;
-import net.sjr.sql.exceptions.UncheckedSQLException;
+import net.sjr.sql.DAO;
+import net.sjr.sql.DBObject;
+import net.sjr.sql.Parameter;
+import net.sjr.sql.ParameterList;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +15,6 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -61,22 +62,8 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 	}
 	
 	@Override
-	public void close() {
-		if (log != null) log.debug("Closing DAO...");
-		if (pstCache != null) {
-			for (final PreparedStatement pst : pstCache.values()) {
-				SQLUtils.closeSqlAutocloseable(log, pst);
-			}
-			pstCache.clear();
-		}
-		if (dataSource != null) {
-			try {
-				DataSourceUtils.doReleaseConnection(connection, dataSource);
-			}
-			catch (final SQLException e) {
-				throw new UncheckedSQLException(e);
-			}
-		}
+	public void closeConnectionFromDataSource(Connection connection) throws SQLException {
+		DataSourceUtils.doReleaseConnection(connection, dataSource);
 	}
 	
 	/**

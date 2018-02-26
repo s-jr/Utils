@@ -13,7 +13,7 @@ import java.util.List;
  * @param <P> Typ des Primary Keys
  */
 @SuppressWarnings("unused")
-public interface DAOBase<T extends DBObject<P>, P extends Number> extends AutoCloseable {
+public interface DAOBaseInterface<T extends DBObject<P>, P extends Number> extends AutoCloseable {
 	/**
 	 * Lädt ein Objekt von T an Hand seiner PrimaryID
 	 *

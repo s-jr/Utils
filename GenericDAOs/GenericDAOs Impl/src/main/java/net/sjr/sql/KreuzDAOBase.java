@@ -3,16 +3,14 @@ package net.sjr.sql;
 import net.sjr.sql.exceptions.UncheckedSQLException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Basisklasse einer DAO um Daten aus Kreuztabellen für mindestens 2 via n:m Verbindung verbundene Tabellen laden zu können. Kann zu beliebig vielen Verbundenen Objekten erweitert werden
@@ -24,9 +22,39 @@ import java.util.Map;
  * @param <KO> Typ des KreuzObjektes mit allen verbundenen Objekten
  */
 @SuppressWarnings({"WeakerAccess", "unused", "SameReturnValue", "SqlDialectInspection"})
-public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, KO extends Kreuz2Objekt<A, PA, B, PB>> {
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final Map<String, PreparedStatement> pstCache = new HashMap<>();
+public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B extends DBObject<PB>, PB extends Number, KO extends Kreuz2Objekt<A, PA, B, PB>> extends DAOBase<KreuzDAOConnectionPool, KreuzDAOConnection> {
+	
+	/**
+	 * Erstellt die {@link KreuzDAOBase} mit einer {@link DataSource}
+	 *
+	 * @param ds die {@link DataSource}
+	 */
+	public KreuzDAOBase(final @NotNull DataSource ds) {
+		super(ds);
+	}
+	
+	/**
+	 * Erstellt die {@link KreuzDAOBase} mit einer bereits vorhandenen Datenbankverbindung
+	 *
+	 * @param con die bereits vorhandene Datenbankverbindung
+	 */
+	public KreuzDAOBase(final @NotNull Connection con) {
+		super(con);
+	}
+	
+	/**
+	 * Erstellt die {@link KreuzDAOBase} mit einem bereits vorhandenen {@link DAOBase}
+	 *
+	 * @param dao die bereits vorhandene {@link DAOBase}
+	 */
+	public KreuzDAOBase(final @NotNull DAOBase<?, ?> dao) {
+		super(dao);
+	}
+	
+	@Override
+	protected KreuzDAOConnectionPool createConnectionPool() {
+		return new KreuzDAOConnectionPool(this);
+	}
 	
 	/**
 	 * Gibt die {@link DAO} des ersten Objekts zurück
@@ -41,13 +69,6 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return die {@link DAO} des zweiten Objekts
 	 */
 	protected abstract @NotNull DAO<B, PB> getbDAO();
-	
-	/**
-	 * Gibt den Namen der Kreuztabelle zurück
-	 *
-	 * @return der Name der Kreuztabelle
-	 */
-	protected abstract @NotNull String getKreuzTable();
 	
 	/**
 	 * Gibt den Namen der A Spalte der Kreuztabelle zurück
@@ -101,15 +122,6 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	}
 	
 	/**
-	 * An Hand der Rückgabe wird entschieden, ob nach jeder Funktion die Datenbankverbindung inkl. PreparedStatements geschlossen werden soll.
-	 *
-	 * @return true wenn immer geschlossen werden soll (default) oder false wenn nicht
-	 */
-	protected boolean shouldCloseAlways() {
-		return true;
-	}
-	
-	/**
 	 * Lädt eine Liste aller Objekte a, die mit b über die Kreuztabelle verbunden sind
 	 *
 	 * @param b             das Objekt mit dem Verbunden sein muss
@@ -148,27 +160,11 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return eine Liste aller gefundenen Zielobjekte. Niemals {@code {@code null}}
 	 */
 	protected @NotNull <T extends DBObject<P>, P extends Number> List<T> executeFrom1(final @Nullable DBObject a, final @NotNull DAO<T, P> dao, final @NotNull String resultKreuzCol, final @NotNull String aKreuzCol, final @Nullable Integer typeA, final DBObject... loadedObjects) {
-		return dao.loadAllFromCol(getKreuzTable() + " ON " + getKreuzTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
-				getKreuzTable() + '.' + aKreuzCol, new Parameter(a, typeA),
-				null, null, getKreuzTable() + ".load" + resultKreuzCol + "from" + aKreuzCol, loadedObjects);
+		return dao.loadAllFromCol(getTable() + " ON " + getTable() + '.' + resultKreuzCol + '=' + dao.getTable() + '.' + dao.getPrimaryCol(),
+				getTable() + '.' + aKreuzCol, new Parameter(a, typeA),
+				null, null, getTable() + ".load" + resultKreuzCol + "from" + aKreuzCol, loadedObjects);
 	}
-	
-	/**
-	 * Erstellt ein {@link PreparedStatement} zum Einfügen einer neuen Verbindung oder lädt es aus dem Cache
-	 *
-	 * @return das {@link PreparedStatement}
-	 *
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement createKreuzPst() throws SQLException {
-		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("createKreuz");
-		if (result == null) {
-			result = getaDAO().getConnection()
-							  .prepareStatement("INSERT INTO " + getKreuzTable() + " (" + getAllKreuzCols() + ") VALUES (" + SQLUtils.getFragezeichenInsert(getAllKreuzCols()) + ')');
-			if (!shouldCloseAlways()) pstCache.put("createKreuz", result);
-		}
-		return result;
-	}
+
 	
 	/**
 	 * Erstellt eine neue Kreuzverbindung zwischen Objekten
@@ -176,37 +172,28 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @param params die zu verbindende Objekte
 	 */
 	protected void createKreuzInDB(final Parameter... params) {
+		KreuzDAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = createKreuzPst();
+			con = connectionPool.borrowObject();
+			pst = con.createKreuzPst();
 			
 			new ParameterList((Object[]) params).setParameter(pst, 1);
 			logPst(pst);
 			pst.executeUpdate();
 		}
+		catch (final RuntimeException e) {
+			throw e;
+		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+			doCloseAlways(con, pst);
 		}
-	}
-	
-	/**
-	 * Erstellt ein {@link PreparedStatement} zum Löschen einer Verbindung oder lädt es aus dem Cache
-	 *
-	 * @return das {@link PreparedStatement}
-	 *
-	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
-	 */
-	private @NotNull PreparedStatement deleteKreuzPst() throws SQLException {
-		PreparedStatement result = shouldCloseAlways() ? null : pstCache.get("deleteKreuz");
-		if (result == null) {
-			result = getaDAO().getConnection()
-							  .prepareStatement("DELETE FROM " + getKreuzTable() + " WHERE " + SQLUtils.getFragezeichenSelect(getAllKreuzCols(), " AND ", "="));
-			if (!shouldCloseAlways()) pstCache.put("deleteKreuz", result);
-		}
-		return result;
 	}
 	
 	/**
@@ -215,19 +202,27 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @param params die verbundene Objekte
 	 */
 	protected void deleteKreuzFromDB(final Parameter... params) {
+		KreuzDAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = deleteKreuzPst();
+			con = connectionPool.borrowObject();
+			pst = con.deleteKreuzPst();
 			new ParameterList((Object[]) params).setParameter(pst, 1);
 			
 			logPst(pst);
 			pst.executeUpdate();
 		}
+		catch (final RuntimeException e) {
+			throw e;
+		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+			doCloseAlways(con, pst);
 		}
 	}
 	
@@ -303,9 +298,11 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return eine Liste aller gefundenen Kreuzobjekten. Niemals {@code null}
 	 */
 	protected @NotNull List<KO> loadKreuzeFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final DBObject... loadedObjects) {
+		KreuzDAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, getAllKreuzCols(), join, where, limit, order, cacheKey, shouldCloseAlways(), params);
+			con = connectionPool.borrowObject();
+			pst = con.getPst(getAllKreuzCols(), join, where, limit, order, cacheKey, params);
 			
 			if (params != null) params.setParameter(pst, 1);
 			
@@ -319,11 +316,17 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 				return result;
 			}
 		}
+		catch (final RuntimeException e) {
+			throw e;
+		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+			doCloseAlways(con, pst);
 		}
 	}
 	
@@ -409,9 +412,11 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 * @return die Anzahl aller Kreuze
 	 */
 	protected long loadCountFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey) {
+		KreuzDAOConnection con = null;
 		PreparedStatement pst = null;
 		try {
-			pst = DAO.getPst(getaDAO().getConnection(), pstCache, getKreuzTable(), null, "count(*)", join, where, null, null, cacheKey, shouldCloseAlways(), params);
+			con = connectionPool.borrowObject();
+			pst = con.getPst("count(*)", join, where, null, null, cacheKey, params);
 			
 			if (params != null) params.setParameter(pst, 1);
 			
@@ -423,31 +428,18 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 				throw new RuntimeException("rs.next() bei SELECT count(*) ist false");
 			}
 		}
+		catch (final RuntimeException e) {
+			throw e;
+		}
 		catch (final SQLException e) {
 			throw new UncheckedSQLException(e);
 		}
+		catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			DAO.doCloseAlways(pst, shouldCloseAlways(), getaDAO().getConnection(), null, log, pstCache);
+			doCloseAlways(con, pst);
 		}
-	}
-	
-	/**
-	 * Logt ein {@link PreparedStatement}
-	 *
-	 * @param pst das {@link PreparedStatement}
-	 */
-	private void logPst(final @NotNull PreparedStatement pst) {
-		log.debug(SQLUtils.pstToSQL(pst));
-	}
-	
-	/**
-	 * Schließt die Datenbankverbindung und alle {@link PreparedStatement} im Cache
-	 */
-	public void close() {
-		for (final PreparedStatement pst : pstCache.values()) {
-			SQLUtils.closeSqlAutocloseable(log, pst);
-		}
-		pstCache.clear();
 	}
 	
 }

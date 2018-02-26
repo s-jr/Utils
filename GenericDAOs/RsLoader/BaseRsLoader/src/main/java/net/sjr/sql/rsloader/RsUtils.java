@@ -1,6 +1,6 @@
 package net.sjr.sql.rsloader;
 
-import net.sjr.sql.DAOBase;
+import net.sjr.sql.DAOBaseInterface;
 import net.sjr.sql.DBEnum;
 import net.sjr.sql.DBObject;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class RsUtils {
 	 * @throws SQLException wenn ein SQL Fehler auftrat
 	 */
 	@SuppressWarnings({"unchecked", "WeakerAccess"})
-	public static @Nullable <T extends DBObject<P>, P extends Number> T loadedObjectsOrNull(final int rsPos, final @NotNull ResultSet rs, final @NotNull DAOBase<T, P> dao, final DBObject... loadedObjects)
+	public static @Nullable <T extends DBObject<P>, P extends Number> T loadedObjectsOrNull(final int rsPos, final @NotNull ResultSet rs, final @NotNull DAOBaseInterface<T, P> dao, final DBObject... loadedObjects)
 			throws SQLException {
 		P id = dao.getPrimary(rs, rsPos);
 		if (rs.wasNull() || id == null) {
