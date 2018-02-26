@@ -65,7 +65,7 @@ public abstract class PaginationDAO<T extends DBObject<P>, P extends Number> ext
 		if (log != null) log.debug("Closing DAO...");
 		if (pstCache != null) {
 			for (final PreparedStatement pst : pstCache.values()) {
-				SQLUtils.closeSqlAutocloseable(pst, log);
+				SQLUtils.closeSqlAutocloseable(log, pst);
 			}
 			pstCache.clear();
 		}

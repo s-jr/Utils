@@ -102,19 +102,21 @@ public class SQLUtils extends RsUtils {
 	/**
 	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
 	 *
-	 * @param closeable das {@link AutoCloseable}
 	 * @param log       der {@link Logger} im Fehlerfall
+	 * @param closeables die {@link AutoCloseable}
 	 */
-	public static void closeSqlAutocloseable(final @Nullable AutoCloseable closeable, @Nullable Logger log) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			}
-			catch (SQLException e) {
-				if (log != null) log.error("SQL Fehler", e);
-			}
-			catch (Exception e) {
-				if (log != null) log.error("Allgemeiner Fehler", e);
+	public static void closeSqlAutocloseable(@Nullable Logger log, final AutoCloseable... closeables) {
+		for (AutoCloseable closeable : closeables) {
+			if (closeable != null) {
+				try {
+					closeable.close();
+				}
+				catch (SQLException e) {
+					if (log != null) log.error("SQL Fehler", e);
+				}
+				catch (Exception e) {
+					if (log != null) log.error("Allgemeiner Fehler", e);
+				}
 			}
 		}
 	}

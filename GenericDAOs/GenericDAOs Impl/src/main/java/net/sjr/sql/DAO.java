@@ -152,48 +152,54 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * Wird aufgerufen vor einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v das einzufügende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeInsert(final @NotNull T v) {
+	protected void cascadeInsert(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
 	 * Wird aufgerufen vor einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v das upzudatende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeUpdate(final @NotNull T v) {
+	protected void cascadeUpdate(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
 	 * Wird aufgerufen vor einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v das zu löschende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeDelete(final @NotNull T v) {
+	protected void cascadeDelete(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
 	 *
 	 * @param v das eingefügte Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void afterInsert(final @NotNull T v) {
+	protected void afterInsert(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
 	 *
 	 * @param v das upgedatete Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void afterUpdate(final @NotNull T v) {
+	protected void afterUpdate(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
 	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
 	 *
 	 * @param v das gelöschte Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void afterDelete(final @NotNull T v) {
+	protected void afterDelete(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
@@ -280,8 +286,20 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 */
 	@Override
 	public void insertIntoDB(final @NotNull T v) {
+		insertIntoDB(v, new Object[0]);
+	}
+	
+	/**
+	 * Fügt ein Objekt von T in die Datenbank ein<br>
+	 * <b>Das Objekt darf noch keine PrimaryID haben!</b>
+	 *
+	 * @param v            das einzufügende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die an die cascade Methoden weiter gegeben werden
+	 * @throws IllegalStateException wenn das Objekt eine PrimaryID hat
+	 */
+	protected void insertIntoDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() == null) {
-			cascadeInsert(v);
+			cascadeInsert(v, cascadeInfos);
 			
 			PreparedStatement pst = null;
 			try {
@@ -301,7 +319,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 					try (ResultSet rs = pst.getGeneratedKeys()) {
 						if (rs.next()) {
 							v.setPrimary(getPrimary(rs));
-							afterInsert(v);
 						}
 						else throw new RuntimeException("rs.next returned false for generated keys");
 					}
@@ -313,6 +330,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 			finally {
 				doCloseAlways(pst);
 			}
+			afterInsert(v, cascadeInfos);
 		}
 		else throw new IllegalStateException("Der Eintrag wurde bereits in die Datenbank eingefügt!");
 	}
@@ -395,8 +413,20 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 */
 	@Override
 	public void updateIntoDB(final @NotNull T v) {
+		updateIntoDB(v, new Object[0]);
+	}
+	
+	/**
+	 * Aktualisiert ein Objekt von T in der Datenbank<br>
+	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
+	 *
+	 * @param v            das zu aktualisierende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die an die cascade Methoden weiter gegeben werden
+	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
+	 */
+	protected void updateIntoDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() != null) {
-			cascadeUpdate(v);
+			cascadeUpdate(v, cascadeInfos);
 			
 			ParameterList pList = getPList(v);
 			pList.addParameter(v.getPrimary());
@@ -414,7 +444,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 					logPst(pst);
 					pst.executeUpdate();
 				}
-				afterUpdate(v);
 			}
 			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
@@ -422,6 +451,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 			finally {
 				doCloseAlways(pst);
 			}
+			afterUpdate(v, cascadeInfos);
 		}
 		else throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
 	}
@@ -453,8 +483,20 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 */
 	@Override
 	public void deleteFromDB(final @NotNull T v) {
+		deleteFromDB(v, new Object[0]);
+	}
+	
+	/**
+	 * Löscht ein Objekt von T aus der Datenbank<br>
+	 * <b>Das Objekt muss eine PrimaryID haben um es in der Datenbank zu identifizieren!</b>
+	 *
+	 * @param v            das zu löschende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die an die cascade Methoden weiter gegeben werden
+	 * @throws IllegalStateException wenn das Objekt keine PrimaryID hat
+	 */
+	protected void deleteFromDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() != null) {
-			cascadeDelete(v);
+			cascadeDelete(v, cascadeInfos);
 			
 			PreparedStatement pst = null;
 			try {
@@ -469,8 +511,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 					pst.executeUpdate();
 				}
 				v.setPrimary(null);
-				
-				afterDelete(v);
 			}
 			catch (final SQLException e) {
 				throw new UncheckedSQLException(e);
@@ -478,19 +518,30 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 			finally {
 				doCloseAlways(pst);
 			}
+			afterDelete(v, cascadeInfos);
 		}
 		else throw new IllegalStateException("Der Eintrag wurde noch nicht in die Datenbank eingefügt!");
 	}
 	
 	/**
 	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
+	 *  @param v das einzufügende oder zu aktualisierende Objekt
 	 *
-	 * @param v das einzufügende oder zu aktualisierende Objekt
 	 */
 	@Override
 	public void insertOrUpdate(final @NotNull T v) {
+		insertOrUpdate(v, new Object[0]);
+	}
+	
+	/**
+	 * Aktualisiert ein Objekt von T in der Datenbank oder fügt es ein, je nachdem ob es eine PrimaryID hat, oder nicht
+	 *
+	 * @param v das einzufügende oder zu aktualisierende Objekt
+	 * @param cascadeInfos optionale zusätzliche Parameter, die an die cascade Methoden weiter gegeben werden
+	 */
+	protected void insertOrUpdate(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() == null) {
-			insertIntoDB(v);
+			insertIntoDB(v, cascadeInfos);
 		}
 		else {
 			updateIntoDB(v);
@@ -573,7 +624,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param params        Die {@link Parameter} oder {@code null}
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
-	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final DBObject... loadedObjects) {
 		return loadOneFromWhere(join, where, params, null, loadedObjects);
@@ -588,7 +638,6 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	 * @param cacheKey      der Key für den pstCache
 	 * @param loadedObjects Objekte, die schon geladen wurden und somit nicht neu geladen werden müssen
 	 * @return eine Liste aller gefundenen Objekte. Niemals {@code null}
-	 * @throws EntryNotFoundException wenn kein Eintrag gefunden wurde
 	 */
 	protected @NotNull T loadOneFromWhere(final @Nullable String join, final @Nullable String where, final @Nullable ParameterList params, final @Nullable String cacheKey, final DBObject... loadedObjects) {
 		List<T> list = loadAllFromWhere(join, where, params, "1", null, cacheKey, loadedObjects);
@@ -916,7 +965,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 	static void doCloseAlways(final @Nullable PreparedStatement pst, final boolean shouldCloseAlways, final @Nullable Connection connection, final @Nullable DataSource dataSource, final @Nullable Logger log, final @Nullable Map<String, PreparedStatement> pstCache) {
 		if (shouldCloseAlways) {
 			close(connection, dataSource, log, pstCache);
-			SQLUtils.closeSqlAutocloseable(pst, log);
+			SQLUtils.closeSqlAutocloseable(log, pst);
 		}
 	}
 	
@@ -940,22 +989,22 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> implements DA
 		if (log != null) log.debug("Closing DAO...");
 		if (pstCache != null) {
 			for (final PreparedStatement pst : pstCache.values()) {
-				SQLUtils.closeSqlAutocloseable(pst, log);
+				SQLUtils.closeSqlAutocloseable(log, pst);
 			}
 			pstCache.clear();
 		}
 		if (dataSource != null) {
-			SQLUtils.closeSqlAutocloseable(connection, log);
+			SQLUtils.closeSqlAutocloseable(log, connection);
 		}
 	}
 	
 	/**
 	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
 	 *
-	 * @param closeable das {@link AutoCloseable}
+	 * @param closeables die {@link AutoCloseable}
 	 */
-	protected void closeSqlAutocloseable(final @Nullable AutoCloseable closeable) {
-		SQLUtils.closeSqlAutocloseable(closeable, log);
+	protected void closeSqlAutocloseable(final @Nullable AutoCloseable... closeables) {
+		SQLUtils.closeSqlAutocloseable(log, closeables);
 	}
 	
 }

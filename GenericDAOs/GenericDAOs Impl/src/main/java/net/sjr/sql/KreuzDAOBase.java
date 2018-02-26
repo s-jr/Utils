@@ -445,7 +445,7 @@ public abstract class KreuzDAOBase<A extends DBObject<PA>, PA extends Number, B 
 	 */
 	public void close() {
 		for (final PreparedStatement pst : pstCache.values()) {
-			SQLUtils.closeSqlAutocloseable(pst, log);
+			SQLUtils.closeSqlAutocloseable(log, pst);
 		}
 		pstCache.clear();
 	}
