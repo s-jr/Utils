@@ -103,7 +103,7 @@ public class SQLUtils extends RsUtils {
 	 * Schließt {@link AutoCloseable} mit {@code null} Check und Fehlerabfangung. Besondere Fehlerbeschreibung bei SQL Fehlern
 	 *
 	 * @param log       der {@link Logger} im Fehlerfall
-	 * @param closeables die {@link AutoCloseable}
+	 * @param closeables die {@link AutoCloseable}s
 	 */
 	public static void closeSqlAutocloseable(@Nullable Logger log, final AutoCloseable... closeables) {
 		for (AutoCloseable closeable : closeables) {
