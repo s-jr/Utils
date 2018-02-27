@@ -27,7 +27,7 @@ public class KreuzDAOConnection extends DAOConnectionBase<KreuzDAOBase<?, ?, ?, 
 	protected @NotNull PreparedStatement createKreuzPst() throws SQLException {
 		PreparedStatement result = dao.shouldCloseAlways() ? null : pstCache.get("createKreuz");
 		if (result == null) {
-			result = connection.prepareStatement("INSERT INTO " + dao.getTable() + " (" + dao.getAllKreuzCols() + ") VALUES (" + SQLUtils.getFragezeichenInsert(dao
+			result = prepareStatement("INSERT INTO " + dao.getTable() + " (" + dao.getAllKreuzCols() + ") VALUES (" + SQLUtils.getFragezeichenInsert(dao
 					.getAllKreuzCols()) + ')');
 			if (!dao.shouldCloseAlways()) pstCache.put("createKreuz", result);
 		}
@@ -43,7 +43,7 @@ public class KreuzDAOConnection extends DAOConnectionBase<KreuzDAOBase<?, ?, ?, 
 	protected @NotNull PreparedStatement deleteKreuzPst() throws SQLException {
 		PreparedStatement result = dao.shouldCloseAlways() ? null : pstCache.get("deleteKreuz");
 		if (result == null) {
-			result = connection.prepareStatement("DELETE FROM " + dao.getTable() + " WHERE " + SQLUtils.getFragezeichenSelect(dao.getAllKreuzCols(), " AND ", "="));
+			result = prepareStatement("DELETE FROM " + dao.getTable() + " WHERE " + SQLUtils.getFragezeichenSelect(dao.getAllKreuzCols(), " AND ", "="));
 			if (!dao.shouldCloseAlways()) pstCache.put("deleteKreuz", result);
 		}
 		return result;

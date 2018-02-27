@@ -7,10 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +51,7 @@ public class DAOConnectionBase<D extends DAOBase<?, ?>> implements AutoCloseable
 	 *
 	 * @return der Datenbanktyp
 	 */
-	protected @NotNull DatabaseType getDatabaseType() {
+	public @NotNull DatabaseType getDatabaseType() {
 		try {
 			DatabaseMetaData metaData = connection.getMetaData();
 			String productName = metaData.getDatabaseProductName();
@@ -78,7 +75,7 @@ public class DAOConnectionBase<D extends DAOBase<?, ?>> implements AutoCloseable
 	 * @return das zusammengebaute {@link PreparedStatement}
 	 * @throws SQLException Wenn eine {@link SQLException} aufgetreten ist
 	 */
-	protected @NotNull PreparedStatement getPst(final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final @Nullable ParameterList params) throws SQLException {
+	public @NotNull PreparedStatement getPst(final @NotNull String select, final @Nullable String join, final @Nullable String where, final @Nullable String limit, final @Nullable String order, final @Nullable String cacheKey, final @Nullable ParameterList params) throws SQLException {
 		PreparedStatement result = dao.shouldCloseAlways() || cacheKey == null ? null : pstCache.get(cacheKey);
 		if (result == null || result.isClosed()) {
 			String query = "SELECT " + select;
@@ -97,9 +94,90 @@ public class DAOConnectionBase<D extends DAOBase<?, ?>> implements AutoCloseable
 			if (!StringUtils.isBlank(order)) query += " ORDER BY " + order;
 			if (!StringUtils.isBlank(limit) && getDatabaseType() != DatabaseType.ORACLE) query += " LIMIT " + limit;
 			
-			result = connection.prepareStatement(query);
+			result = prepareStatement(query);
 			if (cacheKey != null && !dao.shouldCloseAlways()) pstCache.put(cacheKey, result);
 		}
 		return result;
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#createStatement()}
+	 *
+	 * @see Connection#createStatement()
+	 */
+	public Statement createStatement() throws SQLException {
+		return connection.createStatement();
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#createStatement(int, int)}
+	 *
+	 * @see Connection#createStatement(int, int)
+	 */
+	public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+		return connection.createStatement(resultSetType, resultSetConcurrency);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#createStatement(int, int, int)}
+	 *
+	 * @see Connection#createStatement(int, int, int)
+	 */
+	public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+		return connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String)}
+	 *
+	 * @see Connection#prepareStatement(String)
+	 */
+	public PreparedStatement prepareStatement(String query) throws SQLException {
+		return connection.prepareStatement(query);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String, int, int)}
+	 *
+	 * @see Connection#prepareStatement(String, int, int)
+	 */
+	public PreparedStatement prepareStatement(String query, int resultSetType, int resultSetConcurrency) throws SQLException {
+		return connection.prepareStatement(query, resultSetType, resultSetConcurrency);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String, int, int, int)}
+	 *
+	 * @see Connection#prepareStatement(String, int, int, int)
+	 */
+	public PreparedStatement prepareStatement(String query, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+		return connection.prepareStatement(query, resultSetType, resultSetConcurrency, resultSetHoldability);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String, int)}
+	 *
+	 * @see Connection#prepareStatement(String, int)
+	 */
+	public PreparedStatement prepareStatement(String query, int autoGenerateKeys) throws SQLException {
+		return connection.prepareStatement(query, autoGenerateKeys);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String, int[])}
+	 *
+	 * @see Connection#prepareStatement(String, int[])
+	 */
+	public PreparedStatement prepareStatement(String query, int[] columnIndexes) throws SQLException {
+		return connection.prepareStatement(query, columnIndexes);
+	}
+	
+	/**
+	 * Reicht die Abfrage weiter an {@link Connection#prepareStatement(String, String[])}
+	 *
+	 * @see Connection#prepareStatement(String, String[])
+	 */
+	public PreparedStatement prepareStatement(String query, String[] columnNames) throws SQLException {
+		return connection.prepareStatement(query, columnNames);
 	}
 }

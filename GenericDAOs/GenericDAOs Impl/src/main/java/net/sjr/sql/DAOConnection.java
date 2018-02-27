@@ -30,10 +30,10 @@ public class DAOConnection extends DAOConnectionBase<DAO<?, ?>> {
 		if (result == null) {
 			String felder = (dao.getDtype() == null ? "" : "DType, ") + dao.getFelder();
 			if (getDatabaseType() == DatabaseType.ORACLE) {
-				result = connection.prepareStatement("INSERT INTO " + dao.getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', new String[] {dao.getPrimaryCol()});
+				result = prepareStatement("INSERT INTO " + dao.getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', new String[] {dao.getPrimaryCol()});
 			}
 			else {
-				result = connection.prepareStatement("INSERT INTO " + dao.getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', Statement.RETURN_GENERATED_KEYS);
+				result = prepareStatement("INSERT INTO " + dao.getTable() + " (" + felder + ") VALUES (" + SQLUtils.getFragezeichenInsert(felder) + ')', Statement.RETURN_GENERATED_KEYS);
 			}
 			if (!dao.shouldCloseAlways()) pstCache.put("insert", result);
 		}
@@ -50,7 +50,7 @@ public class DAOConnection extends DAOConnectionBase<DAO<?, ?>> {
 		PreparedStatement result = dao.shouldCloseAlways() ? null : pstCache.get("update");
 		if (result == null) {
 			String felder = (dao.getDtype() == null ? "" : "DType, ") + dao.getFelder();
-			result = connection.prepareStatement("UPDATE " + dao.getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + dao.getPrimaryCol() + "=?");
+			result = prepareStatement("UPDATE " + dao.getTable() + " SET " + SQLUtils.getFragezeichenUpdate(felder) + " WHERE " + dao.getPrimaryCol() + "=?");
 			if (!dao.shouldCloseAlways()) pstCache.put("update", result);
 		}
 		return result;
@@ -65,7 +65,7 @@ public class DAOConnection extends DAOConnectionBase<DAO<?, ?>> {
 	protected @NotNull PreparedStatement deletePst() throws SQLException {
 		PreparedStatement result = dao.shouldCloseAlways() ? null : pstCache.get("delete");
 		if (result == null) {
-			result = connection.prepareStatement("DELETE FROM " + dao.getTable() + " WHERE " + dao.getPrimaryCol() + "=?" + (dao.getDtype() != null ? " AND DType=?" : ""));
+			result = prepareStatement("DELETE FROM " + dao.getTable() + " WHERE " + dao.getPrimaryCol() + "=?" + (dao.getDtype() != null ? " AND DType=?" : ""));
 			if (!dao.shouldCloseAlways()) pstCache.put("delete", result);
 		}
 		return result;
