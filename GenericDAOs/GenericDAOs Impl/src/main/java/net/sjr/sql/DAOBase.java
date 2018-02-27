@@ -14,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @SuppressWarnings("WeakerAccess")
-public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAOConnectionBase<? extends DAOBase>> {
+public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAOConnectionBase<? extends DAOBase>> implements AutoCloseable {
 	protected final DataSource dataSource;
 	protected final Connection staticConnection;
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -164,16 +164,27 @@ public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAO
 	 * @param pst das {@link PreparedStatement}
 	 */
 	protected void doCloseAlways(@Nullable C con, final @Nullable PreparedStatement pst) {
-		if (con != null) connectionPool.returnObject(con);
 		if (shouldCloseAlways()) {
+			if (con != null) {
+				try {
+					connectionPool.invalidateObject(con);
+				}
+				catch (RuntimeException e) {
+					throw e;
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 			closeSqlAutocloseable(pst);
-			close();
 		}
+		else if (con != null) connectionPool.returnObject(con);
 	}
 	
 	/**
 	 * Schließt alle Datenbankverbindungen im {@link DAOConnectionPool}
 	 */
+	@Override
 	public void close() {
 		connectionPool.close();
 		connectionPool = createConnectionPool();
