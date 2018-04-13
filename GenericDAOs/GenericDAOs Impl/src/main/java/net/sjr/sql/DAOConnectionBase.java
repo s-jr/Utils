@@ -25,6 +25,7 @@ public class DAOConnectionBase<D extends DAOBase<?, ?>> implements AutoCloseable
 	 */
 	public DAOConnectionBase(Connection connection, D dao) {
 		if (connection == null) throw new IllegalArgumentException("Keine Connection angegeben");
+		log.debug("Creating new Connection...");
 		this.connection = connection;
 		this.dao = dao;
 	}

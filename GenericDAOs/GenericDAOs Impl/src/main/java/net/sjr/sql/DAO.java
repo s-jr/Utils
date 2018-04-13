@@ -87,7 +87,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 * @param v            das einzufügende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeInsert(final @NotNull T v, final Object... cascadeInfos) {
+	protected void beforeInsert(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 * @param v            das upzudatende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeUpdate(final @NotNull T v, final Object... cascadeInfos) {
+	protected void beforeUpdate(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
@@ -105,11 +105,11 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 * @param v            das zu löschende Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
 	 */
-	protected void cascadeDelete(final @NotNull T v, final Object... cascadeInfos) {
+	protected void beforeDelete(final @NotNull T v, final Object... cascadeInfos) {
 	}
 	
 	/**
-	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Listen auch einzufügen
+	 * Wird aufgerufen nach einem Insert um die Möglichkeit zu bieten abhängige Objekte auch einzufügen
 	 *
 	 * @param v            das eingefügte Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
@@ -118,7 +118,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	}
 	
 	/**
-	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Listen auch zu updaten
+	 * Wird aufgerufen nach einem Update um die Möglichkeit zu bieten abhängige Objekte auch zu updaten
 	 *
 	 * @param v            das upgedatete Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
@@ -127,7 +127,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	}
 	
 	/**
-	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Listen auch zu löschen
+	 * Wird aufgerufen nach einem Delete um die Möglichkeit zu bieten abhängige Objekte auch zu löschen
 	 *
 	 * @param v            das gelöschte Objekt
 	 * @param cascadeInfos optionale zusätzliche Parameter, die zwischen den verbundenen Methoden weiter gegeben werden können
@@ -200,7 +200,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 */
 	protected void insertIntoDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() == null) {
-			cascadeInsert(v, cascadeInfos);
+			beforeInsert(v, cascadeInfos);
 			
 			int pos = 1;
 			DAOConnection con = null;
@@ -314,7 +314,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 */
 	protected void updateIntoDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() != null) {
-			cascadeUpdate(v, cascadeInfos);
+			beforeUpdate(v, cascadeInfos);
 			
 			ParameterList pList = getPList(v);
 			pList.addParameter(v.getPrimary());
@@ -373,7 +373,7 @@ public abstract class DAO<T extends DBObject<P>, P extends Number> extends DAOBa
 	 */
 	protected void deleteFromDB(final @NotNull T v, final Object... cascadeInfos) {
 		if (v.getPrimary() != null) {
-			cascadeDelete(v, cascadeInfos);
+			beforeDelete(v, cascadeInfos);
 			
 			DAOConnection con = null;
 			PreparedStatement pst = null;

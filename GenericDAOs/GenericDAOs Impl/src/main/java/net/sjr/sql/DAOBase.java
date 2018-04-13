@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAOConnectionBase<? extends DAOBase>> implements AutoCloseable {
@@ -82,7 +84,11 @@ public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAO
 	 * @return das Konfigurationsobjekt
 	 */
 	protected GenericObjectPoolConfig getPoolConfig() {
-		return null;
+		GenericObjectPoolConfig conf = new GenericObjectPoolConfig();
+		conf.setTestOnBorrow(true);
+		conf.setTestOnCreate(true);
+		conf.setTestOnReturn(true);
+		return conf;
 	}
 	
 	/**
@@ -108,22 +114,33 @@ public abstract class DAOBase<CP extends DAOConnectionPoolBase<C>, C extends DAO
 	/**
 	 * Öffnet die Datenbankverbindung. Wenn shouldCloseAlways true zurück gibt, wird diese direkt wieder geschlossen. Sonst nicht
 	 */
-	public void tryConnection() {
-		C con = null;
-		try {
-			con = connectionPool.borrowObject();
-		}
-		catch (final RuntimeException e) {
-			throw e;
-		}
-		catch (final SQLException e) {
-			throw new UncheckedSQLException(e);
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		finally {
-			doCloseAlways(con, null);
+	public void fillPool() {
+		if (getPoolConfig() != null) {
+			GenericObjectPoolConfig conf = getPoolConfig();
+			int maxTotal = conf.getMaxTotal();
+			if (maxTotal > -1) {
+				List<C> connections = new LinkedList<>();
+				try {
+					int curActive = connectionPool.getNumActive();
+					for (int i = 0; i < maxTotal - curActive; i++) {
+						connections.add(connectionPool.borrowObject());
+					}
+				}
+				catch (final RuntimeException e) {
+					throw e;
+				}
+				catch (final SQLException e) {
+					throw new UncheckedSQLException(e);
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+				finally {
+					for (C con : connections) {
+						doCloseAlways(con, null);
+					}
+				}
+			}
 		}
 	}
 	
