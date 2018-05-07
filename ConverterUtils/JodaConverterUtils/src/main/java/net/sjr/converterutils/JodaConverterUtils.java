@@ -1,6 +1,7 @@
 package net.sjr.converterutils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.joda.time.Duration;
 import org.joda.time.LocalDate;
@@ -29,6 +30,7 @@ public final class JodaConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class UtilJodaDate {
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalDate utilDateToJodaDate(final @Nullable Date d) {
 			if (d == null) {
 				return null;
@@ -36,6 +38,7 @@ public final class JodaConverterUtils {
 			return LocalDate.fromDateFields(d);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable Date jodaDateToUtilDate(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
@@ -43,6 +46,7 @@ public final class JodaConverterUtils {
 			return d.toDate();
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalDateTime utilDateToJodaDateTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
@@ -50,6 +54,7 @@ public final class JodaConverterUtils {
 			return LocalDateTime.fromDateFields(d);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable Date jodaDateTimeToUtilDate(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
@@ -57,6 +62,7 @@ public final class JodaConverterUtils {
 			return d.toDate();
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalTime utilDateToJodaTime(final @Nullable Date d) {
 			if (d == null) {
 				return null;
@@ -64,6 +70,7 @@ public final class JodaConverterUtils {
 			return LocalTime.fromDateFields(d);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable Date jodaTimeToUtilDate(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
@@ -85,6 +92,7 @@ public final class JodaConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:sss");
 		private static final DateTimeFormatter HHmm = DateTimeFormat.forPattern("HH:mm");
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateToMonthYearString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
@@ -92,13 +100,15 @@ public final class JodaConverterUtils {
 			return MMMyyyy.print(d);
 		}
 		
-		public static LocalDate monthYearStringToJodaDate(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDate monthYearStringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return MMMyyyy.parseLocalDate(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateToWeekdayString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
@@ -106,13 +116,15 @@ public final class JodaConverterUtils {
 			return EEddMMyyyy.print(d);
 		}
 		
-		public static LocalDate weekdayStringToJodaDate(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDate weekdayStringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return EEddMMyyyy.parseLocalDate(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
@@ -120,13 +132,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyy.print(d);
 		}
 		
-		public static LocalDate stringToJodaDate(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDate stringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyy.parseLocalDate(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
@@ -134,13 +148,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyyHHmm.print(d);
 		}
 		
-		public static LocalDateTime stringToJodaDateTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDateTime stringToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmm.parseLocalDateTime(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
@@ -148,13 +164,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyyHHmmss.print(d);
 		}
 		
-		public static LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.parseLocalDateTime(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
@@ -162,7 +180,8 @@ public final class JodaConverterUtils {
 			return HHmm.print(d);
 		}
 		
-		public static LocalTime stringToJodaTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalTime stringToJodaTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -181,6 +200,7 @@ public final class JodaConverterUtils {
 		private static final DateTimeFormatter ddMMyyyyHHmmss = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 		private static final DateTimeFormatter HHmm = DateTimeFormat.forPattern("HH:mm");
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateToString(final @Nullable LocalDate d) {
 			if (d == null) {
 				return null;
@@ -188,13 +208,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyy.print(d);
 		}
 		
-		public static LocalDate stringToJodaDate(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDate stringToJodaDate(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyy.parseLocalDate(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateTimeToString(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
@@ -202,13 +224,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyyHHmm.print(d);
 		}
 		
-		public static LocalDateTime stringToJodaDateTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDateTime stringToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmm.parseLocalDateTime(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDateTimeToStringWithSeconds(final @Nullable LocalDateTime d) {
 			if (d == null) {
 				return null;
@@ -216,13 +240,15 @@ public final class JodaConverterUtils {
 			return ddMMyyyyHHmmss.print(d);
 		}
 		
-		public static LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalDateTime stringWithSecondsToJodaDateTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
 			return ddMMyyyyHHmmss.parseLocalDateTime(s);
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaTimeToString(final @Nullable LocalTime d) {
 			if (d == null) {
 				return null;
@@ -230,7 +256,8 @@ public final class JodaConverterUtils {
 			return HHmm.print(d);
 		}
 		
-		public static LocalTime stringToJodaTime(final @Nullable String s) {
+		@Contract("null -> null")
+		public static @Nullable LocalTime stringToJodaTime(final @Nullable String s) {
 			if (StringUtils.isBlank(s)) {
 				return null;
 			}
@@ -244,6 +271,7 @@ public final class JodaConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static final class SQLDate {
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable java.sql.Date jodaDateToSqlDate(final @Nullable LocalDate value) {
 			if (value == null) {
 				return null;
@@ -251,6 +279,7 @@ public final class JodaConverterUtils {
 			return new java.sql.Date(value.toDate().getTime());
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalDate sqlDateToJodaDate(final @Nullable java.sql.Date value) {
 			if (value == null) {
 				return null;
@@ -258,6 +287,7 @@ public final class JodaConverterUtils {
 			return new LocalDate(value.getTime());
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable Timestamp jodaDateTimeToTimestamp(final @Nullable LocalDateTime value) {
 			if (value == null) {
 				return null;
@@ -265,6 +295,7 @@ public final class JodaConverterUtils {
 			return new Timestamp(value.toDateTime().getMillis());
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalDateTime timestampToJodaDateTime(final @Nullable Timestamp value) {
 			if (value == null) {
 				return null;
@@ -272,6 +303,7 @@ public final class JodaConverterUtils {
 			return new LocalDateTime(value.getTime());
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable Time jodaTimeToSqlTime(final @Nullable LocalTime value) {
 			if (value == null) {
 				return null;
@@ -279,6 +311,7 @@ public final class JodaConverterUtils {
 			return new Time(value.getMillisOfDay());
 		}
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable LocalTime sqlTimeToJodaTime(final @Nullable Time value) {
 			if (value == null) {
 				return null;
@@ -293,21 +326,29 @@ public final class JodaConverterUtils {
 	 * @author Jan Reichl
 	 */
 	public static class Durations {
-		private static final PeriodFormatter ARBEITSZEITFORMAT = new PeriodFormatterBuilder()
+		private static final PeriodFormatter DURATIONFORMAT = new PeriodFormatterBuilder()
 				.appendHours()
 				.appendSuffix("h ")
 				.appendMinutes()
 				.appendSuffix("min").toFormatter();
 		
+		@Contract("null -> null; !null -> !null")
 		public static @Nullable String jodaDurationToString(final Duration d) {
+			if (d == null) {
+				return null;
+			}
 			if (d.isShorterThan(new Duration(60000))) {
 				return "0min";
 			}
-			return ARBEITSZEITFORMAT.print(d.toPeriod());
+			return DURATIONFORMAT.print(d.toPeriod());
 		}
 		
-		public static Duration stringToJodaDuration(final @Nullable String s) {
-			return ARBEITSZEITFORMAT.parsePeriod(s).toStandardDuration();
+		@Contract("null -> null; !null -> !null")
+		public static @Nullable Duration stringToJodaDuration(final @Nullable String s) {
+			if (s == null) {
+				return null;
+			}
+			return DURATIONFORMAT.parsePeriod(s).toStandardDuration();
 		}
 	}
 }
